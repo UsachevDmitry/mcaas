@@ -45,33 +45,37 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
         },
     }
 
-    var type2 string
-    var value2 string
+    var dataType string
+    var value string
     
 	// Получаем данные из запроса
-	//type2 = mux.Vars(r)["type"]
-	name2 := mux.Vars(r)["name"]
-	value2 = mux.Vars(r)["value"]
-    fmt.Println("name=",type2)
-	name2 = strings.TrimLeft(strings.TrimRight(name2, "}"), "{")
-    fmt.Println("name=",name2)
+	dataType = mux.Vars(r)["type"]
+	name := mux.Vars(r)["name"]
+	value = mux.Vars(r)["value"]
+    fmt.Println("name=",dataType)
+	name = strings.TrimLeft(strings.TrimRight(name, "}"), "{")
+    fmt.Println("name=",name)
     fmt.Println("=======")
     // Проверяем type данных
-    //gauge
-    // Проверяем Name
-	for key := range data.metrics {
-        fmt.Println("key= ",key)
-        if strings.Compare(name2, key) != 0 {
-            //w.WriteHeader(http.StatusBadRequest)
-            fmt.Println("bad")        
-            //return
-        } else {
-            f, _ := strconv.ParseFloat(strings.TrimLeft(strings.TrimRight(value2, "}"), "{"), 64)
-            data.metrics[key] = gauge(f)
-            fmt.Println("GOOD! ", data.metrics[key])
-            w.WriteHeader(http.StatusOK)
-            return
+    if dataType == "gauge" {
+        // Проверяем Name
+        for key := range data.metrics {
+            fmt.Println("key= ",key)
+            if strings.Compare(name, key) != 0 {
+                //w.WriteHeader(http.StatusBadRequest)
+                fmt.Println("bad")        
+                //return
+            } else {
+                f, _ := strconv.ParseFloat(strings.TrimLeft(strings.TrimRight(value, "}"), "{"), 64)
+                data.metrics[key] = gauge(f)
+                fmt.Println("GOOD! ", data.metrics[key])
+                w.WriteHeader(http.StatusOK)
+                return
+            }
         }
+        w.WriteHeader(http.StatusBadRequest)
+    } else if dataType == "counter" {
+        fmt.Println("counter!!!!")
     }
-    w.WriteHeader(http.StatusBadRequest)
+    
 }
