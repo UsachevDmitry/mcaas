@@ -5,7 +5,6 @@ import (
 	"fmt"
     "strconv"
 	"github.com/gorilla/mux"
-    "strings"
 )
 
 func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
@@ -52,23 +51,18 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	dataType = mux.Vars(r)["type"]
 	name := mux.Vars(r)["name"]
 	value = mux.Vars(r)["value"]
-    fmt.Println("name=",dataType)
-	name = strings.TrimLeft(strings.TrimRight(name, "}"), "{")
-    fmt.Println("name=",name)
-    fmt.Println("=======")
     // Проверяем type данных
     if dataType == "gauge" {
-        // Проверяем Name
         for key := range data.metrics {
-            fmt.Println("key= ",key)
-            if strings.Compare(name, key) != 0 {
+            // fmt.Println("key= ",key)
+            if name != key {
                 //w.WriteHeader(http.StatusBadRequest)
                 fmt.Println("bad")        
                 //return
-            } else {
-                f, _ := strconv.ParseFloat(strings.TrimLeft(strings.TrimRight(value, "}"), "{"), 64)
+            } else {                
+                f, _ := strconv.ParseFloat(value, 64)
                 data.metrics[key] = gauge(f)
-                fmt.Println("GOOD! ", data.metrics[key])
+                //fmt.Println("GOOD! ", data.metrics[key])
                 w.WriteHeader(http.StatusOK)
                 return
             }
