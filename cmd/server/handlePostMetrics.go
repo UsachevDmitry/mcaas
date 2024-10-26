@@ -16,7 +16,15 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	dataType = mux.Vars(r)["type"]
 	name = mux.Vars(r)["name"]
 	value = mux.Vars(r)["value"]
-    if name == "yes" {
+    if name == "" {
+        w.WriteHeader(http.StatusNotFound)  
+        return
+    }
+    if _, err := strconv.ParseInt(value, 10, 64); err != nil && dataType == "counter" {
+        w.WriteHeader(http.StatusNotFound)  
+        return
+    }
+    if _, err := strconv.ParseFloat(value, 64); err != nil && dataType == "gauge" {
         w.WriteHeader(http.StatusNotFound)  
         return
     }
