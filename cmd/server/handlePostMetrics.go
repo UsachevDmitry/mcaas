@@ -1,75 +1,55 @@
 package main
 
 import (
-	"net/http"
 	"fmt"
-    "strconv"
+	"net/http"
+	"strconv"
 	"github.com/gorilla/mux"
 )
 
-func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
-    type gauge float64
-    //type counter int64
-    type MemStorage struct {
-        metrics map[string]gauge
-    }
-    data := MemStorage{
-        metrics: map[string]gauge{
-            "Alloc": 0,
-            "BuckHashSys": 0,
-            "Frees": 0,
-            "GCCPUFraction": 0,
-            "GCSys": 0,
-            "HeapAlloc": 0,
-            "HeapIdle": 0,
-            "HeapInuse": 0,
-            "HeapObjects": 0,
-            "HeapReleased": 0,
-            "HeapSys": 0,
-            "LastGC": 0,
-            "Lookups": 0,
-            "MCacheInuse": 0,
-            "MCacheSys": 0,
-            "MSpanInuse": 0,
-            "MSpanSys": 0,
-            "Mallocs": 0,
-            "NextGC": 0,
-            "NumForcedGC": 0,
-            "OtherSys": 0,
-            "PauseTotalNs": 0,
-            "StackInuse": 0,
-            "StackSys": 0,
-            "Sys": 0,
-            "TotalAlloc": 0,
-        },
-    }
-
+func handlePostMetrics(w http.ResponseWriter, r *http.Request) {   
     var dataType string
+    var name string
     var value string
-    
+        
 	// Получаем данные из запроса
 	dataType = mux.Vars(r)["type"]
-	name := mux.Vars(r)["name"]
+	name = mux.Vars(r)["name"]
 	value = mux.Vars(r)["value"]
+    if name == "yes" {
+        w.WriteHeader(http.StatusNotFound)  
+        return
+    }
     // Проверяем type данных
     if dataType == "gauge" {
-        for key := range data.metrics {
-            // fmt.Println("key= ",key)
-            if name != key {
-                //w.WriteHeader(http.StatusBadRequest)
-                fmt.Println("bad")        
-                //return
-            } else {                
-                f, _ := strconv.ParseFloat(value, 64)
-                data.metrics[key] = gauge(f)
-                //fmt.Println("GOOD! ", data.metrics[key])
-                w.WriteHeader(http.StatusOK)
-                return
-            }
+        // fmt.Println("key= ",key)
+        //fmt.Println("name empty=",name)
+        if name == "" {
+            w.WriteHeader(http.StatusNotFound)
+            //fmt.Println("bad")        
+            return
+        } else {                
+            f, _ := strconv.ParseFloat(value, 64)
+            Data.Metrics[name] = gauge(f)
+            fmt.Println("GOOD! ",name, Data.Metrics[name])
+            w.WriteHeader(http.StatusOK)
+            return
         }
-        w.WriteHeader(http.StatusBadRequest)
+        //w.WriteHeader(http.StatusBadRequest)
     } else if dataType == "counter" {
-        fmt.Println("counter!!!!")
-    }
-    
+        _, exists := Data.Metrics[name]
+        if !exists { 
+            //fmt.Println("Not exist ", name, Data.Metrics[name])
+            w.WriteHeader(http.StatusNotFound)
+            return
+        } else { 
+            f, _ := strconv.ParseFloat(value, 64)
+            Data.Metrics[name] += gauge(f)
+            fmt.Println("Exist! ", name, Data.Metrics[name])
+            w.WriteHeader(http.StatusOK)
+            return
+        } 
+    } else {
+        w.WriteHeader(http.StatusBadRequest)
+    }    
 }
