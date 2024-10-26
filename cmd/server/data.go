@@ -14,8 +14,9 @@ var Data = MemStorage{
 
 // Определение интерфейса для MemStorage
 type MemStorageInterface interface {
-	AddGauge(key string, value gauge)
-	AddCounter(key string, value counter)
+	UpdateGauge(key string, value gauge)
+	UpdateCounter(key string, value counter)
+    AddCounter(key string, value counter)
 	GetGauge(key string) (gauge, bool)
 	GetCounter(key string) (counter, bool)
 	DeleteGauge(key string)
@@ -23,12 +24,16 @@ type MemStorageInterface interface {
 }
 
 // Реализация методов интерфейса для MemStorage
-func (ms MemStorage) AddGauge(key string, value gauge) {
+func (ms MemStorage) UpdateGauge(key string, value gauge) {
 	ms.MetricsGauge[key] = value
 }
 
-func (ms MemStorage) AddCounter(key string, value counter) {
+func (ms MemStorage) UpdateCounter(key string, value counter) {
 	ms.MetricsCounter[key] = value
+}
+
+func (ms MemStorage) AddCounter(key string, value counter) {
+	ms.MetricsCounter[key] += value
 }
 
 func (ms MemStorage) GetGauge(key string) (gauge, bool) {
