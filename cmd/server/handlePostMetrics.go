@@ -33,7 +33,7 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else if dataType == "counter" {
-		_, exists := Data.MetricsCounter[name]
+		_, exists := Data.GetGauge(name)
 		if !exists {
 			value, err := strconv.ParseInt(value, 10, 64)
 			if err != nil {
