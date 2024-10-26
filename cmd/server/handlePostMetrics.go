@@ -30,22 +30,25 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
             return
         } else {                
             f, _ := strconv.ParseFloat(value, 64)
-            Data.Metrics[name] = gauge(f)
-            fmt.Println("GOOD! ",name, Data.Metrics[name])
+            Data.MetricsGauge[name] = gauge(f)
+            fmt.Println("GOOD! ",name, Data.MetricsGauge[name])
             w.WriteHeader(http.StatusOK)
             return
         }
         //w.WriteHeader(http.StatusBadRequest)
     } else if dataType == "counter" {
-        _, exists := Data.Metrics[name]
+        _, exists := Data.MetricsCounter[name]
         if !exists { 
             //fmt.Println("Not exist ", name, Data.Metrics[name])
-            w.WriteHeader(http.StatusNotFound)
+            f, _ := strconv.ParseInt(value, 10, 64)
+            Data.MetricsCounter[name] = counter(f)
+            //w.WriteHeader(http.StatusNotFound)
+            w.WriteHeader(http.StatusOK)
             return
         } else { 
-            f, _ := strconv.ParseFloat(value, 64)
-            Data.Metrics[name] += gauge(f)
-            fmt.Println("Exist! ", name, Data.Metrics[name])
+            f, _ := strconv.ParseInt(value, 10, 64)
+            Data.MetricsCounter[name] += counter(f)
+            fmt.Println("Exist! ", name, Data.MetricsCounter[name])
             w.WriteHeader(http.StatusOK)
             return
         } 

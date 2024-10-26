@@ -1,13 +1,15 @@
 package main
 
 type gauge float64
-//type counter int64
+type counter int64
 type MemStorage struct {
-    Metrics map[string]gauge
+    MetricsGauge map[string]gauge
+    MetricsCounter map[string]counter
 }
 
 var Data = MemStorage{
-        Metrics: map[string]gauge{},
+        MetricsGauge: map[string]gauge{},
+        MetricsCounter: map[string]counter{},
 }
 
     // Data := MemStorage{
