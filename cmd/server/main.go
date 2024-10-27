@@ -1,15 +1,12 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
 
 func main() {
-	router := mux.NewRouter()
-	// Регистрация обработчика для метода POST
-	router.HandleFunc("/update/{type}/{name}/{value}", handlePostMetrics).Methods("Post")
-	// Запуск сервера
-	log.Fatal(http.ListenAndServe(":8080", router))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/update/{type}/{name}/{value}", handlePostMetrics)
+    log.Fatal(http.ListenAndServe(":8080", mux))
 }

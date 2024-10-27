@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+    "fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
@@ -11,11 +12,19 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	var name string
 	var value string
 
-	// Получаем данные из запроса
-	dataType = mux.Vars(r)["type"]
-	name = mux.Vars(r)["name"]
-	value = mux.Vars(r)["value"]
+	// Извлекаем URL
+	u := strings.Split(r.URL.Path, "/")
+	// Извлекаем значения из URL
+	dataType = u[2]
+	name = u[3]
+	value = u[4]
 
+    fmt.Println("+++++++++++++++")
+	fmt.Println(r.URL.Path)
+	fmt.Println(u)
+    fmt.Println(dataType, name, value)
+    fmt.Println("+++++++++++++++")
+    
 	// Проверяем что данные не пустые
 	if dataType == "" || name == "" || value == "" {
 		w.WriteHeader(http.StatusNotFound)
