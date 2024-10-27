@@ -1,7 +1,6 @@
 package main
 
 import (
-    "fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -18,12 +17,6 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	dataType = u[2]
 	name = u[3]
 	value = u[4]
-
-    fmt.Println("+++++++++++++++")
-	fmt.Println(r.URL.Path)
-	fmt.Println(u)
-    fmt.Println(dataType, name, value)
-    fmt.Println("+++++++++++++++")
     
 	// Проверяем что данные не пустые
 	if dataType == "" || name == "" || value == "" {

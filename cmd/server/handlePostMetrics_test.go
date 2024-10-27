@@ -70,6 +70,7 @@ for _, tt := range tests {
 		w := httptest.NewRecorder()
 		handlePostMetrics(w, request)
 		result := w.Result()
+		defer result.Body.Close()
 		assert.Equal(t, tt.want.statusCode, result.StatusCode)
 	})
 	}
