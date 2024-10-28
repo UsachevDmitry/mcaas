@@ -19,7 +19,8 @@ func handleGetValue(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		fmt.Fprintf(w, "<html><body><h1>Gauge</h1><p>name: %s<br>value: %v</p></body></html>", name, value)
+		//fmt.Fprintf(w, "<html><body><h1>Gauge</h1><p>name: %s<br>value: %v</p></body></html>", name, value)
+		fmt.Fprintf(w, "%v", value)
 		w.WriteHeader(http.StatusOK)
 		return
 	} else if dataType == "counter" {
@@ -28,7 +29,8 @@ func handleGetValue(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		fmt.Fprintf(w, "<html><body><h1>Counter</h1><p>name: %s<br>value: %v</p></body></html>", name, value)
+		//fmt.Fprintf(w, "<html><body><h1>Counter</h1><p>name: %s<br>value: %v</p></body></html>", name, value)
+		fmt.Fprintf(w, "%v", value)
 		w.WriteHeader(http.StatusOK)
 		return
 	} else {
