@@ -70,7 +70,7 @@ func sendDataCounter(reportInterval time.Duration) {
 		time.Sleep(reportInterval * time.Second)
 		for key, value := range Data.MetricsCounter {
 			// Собираем строку с данными для отправки
-			url := "http://localhost:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
+			url := "http://" + *addr + "/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
 			fmt.Println(url)
 
 			// Отправляем POST-запрос
