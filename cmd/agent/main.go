@@ -41,11 +41,11 @@ func sendDataGauge() {
             }
             defer resp.Body.Close()
 
-            // Проверяем статус ответа
-            if resp.StatusCode != http.StatusOK {
-                fmt.Println("Error status:", resp.StatusCode)
-                return
-            }
+            // // Проверяем статус ответа
+            // if resp.StatusCode != http.StatusOK {
+            //     fmt.Println("Error status:", resp.StatusCode)
+            //     return
+            // }
         }
         //time.Sleep(10 * time.Second)
     }
@@ -74,11 +74,11 @@ func sendDataCounter() {
             }
             defer resp.Body.Close()
 
-            // Проверяем статус ответа
-            if resp.StatusCode != http.StatusOK {
-                fmt.Println("Error status:", resp.StatusCode)
-                return
-            }
+            // // Проверяем статус ответа
+            // if resp.StatusCode != http.StatusOK {
+            //     fmt.Println("Error status:", resp.StatusCode)
+            //     return
+            // }
         }
         //time.Sleep(10 * time.Second)
     }
