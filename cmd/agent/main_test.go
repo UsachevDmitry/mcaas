@@ -38,7 +38,7 @@ func TestUpdateData(t *testing.T) {
 
 	// Тестирование функции updateData
 	go updateData(time.Duration(2))
-    time.Sleep(2 * time.Second)
+	time.Sleep(2 * time.Second)
 	for key, value := range Data.MetricsGauge {
 		if Data.MetricsGauge[key] == 1 {
 			t.Errorf("Expected %v for key %s, got %v", Data.MetricsGauge[key], key, value)

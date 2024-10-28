@@ -2,93 +2,89 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"net/http"
 	"runtime"
 	"time"
-    "math/rand"
-    "net/http"
 )
 
 func main() {
-    var pollInterval time.Duration = 2
+	var pollInterval time.Duration = 2
 	go updateData(pollInterval)
-    sendDataGauge()
-    go sendDataCounter()
-    // fmt.Println("Press Enter to exit")
-    // fmt.Scanln()
+	go sendDataCounter()
+	sendDataGauge()
 }
 
 func sendDataGauge() {
-    fmt.Println("In sendDataGauge")
-    for {  
-        time.Sleep(10 * time.Second)    
-        for key, value := range Data.MetricsGauge {
-            // Собираем строку с данными для отправки
-            url := "http://localhost:8080/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
-            fmt.Println(url)
-            //url := "http://localhost:8080/update/gauge/test/10"
+	for {
+		time.Sleep(10 * time.Second)
+		for key, value := range Data.MetricsGauge {
+			// Собираем строку с данными для отправки
+			url := "http://localhost:8080/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
+			fmt.Println(url)
 
-            // Отправляем POST-запрос
-            req, err := http.NewRequest("POST", url, nil)
-            if err != nil {
-                fmt.Println("Error creating request:", err)
-                return
-            }
-            req.Header.Set("Content-Type", "text/plain")
+			// Отправляем POST-запрос
+			req, err := http.NewRequest("POST", url, nil)
+			if err != nil {
+				fmt.Println("Error creating request:", err)
+				return
+			}
+			req.Header.Set("Content-Type", "text/plain")
 
-            client := &http.Client{}
-            resp, err := client.Do(req)
-            if err != nil {
-                fmt.Println("Error sending request:", err)
-                return
-            }
-            defer resp.Body.Close()
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Println("Error sending request:", err)
+				return
+			}
+			defer resp.Body.Close()
 
-            // Проверяем статус ответа
-            if resp.StatusCode != http.StatusOK {
-                fmt.Println("Error status:", resp.StatusCode)
-                return
-            }
-        }
-    }
+			// Проверяем статус ответа
+			if resp.StatusCode != http.StatusOK {
+				fmt.Println("Error status:", resp.StatusCode)
+				return
+			}
+		}
+	}
 }
 
 func sendDataCounter() {
-    for {
-        time.Sleep(10 * time.Second)
-        for key, value := range Data.MetricsCounter {
-            // Собираем строку с данными для отправки
-            url := "http://localhost:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
-            fmt.Println(url)
+	for {
+		time.Sleep(10 * time.Second)
+		for key, value := range Data.MetricsCounter {
+			// Собираем строку с данными для отправки
+			url := "http://localhost:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
+			fmt.Println(url)
 
-            // Отправляем POST-запрос
-            req, err := http.NewRequest("POST", url, nil)
-            if err != nil {
-                fmt.Println("Error creating request:", err)
-                return
-            }
-            req.Header.Set("Content-Type", "text/plain")
+			// Отправляем POST-запрос
+			req, err := http.NewRequest("POST", url, nil)
+			if err != nil {
+				fmt.Println("Error creating request:", err)
+				return
+			}
+			req.Header.Set("Content-Type", "text/plain")
 
-            client := &http.Client{}
-            resp, err := client.Do(req)
-            if err != nil {
-                fmt.Println("Error sending request:", err)
-                return
-            }
-            defer resp.Body.Close()
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			if err != nil {
+				fmt.Println("Error sending request:", err)
+				return
+			}
+			defer resp.Body.Close()
 
-            // Проверяем статус ответа
-            if resp.StatusCode != http.StatusOK {
-                fmt.Println("Error status:", resp.StatusCode)
-                return
-            }
-        }
-    }
+			// Проверяем статус ответа
+			if resp.StatusCode != http.StatusOK {
+				fmt.Println("Error status:", resp.StatusCode)
+				return
+			}
+		}
+	}
 }
 
 func updateData(pollInterval time.Duration) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
-    var i = 0    
+	var i = 0
 	for {
 		Data.UpdateGauge("Alloc", gauge(m.Alloc))
 		Data.UpdateGauge("BuckHashSys", gauge(m.BuckHashSys))
@@ -116,9 +112,9 @@ func updateData(pollInterval time.Duration) {
 		Data.UpdateGauge("StackSys", gauge(m.StackSys))
 		Data.UpdateGauge("Sys", gauge(m.Sys))
 		Data.UpdateGauge("TotalAlloc", gauge(m.TotalAlloc))
-        i++
-        Data.AddCounter("PollCount", counter(i))
-        Data.UpdateGauge("RandomValue", gauge(rand.Float64()))
+		i++
+		Data.AddCounter("PollCount", counter(i))
+		Data.UpdateGauge("RandomValue", gauge(rand.Float64()))
 		time.Sleep(pollInterval * time.Second)
 	}
 }
