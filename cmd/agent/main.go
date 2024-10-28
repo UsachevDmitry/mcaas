@@ -6,21 +6,38 @@ import (
 	"net/http"
 	"runtime"
 	"time"
+	"flag"
+)
+
+const (
+	defaultAddr = "localhost:8080"
+	defaultPollInterval = 2
+	defaultReportInterval = 10
+)
+
+var (
+	addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
+	pollInterval = flag.Int("p", defaultPollInterval, "pollInterval")
+	reportInterval = flag.Int("r", defaultReportInterval, "reportInterval")
 )
 
 func main() {
-	var pollInterval time.Duration = 2
-	go updateData(pollInterval)
-	go sendDataCounter()
-	sendDataGauge()
+	flag.Parse()
+	fmt.Println("Адрес эндпоинта:", *addr)
+	fmt.Println("pollInterval:", *pollInterval)
+	fmt.Println("reportInterval:", *reportInterval)
+
+	go updateData(time.Duration(*pollInterval))
+	sendDataCounter(time.Duration(*reportInterval))
+	go sendDataGauge(time.Duration(*reportInterval))
 }
 
-func sendDataGauge() {
+func sendDataGauge(reportInterval time.Duration) {
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(reportInterval * time.Second)
 		for key, value := range Data.MetricsGauge {
 			// Собираем строку с данными для отправки
-			url := "http://localhost:8080/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
+			url := "http://" + *addr + "/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
 			fmt.Println(url)
 
 			// Отправляем POST-запрос
@@ -48,9 +65,9 @@ func sendDataGauge() {
 	}
 }
 
-func sendDataCounter() {
+func sendDataCounter(reportInterval time.Duration) {
 	for {
-		time.Sleep(10 * time.Second)
+		time.Sleep(reportInterval * time.Second)
 		for key, value := range Data.MetricsCounter {
 			// Собираем строку с данными для отправки
 			url := "http://localhost:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
