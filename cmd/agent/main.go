@@ -11,18 +11,19 @@ import (
 func main() {
     var pollInterval time.Duration = 2
 	go updateData(pollInterval)
-    go sendDataGauge()
+    sendDataGauge()
     go sendDataCounter()
-    fmt.Println("Press Enter to exit")
-    fmt.Scanln()
+    // fmt.Println("Press Enter to exit")
+    // fmt.Scanln()
 }
 
 func sendDataGauge() {
+    fmt.Println("In sendDataGauge")
     for {  
         time.Sleep(10 * time.Second)    
         for key, value := range Data.MetricsGauge {
             // Собираем строку с данными для отправки
-            url := "http://127.0.0.1:8080/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
+            url := "http://localhost:8080/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
             fmt.Println(url)
             //url := "http://localhost:8080/update/gauge/test/10"
 
@@ -56,7 +57,7 @@ func sendDataCounter() {
         time.Sleep(10 * time.Second)
         for key, value := range Data.MetricsCounter {
             // Собираем строку с данными для отправки
-            url := "http://127.0.0.1:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
+            url := "http://localhost:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
             fmt.Println(url)
 
             // Отправляем POST-запрос
