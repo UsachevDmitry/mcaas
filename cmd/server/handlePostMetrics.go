@@ -3,7 +3,8 @@ package main
 import (
 	"net/http"
 	"strconv"
-	"strings"
+	// "strings"
+	"github.com/gorilla/mux"
 )
 
 func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
@@ -12,11 +13,14 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	var value string
 
 	// Извлекаем URL
-	u := strings.Split(r.URL.Path, "/")
+	// u := strings.Split(r.URL.Path, "/")
 	// Извлекаем значения из URL
-	dataType = u[2]
-	name = u[3]
-	value = u[4]
+	// dataType = u[2]
+	// name = u[3]
+	// value = u[4]
+	dataType = mux.Vars(r)["type"]
+	name = mux.Vars(r)["name"]
+	value = mux.Vars(r)["value"]
     
 	// Проверяем что данные не пустые
 	if dataType == "" || name == "" || value == "" {

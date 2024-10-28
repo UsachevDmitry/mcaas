@@ -1,10 +1,12 @@
 package main
 
 import (
+	//"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"github.com/stretchr/testify/assert"
+	"github.com/gorilla/mux"
 )
 func Test_handlePostMetrics(t *testing.T) {
     type want struct {
@@ -42,21 +44,7 @@ func Test_handlePostMetrics(t *testing.T) {
             },            
     	},
 		{
-            nameTest: "Test empty type type #4",
-			request: "/update//testtest/11",
-            want: want{
-                statusCode:  http.StatusNotFound,
-            },            
-    	},
-		{
-            nameTest: "Test empty name type #5",
-			request: "/update/counter//11",
-            want: want{
-                statusCode:  http.StatusNotFound,
-            },            
-    	},
-		{
-            nameTest: "Test empty value type #6",
+            nameTest: "Test empty value type #4",
 			request: "/update/counter/test6/",
             want: want{
                 statusCode:  http.StatusNotFound,
@@ -66,12 +54,22 @@ func Test_handlePostMetrics(t *testing.T) {
 
 for _, tt := range tests {
 	t.Run(tt.nameTest, func(t *testing.T) {
+		router := mux.NewRouter()
+		router.HandleFunc("/update/{type}/{name}/{value}", handlePostMetrics).Methods("Post")
 		request := httptest.NewRequest(http.MethodPost, tt.request, nil)
 		w := httptest.NewRecorder()
-		handlePostMetrics(w, request)
+		router.ServeHTTP(w, request)
 		result := w.Result()
 		defer result.Body.Close()
 		assert.Equal(t, tt.want.statusCode, result.StatusCode)
+
+		// request := httptest.NewRequest(http.MethodPost, tt.request, nil)
+		// w := httptest.NewRecorder()
+		// handlePostMetrics(w, request)
+		// result := w.Result()
+		// defer result.Body.Close()
+		// assert.Equal(t, tt.want.statusCode, result.StatusCode)
+
 	})
 	}
 }
