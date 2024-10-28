@@ -10,15 +10,16 @@ import (
 
 func main() {
     var pollInterval time.Duration = 2
-	updateData(pollInterval)
+	go updateData(pollInterval)
     go sendDataGauge()
     go sendDataCounter()
-    // fmt.Println("Press Enter to exit")
-    // fmt.Scanln()
+    fmt.Println("Press Enter to exit")
+    fmt.Scanln()
 }
 
 func sendDataGauge() {
-    for {      
+    for {  
+        time.Sleep(10 * time.Second)    
         for key, value := range Data.MetricsGauge {
             // Собираем строку с данными для отправки
             url := "http://localhost:8080/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
@@ -47,12 +48,12 @@ func sendDataGauge() {
                 return
             }
         }
-        time.Sleep(10 * time.Second)
     }
 }
 
 func sendDataCounter() {
     for {
+        time.Sleep(10 * time.Second)
         for key, value := range Data.MetricsCounter {
             // Собираем строку с данными для отправки
             url := "http://localhost:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
@@ -80,7 +81,6 @@ func sendDataCounter() {
                 return
             }
         }
-        time.Sleep(10 * time.Second)
     }
 }
 
