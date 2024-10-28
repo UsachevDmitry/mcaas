@@ -12,9 +12,9 @@ func main() {
     var pollInterval time.Duration = 2
 	go updateData(pollInterval)
     go sendDataGauge()
-    go sendDataCounter()
-    fmt.Println("Press Enter to exit")
-    fmt.Scanln()
+    sendDataCounter()
+    // fmt.Println("Press Enter to exit")
+    // fmt.Scanln()
 }
 
 func sendDataGauge() {
@@ -41,11 +41,11 @@ func sendDataGauge() {
             }
             defer resp.Body.Close()
 
-            // // Проверяем статус ответа
-            // if resp.StatusCode != http.StatusOK {
-            //     fmt.Println("Error status:", resp.StatusCode)
-            //     return
-            // }
+            // Проверяем статус ответа
+            if resp.StatusCode != http.StatusOK {
+                fmt.Println("Error status:", resp.StatusCode)
+                return
+            }
         }
         //time.Sleep(10 * time.Second)
     }
@@ -74,11 +74,11 @@ func sendDataCounter() {
             }
             defer resp.Body.Close()
 
-            // // Проверяем статус ответа
-            // if resp.StatusCode != http.StatusOK {
-            //     fmt.Println("Error status:", resp.StatusCode)
-            //     return
-            // }
+            // Проверяем статус ответа
+            if resp.StatusCode != http.StatusOK {
+                fmt.Println("Error status:", resp.StatusCode)
+                return
+            }
         }
         //time.Sleep(10 * time.Second)
     }
