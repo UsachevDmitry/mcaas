@@ -9,12 +9,12 @@ import (
 )
 
 func main() {
-    var pollInterval time.Duration = 0
-	go updateData(pollInterval)
+    var pollInterval time.Duration = 2
+	updateData(pollInterval)
     go sendDataGauge()
     go sendDataCounter()
-    fmt.Println("Press Enter to exit")
-    fmt.Scanln()
+    // fmt.Println("Press Enter to exit")
+    // fmt.Scanln()
 }
 
 func sendDataGauge() {
@@ -47,7 +47,7 @@ func sendDataGauge() {
                 return
             }
         }
-        //time.Sleep(10 * time.Second)
+        time.Sleep(10 * time.Second)
     }
 }
 
@@ -80,7 +80,7 @@ func sendDataCounter() {
                 return
             }
         }
-        //time.Sleep(10 * time.Second)
+        time.Sleep(10 * time.Second)
     }
 }
 
