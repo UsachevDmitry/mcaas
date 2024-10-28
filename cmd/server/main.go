@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os"
 )
 
 const defaultAddr = "localhost:8080"
@@ -14,6 +15,10 @@ var addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
 
 func main() {
 	flag.Parse()
+	addrEnv := os.Getenv("ADDRESS")
+	if addrEnv != "" {
+		*addr = addrEnv
+	}
 	fmt.Println("Адрес эндпоинта:", *addr)
 	router := mux.NewRouter()
 	// Регистрация обработчика для метода POST

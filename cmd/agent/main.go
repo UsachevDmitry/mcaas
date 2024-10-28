@@ -7,6 +7,9 @@ import (
 	"runtime"
 	"time"
 	"flag"
+	"os"
+	"strconv"
+	"log"
 )
 
 const (
@@ -23,6 +26,26 @@ var (
 
 func main() {
 	flag.Parse()
+	addrEnv := os.Getenv("ADDRESS")
+	if addrEnv != "" {
+		*addr = addrEnv
+	}
+	pollEnv := os.Getenv("POLL_INTERVAL")
+	if pollEnv != "" {
+		i, err := strconv.Atoi(pollEnv)
+		if err != nil {
+			log.Fatal(err)
+		}
+	*pollInterval = i
+	}
+	reportEnv := os.Getenv("REPORT_INTERVAL")
+	if reportEnv != "" {
+		i, err := strconv.Atoi(reportEnv)
+		if err != nil {
+			log.Fatal(err)
+		}
+		*reportInterval = i
+	}
 	fmt.Println("Адрес эндпоинта:", *addr)
 	fmt.Println("pollInterval:", *pollInterval)
 	fmt.Println("reportInterval:", *reportInterval)
