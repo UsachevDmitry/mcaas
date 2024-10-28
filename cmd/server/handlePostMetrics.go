@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"strconv"
-	// "strings"
 	"github.com/gorilla/mux"
 )
 
@@ -12,12 +11,7 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	var name string
 	var value string
 
-	// Извлекаем URL
-	// u := strings.Split(r.URL.Path, "/")
-	// Извлекаем значения из URL
-	// dataType = u[2]
-	// name = u[3]
-	// value = u[4]
+	// Извлекаем данные из URL
 	dataType = mux.Vars(r)["type"]
 	name = mux.Vars(r)["name"]
 	value = mux.Vars(r)["value"]

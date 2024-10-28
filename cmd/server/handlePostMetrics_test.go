@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -62,14 +61,6 @@ for _, tt := range tests {
 		result := w.Result()
 		defer result.Body.Close()
 		assert.Equal(t, tt.want.statusCode, result.StatusCode)
-
-		// request := httptest.NewRequest(http.MethodPost, tt.request, nil)
-		// w := httptest.NewRecorder()
-		// handlePostMetrics(w, request)
-		// result := w.Result()
-		// defer result.Body.Close()
-		// assert.Equal(t, tt.want.statusCode, result.StatusCode)
-
 	})
 	}
 }
