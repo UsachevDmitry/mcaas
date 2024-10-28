@@ -21,7 +21,7 @@ func sendDataGauge() {
     for {
         time.Sleep(10 * time.Second)
         fmt.Println(Data)
-      
+        
         for key, value := range Data.MetricsGauge {
             // Собираем строку с данными для отправки
             url := "http://localhost:8080/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
@@ -55,9 +55,6 @@ func sendDataGauge() {
 
 func sendDataCounter() {
     for {
-        time.Sleep(10 * time.Second)
-        fmt.Println(Data)
-      
         for key, value := range Data.MetricsCounter {
             // Собираем строку с данными для отправки
             url := "http://localhost:8080/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
@@ -85,6 +82,7 @@ func sendDataCounter() {
                 return
             }
         }
+        time.Sleep(10 * time.Second)
     }
 }
 
