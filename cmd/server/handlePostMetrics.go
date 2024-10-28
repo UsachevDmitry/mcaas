@@ -1,9 +1,9 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
-	"github.com/gorilla/mux"
 )
 
 func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +15,7 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	dataType = mux.Vars(r)["type"]
 	name = mux.Vars(r)["name"]
 	value = mux.Vars(r)["value"]
-    
+
 	// Проверяем что данные не пустые
 	if dataType == "" || name == "" || value == "" {
 		w.WriteHeader(http.StatusNotFound)
