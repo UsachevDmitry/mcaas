@@ -47,7 +47,7 @@ func sendDataGauge() {
                 return
             }
         }
-        time.Sleep(10 * time.Second)
+        //time.Sleep(10 * time.Second)
     }
 }
 
@@ -80,7 +80,7 @@ func sendDataCounter() {
                 return
             }
         }
-        time.Sleep(10 * time.Second)
+        //time.Sleep(10 * time.Second)
     }
 }
 
