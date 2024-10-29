@@ -24,3 +24,5 @@ vendor/
 .idea
 .vscode
 metricstest_1
+# lint
+golangci-lint

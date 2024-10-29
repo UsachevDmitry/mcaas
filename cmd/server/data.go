@@ -12,7 +12,6 @@ var Data = MemStorage{
 	MetricsCounter: map[string]counter{},
 }
 
-// Определение интерфейса для MemStorage
 type MemStorageInterface interface {
 	UpdateGauge(key string, value gauge)
 	UpdateCounter(key string, value counter)
@@ -23,7 +22,6 @@ type MemStorageInterface interface {
 	DeleteCounter(key string)
 }
 
-// Реализация методов интерфейса для MemStorage
 func (ms MemStorage) UpdateGauge(key string, value gauge) {
 	ms.MetricsGauge[key] = value
 }

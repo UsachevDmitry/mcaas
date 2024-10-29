@@ -11,17 +11,15 @@ func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	var name string
 	var value string
 
-	// Извлекаем данные из URL
 	dataType = mux.Vars(r)["type"]
 	name = mux.Vars(r)["name"]
 	value = mux.Vars(r)["value"]
 
-	// Проверяем что данные не пустые
 	if dataType == "" || name == "" || value == "" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	// Проверяем type данных
+
 	if dataType == "gauge" {
 		value, err := strconv.ParseFloat(value, 64)
 		if err != nil {

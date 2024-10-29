@@ -1,26 +1,26 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
-	"runtime"
-	"time"
-	"flag"
 	"os"
+	"runtime"
 	"strconv"
-	"log"
+	"time"
 )
 
 const (
-	defaultAddr = "localhost:8080"
-	defaultPollInterval = 2
+	defaultAddr           = "localhost:8080"
+	defaultPollInterval   = 2
 	defaultReportInterval = 10
 )
 
 var (
-	addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
-	pollInterval = flag.Int("p", defaultPollInterval, "pollInterval")
+	addr           = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
+	pollInterval   = flag.Int("p", defaultPollInterval, "pollInterval")
 	reportInterval = flag.Int("r", defaultReportInterval, "reportInterval")
 )
 
@@ -36,7 +36,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-	*pollInterval = i
+		*pollInterval = i
 	}
 	reportEnv := os.Getenv("REPORT_INTERVAL")
 	if reportEnv != "" {
@@ -51,20 +51,18 @@ func main() {
 	fmt.Println("reportInterval:", *reportInterval)
 
 	go updateData(time.Duration(*pollInterval))
-	sendDataCounter(time.Duration(*reportInterval))
+	go sendDataCounter(time.Duration(*reportInterval))
 	go sendDataGauge(time.Duration(*reportInterval))
+	fmt.Scanln()
 }
 
 func sendDataGauge(reportInterval time.Duration) {
 	for {
 		time.Sleep(reportInterval * time.Second)
 		for key, value := range Data.MetricsGauge {
-			// Собираем строку с данными для отправки
-			url := "http://" + *addr + "/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
-			fmt.Println(url)
+			url := "http://" + *addr + "/update/gauge/" + key + "/" +  fmt.Sprintf("%.2f", float64(value))
 
-			// Отправляем POST-запрос
-			req, err := http.NewRequest("POST", url, nil)
+			req, err := http.NewRequest("POST", url, http.NoBody)
 			if err != nil {
 				fmt.Println("Error creating request:", err)
 				return
@@ -79,7 +77,6 @@ func sendDataGauge(reportInterval time.Duration) {
 			}
 			defer resp.Body.Close()
 
-			// Проверяем статус ответа
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
 				return
@@ -92,12 +89,9 @@ func sendDataCounter(reportInterval time.Duration) {
 	for {
 		time.Sleep(reportInterval * time.Second)
 		for key, value := range Data.MetricsCounter {
-			// Собираем строку с данными для отправки
-			url := "http://" + *addr + "/update/counter/" + key + "/" + fmt.Sprintf("%v", int64(value))
-			fmt.Println(url)
+			url := "http://" + *addr + "/update/counter/" + key + "/" + strconv.FormatInt(int64(value), 10)
 
-			// Отправляем POST-запрос
-			req, err := http.NewRequest("POST", url, nil)
+			req, err := http.NewRequest("POST", url, http.NoBody)
 			if err != nil {
 				fmt.Println("Error creating request:", err)
 				return
@@ -112,7 +106,6 @@ func sendDataCounter(reportInterval time.Duration) {
 			}
 			defer resp.Body.Close()
 
-			// Проверяем статус ответа
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
 				return

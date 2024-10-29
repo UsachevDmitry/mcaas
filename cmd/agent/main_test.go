@@ -6,7 +6,6 @@ import (
 )
 
 func TestUpdateData(t *testing.T) {
-	// Инициализация данных для теста
 	Data.UpdateGauge("Alloc", gauge(1))
 	Data.UpdateGauge("BuckHashSys", gauge(1))
 	Data.UpdateGauge("Frees", gauge(1))
@@ -36,7 +35,6 @@ func TestUpdateData(t *testing.T) {
 	Data.AddCounter("PollCount", counter(1))
 	Data.UpdateGauge("RandomValue", gauge(1))
 
-	// Тестирование функции updateData
 	go updateData(time.Duration(2))
 	time.Sleep(2 * time.Second)
 	for key, value := range Data.MetricsGauge {

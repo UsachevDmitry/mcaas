@@ -55,8 +55,8 @@ func Test_handlePostMetrics(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.nameTest, func(t *testing.T) {
 			router := mux.NewRouter()
-			router.HandleFunc("/update/{type}/{name}/{value}", handlePostMetrics).Methods("Post")
-			request := httptest.NewRequest(http.MethodPost, tt.request, nil)
+			router.HandleFunc("/update/{type}/{name}/{value}", handlePostMetrics).Methods(http.MethodPost)
+			request := httptest.NewRequest(http.MethodPost, tt.request, http.NoBody)
 			w := httptest.NewRecorder()
 			router.ServeHTTP(w, request)
 			result := w.Result()
