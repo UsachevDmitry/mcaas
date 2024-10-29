@@ -52,8 +52,7 @@ func main() {
 
 	go updateData(time.Duration(*pollInterval))
 	go sendDataCounter(time.Duration(*reportInterval))
-	go sendDataGauge(time.Duration(*reportInterval))
-	fmt.Scanln()
+	sendDataGauge(time.Duration(*reportInterval))
 }
 
 func sendDataGauge(reportInterval time.Duration) {
