@@ -61,7 +61,7 @@ func sendDataGauge(reportInterval time.Duration) {
 		for key, value := range Data.MetricsGauge {
 			url := "http://" + *addr + "/update/gauge/" + key + "/" +  fmt.Sprintf("%.2f", float64(value))
 
-			req, err := http.NewRequest("POST", url, http.NoBody)
+			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
 			if err != nil {
 				fmt.Println("Error creating request:", err)
 				return
@@ -90,7 +90,7 @@ func sendDataCounter(reportInterval time.Duration) {
 		for key, value := range Data.MetricsCounter {
 			url := "http://" + *addr + "/update/counter/" + key + "/" + strconv.FormatInt(int64(value), 10)
 
-			req, err := http.NewRequest("POST", url, http.NoBody)
+			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
 			if err != nil {
 				fmt.Println("Error creating request:", err)
 				return
