@@ -14,8 +14,6 @@ func main() {
 	wg.Add(3)
 
 	go func() {
-		mutex.Lock()
-		defer mutex.Unlock()
 		internal.UpdateData(time.Duration(*internal.PollInterval))
 		defer wg.Done()
 	}()
