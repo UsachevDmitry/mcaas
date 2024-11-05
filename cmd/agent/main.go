@@ -2,37 +2,34 @@ package main
 
 import (
 	"github.com/UsachevDmitry/mcaas/cmd/agent/internal"
-	"time"
 	"sync"
+	"time"
 )
 
 func main() {
-	// Создание группы ожидания
 	var wg sync.WaitGroup
+	var mutex sync.Mutex
 
-	// Получение конфигурации
 	internal.GetConfig()
-
-	// Добавление количества подпрограмм в группу ожидания
 	wg.Add(3)
 
-	// Запуск подпрограмм
 	go func() {
 		defer wg.Done()
+		mutex.Lock()
+		defer mutex.Unlock()
 		internal.UpdateData(time.Duration(*internal.PollInterval))
 	}()
-
 	go func() {
 		defer wg.Done()
+		mutex.Lock()
+		defer mutex.Unlock()
 		internal.SendDataCounter(time.Duration(*internal.ReportInterval))
 	}()
-
 	go func() {
 		defer wg.Done()
+		mutex.Lock()
+		defer mutex.Unlock()
 		internal.SendDataGauge(time.Duration(*internal.ReportInterval))
 	}()
-
-	// Ожидание завершения всех подпрограмм
 	wg.Wait()
-
 }
