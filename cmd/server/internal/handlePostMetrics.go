@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"github.com/gorilla/mux"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func handlePostMetrics(w http.ResponseWriter, r *http.Request) {
+func HandlePostMetrics(w http.ResponseWriter, r *http.Request) {
 	var dataType string
 	var name string
 	var value string

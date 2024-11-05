@@ -1,4 +1,4 @@
-package main
+package internal
 
 type gauge float64
 type counter int64

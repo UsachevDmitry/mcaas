@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func handleGetValue(w http.ResponseWriter, r *http.Request) {
+func HandleGetValue(w http.ResponseWriter, r *http.Request) {
 	var dataType string
 	var name string
 

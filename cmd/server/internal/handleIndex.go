@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"html/template"
@@ -10,7 +10,7 @@ const htmlTemplate = `{{ range $key, $value := . }}
 <p>Ключ: {{ $key }}<br>Значение: {{ $value }}</p>
 {{ end }}`
 
-func handleIndex(w http.ResponseWriter, r *http.Request) {
+func HandleIndex(w http.ResponseWriter, r *http.Request) {
 	tpl, err := template.New("metrics").Parse(htmlTemplate)
 	if err != nil {
 		log.Fatalln(err)

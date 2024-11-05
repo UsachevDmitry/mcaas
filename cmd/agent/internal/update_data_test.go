@@ -1,4 +1,4 @@
-package main
+package internal
 
 import (
 	"testing"
@@ -35,7 +35,7 @@ func TestUpdateData(t *testing.T) {
 	Data.AddCounter("PollCount", counter(1))
 	Data.UpdateGauge("RandomValue", gauge(1))
 
-	go updateData(time.Duration(2))
+	go UpdateData(time.Duration(2))
 	time.Sleep(2 * time.Second)
 	for key, value := range Data.MetricsGauge {
 		if Data.MetricsGauge[key] == 1 {
