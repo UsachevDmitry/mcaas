@@ -14,22 +14,22 @@ func main() {
 	wg.Add(3)
 
 	go func() {
-		defer wg.Done()
 		mutex.Lock()
 		defer mutex.Unlock()
 		internal.UpdateData(time.Duration(*internal.PollInterval))
-	}()
-	go func() {
 		defer wg.Done()
+	}()
+	go func() {		
 		mutex.Lock()
 		defer mutex.Unlock()
 		internal.SendDataCounter(time.Duration(*internal.ReportInterval))
+		defer wg.Done()
 	}()
 	go func() {
-		defer wg.Done()
 		mutex.Lock()
 		defer mutex.Unlock()
 		internal.SendDataGauge(time.Duration(*internal.ReportInterval))
+		defer wg.Done()
 	}()
 	wg.Wait()
 }
