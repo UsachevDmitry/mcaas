@@ -8,7 +8,6 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-	var mutex sync.Mutex
 
 	internal.GetConfig()
 	wg.Add(3)
@@ -17,15 +16,11 @@ func main() {
 		internal.UpdateData(time.Duration(*internal.PollInterval))
 		defer wg.Done()
 	}()
-	go func() {		
-		mutex.Lock()
-		defer mutex.Unlock()
+	go func() {
 		internal.SendDataCounter(time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()
 	go func() {
-		mutex.Lock()
-		defer mutex.Unlock()
 		internal.SendDataGauge(time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()

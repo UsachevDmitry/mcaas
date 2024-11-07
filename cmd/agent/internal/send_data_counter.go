@@ -5,9 +5,14 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"sync"
 )
 
 func SendDataCounter(reportInterval time.Duration) {
+	var mutex sync.Mutex
+	
+	mutex.Lock()
+	defer mutex.Unlock()
 	for {
 		time.Sleep(reportInterval * time.Second)
 		for key, value := range Data.MetricsCounter {
