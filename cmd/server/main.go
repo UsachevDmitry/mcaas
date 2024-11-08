@@ -2,10 +2,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/UsachevDmitry/mcaas/cmd/server/internal"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"os"
 )
@@ -20,10 +18,20 @@ func main() {
 	if addrEnv != "" {
 		*addr = addrEnv
 	}
-	fmt.Println("Адрес эндпоинта:", *addr)
+	// fmt.Println("Адрес эндпоинта:", *addr)
 	router := mux.NewRouter()
 	router.HandleFunc("/update/{type}/{name}/{value}", internal.HandlePostMetrics).Methods("Post")
-	router.HandleFunc("/", internal.HandleIndex).Methods("Get")
-	router.HandleFunc("/value/{type}/{name}", internal.HandleGetValue).Methods("Get")
-	log.Fatal(http.ListenAndServe(*addr, router))
+	router.HandleFunc("/", internal.WithLoggingHandleIndex(internal.HandleIndex())).Methods("Get")
+	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingHandleGetValue(internal.HandleGetValue())).Methods("Get")
+
+	internal.Logger()
+    // записываем в лог, что сервер запускается
+    internal.GlobalSugar.Infow(
+        "Starting server",
+        "addr", *addr,
+    )
+    if err := http.ListenAndServe(*addr, router); err != nil {
+        // записываем в лог ошибку, если сервер не запустился
+        internal.GlobalSugar.Fatalw(err.Error(), "event", "start server")
+    }
 }
