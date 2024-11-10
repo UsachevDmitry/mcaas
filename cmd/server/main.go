@@ -19,9 +19,9 @@ func main() {
 		*addr = addrEnv
 	}
 	router := mux.NewRouter()
-	router.HandleFunc("/update/{type}/{name}/{value}", internal.WithLoggingHandlePostMetrics(internal.HandlePostMetrics())).Methods("Post")
-	router.HandleFunc("/", internal.WithLoggingHandleIndex(internal.HandleIndex())).Methods("Get")
-	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingHandleGetValue(internal.HandleGetValue())).Methods("Get")
+	router.HandleFunc("/update/{type}/{name}/{value}", internal.WithLoggingHandlePostMetrics(internal.HandlePostMetrics())).Methods(http.MethodPost)
+	router.HandleFunc("/", internal.WithLoggingHandleIndex(internal.HandleIndex())).Methods(http.MethodGet)
+	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingHandleGetValue(internal.HandleGetValue())).Methods(http.MethodGet)
 
 	internal.Logger()
 	internal.GlobalSugar.Infow(

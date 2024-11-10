@@ -15,8 +15,6 @@ func Test_HandlePostMetrics(t *testing.T) {
 	tests := []struct {
 		nameTest string
 		dataType string
-		name     string
-		value    string
 		request  string
 		want     want
 	}{
@@ -51,6 +49,8 @@ func Test_HandlePostMetrics(t *testing.T) {
 			},
 		},
 	}
+
+	Logger()
 
 	for _, tt := range tests {
 		t.Run(tt.nameTest, func(t *testing.T) {

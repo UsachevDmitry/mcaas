@@ -6,12 +6,12 @@ import (
 	"strconv"
 )
 
-var StatusCode int
+var StatusCode2 int
 var Size string
 
 func WriteHeaderAndSaveStatus(statusCode int, w http.ResponseWriter) {
 	w.WriteHeader(statusCode)
-	StatusCode = statusCode
+	StatusCode2 = statusCode
 }
 
 func HandlePostMetrics() http.Handler {
@@ -72,10 +72,9 @@ func HandlePostMetrics() http.Handler {
 func WithLoggingHandlePostMetrics(h http.Handler) func(w http.ResponseWriter, r *http.Request) {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		h.ServeHTTP(w, r)
-		Size = r.Header.Get("Content-Length")
 		GlobalSugar.Infoln(
-			"statusCode", StatusCode,
-			"size", Size,
+			"statusCode", StatusCode2,
+			"size", r.Header.Get("Content-Length"),
 		)
 	}
 	return logFn
