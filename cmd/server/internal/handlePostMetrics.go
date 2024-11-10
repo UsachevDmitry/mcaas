@@ -6,54 +6,77 @@ import (
 	"strconv"
 )
 
-func HandlePostMetrics(w http.ResponseWriter, r *http.Request) {
-	var dataType string
-	var name string
-	var value string
+var StatusCode int
+var Size string
 
-	dataType = mux.Vars(r)["type"]
-	name = mux.Vars(r)["name"]
-	value = mux.Vars(r)["value"]
+func WriteHeaderAndSaveStatus(statusCode int, w http.ResponseWriter) {
+	w.WriteHeader(statusCode)
+	StatusCode = statusCode
+}
 
-	if dataType == "" || name == "" || value == "" {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+func HandlePostMetrics() http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		var dataType string
+		var name string
+		var value string
 
-	if dataType == "gauge" {
-		value, err := strconv.ParseFloat(value, 64)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		} else {
-			Data.UpdateGauge(name, gauge(value))
-			w.WriteHeader(http.StatusOK)
+		dataType = mux.Vars(r)["type"]
+		name = mux.Vars(r)["name"]
+		value = mux.Vars(r)["value"]
+
+		if dataType == "" || name == "" || value == "" {
+			WriteHeaderAndSaveStatus(http.StatusNotFound, w)
 			return
 		}
-	} else if dataType == "counter" {
-		_, exists := Data.GetCounter(name)
-		if !exists {
-			value, err := strconv.ParseInt(value, 10, 64)
+
+		if dataType == "gauge" {
+			value, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
+				WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
 				return
 			} else {
-				Data.UpdateCounter(name, counter(value))
-				w.WriteHeader(http.StatusOK)
+				Data.UpdateGauge(name, gauge(value))
+				WriteHeaderAndSaveStatus(http.StatusOK, w)
 				return
+			}
+		} else if dataType == "counter" {
+			_, exists := Data.GetCounter(name)
+			if !exists {
+				value, err := strconv.ParseInt(value, 10, 64)
+				if err != nil {
+					WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
+					return
+				} else {
+					Data.UpdateCounter(name, counter(value))
+					WriteHeaderAndSaveStatus(http.StatusOK, w)
+					return
+				}
+			} else {
+				value, err := strconv.ParseInt(value, 10, 64)
+				if err != nil {
+					WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
+					return
+				} else {
+					Data.AddCounter(name, counter(value))
+					WriteHeaderAndSaveStatus(http.StatusOK, w)
+					return
+				}
 			}
 		} else {
-			value, err := strconv.ParseInt(value, 10, 64)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			} else {
-				Data.AddCounter(name, counter(value))
-				w.WriteHeader(http.StatusOK)
-				return
-			}
+			WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
 		}
-	} else {
-		w.WriteHeader(http.StatusBadRequest)
 	}
+	return http.HandlerFunc(fn)
+}
+
+func WithLoggingHandlePostMetrics(h http.Handler) func(w http.ResponseWriter, r *http.Request) {
+	logFn := func(w http.ResponseWriter, r *http.Request) {
+		h.ServeHTTP(w, r)
+		Size = r.Header.Get("Content-Length")
+		GlobalSugar.Infoln(
+			"statusCode", StatusCode,
+			"size", Size,
+		)
+	}
+	return logFn
 }
