@@ -6,16 +6,17 @@ import (
 	"strconv"
 )
 
-var StatusCode2 int
+//var StatusCode2 int
 var Size string
 
-func WriteHeaderAndSaveStatus(statusCode int, w http.ResponseWriter) {
-	w.WriteHeader(statusCode)
-	StatusCode2 = statusCode
-}
+// func WriteHeaderAndSaveStatus(statusCode int, w http.ResponseWriter) {
+// 	w.WriteHeader(statusCode)
+// 	StatusCode2 = statusCode
+// }
 
 func HandlePostMetrics() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		var ContentType string = "text/plain"
 		var dataType string
 		var name string
 		var value string
@@ -25,18 +26,18 @@ func HandlePostMetrics() http.Handler {
 		value = mux.Vars(r)["value"]
 
 		if dataType == "" || name == "" || value == "" {
-			WriteHeaderAndSaveStatus(http.StatusNotFound, w)
+			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
 			return
 		}
 
 		if dataType == "gauge" {
 			value, err := strconv.ParseFloat(value, 64)
 			if err != nil {
-				WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
+				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 				return
 			} else {
 				Data.UpdateGauge(name, gauge(value))
-				WriteHeaderAndSaveStatus(http.StatusOK, w)
+				WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 				return
 			}
 		} else if dataType == "counter" {
@@ -44,38 +45,27 @@ func HandlePostMetrics() http.Handler {
 			if !exists {
 				value, err := strconv.ParseInt(value, 10, 64)
 				if err != nil {
-					WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
+					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 					return
 				} else {
 					Data.UpdateCounter(name, counter(value))
-					WriteHeaderAndSaveStatus(http.StatusOK, w)
+					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					return
 				}
 			} else {
 				value, err := strconv.ParseInt(value, 10, 64)
 				if err != nil {
-					WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
+					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 					return
 				} else {
 					Data.AddCounter(name, counter(value))
-					WriteHeaderAndSaveStatus(http.StatusOK, w)
+					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					return
 				}
 			}
 		} else {
-			WriteHeaderAndSaveStatus(http.StatusBadRequest, w)
+			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 		}
 	}
 	return http.HandlerFunc(fn)
-}
-
-func WithLoggingHandlePostMetrics(h http.Handler) func(w http.ResponseWriter, r *http.Request) {
-	logFn := func(w http.ResponseWriter, r *http.Request) {
-		h.ServeHTTP(w, r)
-		GlobalSugar.Infoln(
-			"statusCode", StatusCode2,
-			"size", r.Header.Get("Content-Length"),
-		)
-	}
-	return logFn
 }

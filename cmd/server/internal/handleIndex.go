@@ -3,7 +3,6 @@ package internal
 import (
 	"html/template"
 	"net/http"
-	"time"
 )
 
 const htmlTemplate = `{{ range $key, $value := . }}
@@ -22,20 +21,4 @@ func HandleIndex() http.Handler {
 		w.WriteHeader(http.StatusOK)
 	}
 	return http.HandlerFunc(fn)
-}
-
-func WithLoggingHandleIndex(h http.Handler) func(w http.ResponseWriter, r *http.Request) {
-	logFn := func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		uri := r.RequestURI
-		method := r.Method
-		h.ServeHTTP(w, r)
-		duration := time.Since(start)
-		GlobalSugar.Infoln(
-			"uri", uri,
-			"method", method,
-			"duration", duration,
-		)
-	}
-	return logFn
 }
