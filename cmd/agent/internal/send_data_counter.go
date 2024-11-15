@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 	"sync"
+	"time"
 )
 
 func SendDataCounter(reportInterval time.Duration) {

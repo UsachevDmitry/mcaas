@@ -3,14 +3,14 @@ package internal
 import (
 	"math/rand"
 	"runtime"
-	"time"
 	"sync"
+	"time"
 )
 
 func UpdateData(pollInterval time.Duration) {
 	var m runtime.MemStats
 	var mutex sync.Mutex
-	
+
 	mutex.Lock()
 	defer mutex.Unlock()
 	runtime.ReadMemStats(&m)
