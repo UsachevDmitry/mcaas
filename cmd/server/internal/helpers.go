@@ -64,8 +64,8 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		// 	GlobalSugar.Errorln("Error marshaling JSON:", err)
 		// 	return
 		// }
-		// w.Header().Set("Content-Type", "application/json")
-		// w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		// w.Write(requestBody)
 		json.NewEncoder(w).Encode(metrics)
 	}
@@ -84,8 +84,8 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		// 	return
 		// }
 		
-		// w.Header().Set("Content-Type", "application/json")
-		// w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		// w.Write(requestBody)
 		json.NewEncoder(w).Encode(metrics)
 	}
