@@ -47,7 +47,7 @@ func HandlePostMetricsJSON() http.Handler {
 				return
 			} else {
 				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
-				Value = fmt.Sprintf("%10f", *metrics.Value)
+				Value = fmt.Sprintf("%10.10f", *metrics.Value)
 			}			
 		}
 
@@ -61,7 +61,6 @@ func HandlePostMetricsJSON() http.Handler {
 
 		if DataType == "gauge" {
 			value, err := strconv.ParseFloat(Value, 64)
-			//value, err := ParseFloat10(Value, 10)
 			if err != nil {
 				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 				return

@@ -98,14 +98,3 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 	// }
 	// json.NewEncoder(w).Encode(metrics)
 }
-
-func ParseFloat10(s string, precision int) (float64, error) {
-	var bitSize int
-	if precision > 0 {
-		bitSize = precision
-	} else {
-		bitSize = 64 // По умолчанию используем float64
-	}
-
-	return strconv.ParseFloat(s, bitSize)
-}
