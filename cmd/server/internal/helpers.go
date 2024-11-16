@@ -45,18 +45,38 @@ func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.Respons
 }
 
 func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
-	CounterValue, _ := Data.GetCounter(name)
-	GaugeValue, _ := Data.GetGauge(name)
-	
-	var CounterValueInt64 int64 = int64(CounterValue)
-	var GaugeValueFloat64 float64 = float64(GaugeValue)
+	var GaugeValue gauge
+	var CounterValue counter
+	var CounterValueInt64 int64
+	var GaugeValueFloat64 float64
 
-	//ToDo разобраться с null и 0 при возврашение не заполненного значяения
-	var metrics = Metrics{
-		ID: name,    
-		MType: dataType,
-		Delta: &CounterValueInt64,
-		Value: &GaugeValueFloat64,
+	if dataType == "counter" {
+		CounterValue, _ = Data.GetCounter(name)
+		CounterValueInt64 = int64(CounterValue)
+		var metrics = Metrics{
+			ID: name,    
+			MType: dataType,
+			Delta: &CounterValueInt64,
+		}
+		json.NewEncoder(w).Encode(metrics)
 	}
-	json.NewEncoder(w).Encode(metrics)
+	if dataType == "gauge" {
+		GaugeValue, _ = Data.GetGauge(name)
+		GaugeValueFloat64 = float64(GaugeValue)
+		var metrics = Metrics{
+			ID: name,    
+			MType: dataType,
+	        Value: &GaugeValueFloat64,
+		}
+		json.NewEncoder(w).Encode(metrics)
+	}
+
+	//ToDo почему omitempty не работает ? пришлось занести этот код в условия и убрать Delta или Value
+	// var metrics = Metrics{
+	// 	ID: name,    
+	// 	MType: dataType,
+	// 	Delta: &CounterValueInt64,
+	// 	Value: &GaugeValueFloat64,
+	// }
+	// json.NewEncoder(w).Encode(metrics)
 }
