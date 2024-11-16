@@ -54,8 +54,8 @@ func HandlePostMetricsJSON() http.Handler {
 
 		if DataType == "" || Name == "" || Value == "" {
 			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-			message := Message{Message: "provided json file is invalid."}
-			json.NewEncoder(w).Encode(message)
+			// message := Message{Message: "provided json file is invalid."}
+			// json.NewEncoder(w).Encode(message)
 			return
 		}
 

@@ -67,8 +67,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 		//json.NewEncoder(w).Encode(metrics)
-	}
-	if dataType == "gauge" {
+	} else if dataType == "gauge" {
 		GaugeValue, _ = Data.GetGauge(name)
 		GaugeValueFloat64 = float64(GaugeValue)
 		var metrics = Metrics{
@@ -86,6 +85,8 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 		//json.NewEncoder(w).Encode(metrics)
+	} else {
+		WriteHeaderAndSaveStatus(http.StatusBadRequest, "application/json", w)
 	}
 
 	//ToDo почему omitempty не работает ? пришлось занести этот код в условия и убрать Delta или Value
