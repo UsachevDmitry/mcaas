@@ -42,7 +42,7 @@ func SendDataCounter(reportInterval time.Duration) {
 	}
 }
 
-func SendDataCounterNewApi(reportInterval time.Duration) {
+func SendDataCounterNewAPI(reportInterval time.Duration) {
 	var mutex sync.Mutex
 	
 	mutex.Lock()

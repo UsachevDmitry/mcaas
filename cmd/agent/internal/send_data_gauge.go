@@ -43,7 +43,7 @@ func SendDataGauge(reportInterval time.Duration) {
 	}
 }
 
-func SendDataGaugeNewApi(reportInterval time.Duration) {
+func SendDataGaugeNewAPI(reportInterval time.Duration) {
 	var mutex sync.Mutex
 
 	mutex.Lock()
@@ -72,7 +72,7 @@ func SendDataGaugeNewApi(reportInterval time.Duration) {
 			}
 			req.Header.Set("Content-Type", "application/json")
 			req.Header.Set("Status-Code", "200")
-			
+
 			client := &http.Client{}
 			resp, err := client.Do(req)
 			if err != nil {
