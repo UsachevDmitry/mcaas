@@ -37,7 +37,6 @@ func HandlePostMetricsJson() http.Handler {
 			} else {
 				WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
 				value = strconv.Itoa(int(*metrics.Delta))
-				//json.NewEncoder(w).Encode(metrics)
 			}
 		}
 		if dataType == "gauge" {
@@ -49,7 +48,6 @@ func HandlePostMetricsJson() http.Handler {
 			} else {
 				WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
 				value = fmt.Sprintf("%f", *metrics.Value)
-				//json.NewEncoder(w).Encode(metrics)
 			}			
 		}
 
@@ -103,11 +101,3 @@ func HandlePostMetricsJson() http.Handler {
 	}
 	return http.HandlerFunc(fn)
 }
-
-// type Metrics struct {
-// 	ID    string   `json:"id"`              // имя метрики key
-// 	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter 
-// 	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter value
-// 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge value
-//  } 
-
