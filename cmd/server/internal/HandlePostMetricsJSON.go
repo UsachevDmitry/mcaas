@@ -31,8 +31,8 @@ func HandlePostMetricsJSON() http.Handler {
 		if DataType == "counter" {
 			if metrics.Delta == nil {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-				message := Message{Message: "counter value == nil."}
-				json.NewEncoder(w).Encode(message)
+				// message := Message{Message: "counter value == nil."}
+				// json.NewEncoder(w).Encode(message)
 				return
 			} else {
 				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
@@ -42,8 +42,8 @@ func HandlePostMetricsJSON() http.Handler {
 		if DataType == "gauge" {
 			if metrics.Value == nil {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-				message := Message{Message: "gauge value == nil."}
-				json.NewEncoder(w).Encode(message)
+				// message := Message{Message: "gauge value == nil."}
+				// json.NewEncoder(w).Encode(message)
 				return
 			} else {
 				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
