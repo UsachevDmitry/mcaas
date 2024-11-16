@@ -66,7 +66,7 @@ func HandlePostMetricsJSON() http.Handler {
 				return
 			} else {
 				Data.UpdateGauge(Name, gauge(value2))
-				//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+				WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 				PostMetricAnswer(Name, DataType, w)
 				return
 			}
@@ -79,7 +79,7 @@ func HandlePostMetricsJSON() http.Handler {
 					return
 				} else {
 					Data.UpdateCounter(Name, counter(value2))
-					//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
 				}
@@ -90,7 +90,7 @@ func HandlePostMetricsJSON() http.Handler {
 					return
 				} else {
 					Data.AddCounter(Name, counter(value2))
-					//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
 				}
