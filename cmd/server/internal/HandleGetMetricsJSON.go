@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-func HandleGetMetricsJson() http.Handler {
+func HandleGetMetricsJSON() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var ContentType string = "application/json"
 		var dataType string

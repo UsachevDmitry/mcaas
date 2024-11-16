@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func HandlePostMetricsJson() http.Handler {
+func HandlePostMetricsJSON() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var ContentType string = "application/json"
 		var dataType string
