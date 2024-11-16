@@ -35,7 +35,7 @@ func HandlePostMetricsJSON() http.Handler {
 				json.NewEncoder(w).Encode(message)
 				return
 			} else {
-				WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
+				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
 				value = strconv.Itoa(int(*metrics.Delta))
 			}
 		}
@@ -46,7 +46,7 @@ func HandlePostMetricsJSON() http.Handler {
 				json.NewEncoder(w).Encode(message)
 				return
 			} else {
-				WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
+				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
 				value = fmt.Sprintf("%f", *metrics.Value)
 			}			
 		}
