@@ -33,6 +33,7 @@ func WithLoggingGet(h http.Handler) func(w http.ResponseWriter, r *http.Request)
 			"uri", uri,
 			"method", method,
 			"duration", duration,
+			"value", r.Body,
 		)
 	}
 	return logFn
@@ -57,16 +58,16 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 			ID: name,    
 			MType: dataType,
 			Delta: &CounterValueInt64,
-			Value: nil,
+			//Value: nil,
 		}
-		// requestBody, err := json.Marshal(metrics)
-		// if err != nil {
-		// 	GlobalSugar.Errorln("Error marshaling JSON:", err)
-		// 	return
-		// }
+		requestBody, err := json.Marshal(metrics)
+		if err != nil {
+			GlobalSugar.Errorln("Error marshaling JSON:", err)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
-		//w.WriteHeader(http.StatusOK)
-		// w.Write(requestBody)
+		w.WriteHeader(http.StatusOK)
+		w.Write(requestBody)
 		json.NewEncoder(w).Encode(metrics)
 	}
 	if dataType == "gauge" {
@@ -75,19 +76,19 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		var metrics = Metrics{
 			ID: name,    
 			MType: dataType,
-			Delta: nil,
+			//Delta: nil,
 	        Value: &GaugeValueFloat64,
 		}
-		// requestBody, err := json.Marshal(metrics)
-		// if err != nil {
-		// 	GlobalSugar.Errorln("Error marshaling JSON:", err)
-		// 	return
-		// }
+		requestBody, err := json.Marshal(metrics)
+		if err != nil {
+			GlobalSugar.Errorln("Error marshaling JSON:", err)
+			return
+		}
 		
 		w.Header().Set("Content-Type", "application/json")
-		//w.WriteHeader(http.StatusOK)
-		// w.Write(requestBody)
-		json.NewEncoder(w).Encode(metrics)
+		w.WriteHeader(http.StatusOK)
+		w.Write(requestBody)
+		//json.NewEncoder(w).Encode(metrics)
 	}
 
 	//ToDo почему omitempty не работает ? пришлось занести этот код в условия и убрать Delta или Value
