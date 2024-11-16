@@ -66,7 +66,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
-		json.NewEncoder(w).Encode(metrics)
+		//json.NewEncoder(w).Encode(metrics)
 	}
 	if dataType == "gauge" {
 		GaugeValue, _ = Data.GetGauge(name)
