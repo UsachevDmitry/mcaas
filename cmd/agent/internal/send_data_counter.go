@@ -44,10 +44,10 @@ func SendDataCounter(reportInterval time.Duration) {
 }
 
 func SendDataCounterNewAPI(reportInterval time.Duration) {
-	var mutex sync.Mutex
+	// var mutex sync.Mutex
 	
-	mutex.Lock()
-	defer mutex.Unlock()
+	// mutex.Lock()
+	// defer mutex.Unlock()
 	for {
 		time.Sleep(reportInterval * time.Second)
 		for name, value := range Data.MetricsCounter {

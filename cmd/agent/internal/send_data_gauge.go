@@ -45,10 +45,10 @@ func SendDataGauge(reportInterval time.Duration) {
 }
 
 func SendDataGaugeNewAPI(reportInterval time.Duration) {
-	var mutex sync.Mutex
+	// var mutex sync.Mutex
 
-	mutex.Lock()
-	defer mutex.Unlock()
+	// mutex.Lock()
+	// defer mutex.Unlock()
 
 	for {
 		time.Sleep(reportInterval * time.Second)
