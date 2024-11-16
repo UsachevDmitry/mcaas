@@ -25,7 +25,7 @@ func HandleGetMetricsJSON() http.Handler {
 		dataType = metrics.MType
 		name = metrics.ID
 
-		WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+		//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 		
 		PostMetricAnswer(name, dataType, w)
 	}
