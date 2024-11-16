@@ -57,7 +57,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 			ID: name,    
 			MType: dataType,
 			Delta: &CounterValueInt64,
-			//Value: nil,
+			Value: nil,
 		}
 		requestBody, err := json.Marshal(metrics)
 		if err != nil {
@@ -75,7 +75,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		var metrics = Metrics{
 			ID: name,    
 			MType: dataType,
-			//Delta: nil,
+			Delta: nil,
 	        Value: &GaugeValueFloat64,
 		}
 		requestBody, err := json.Marshal(metrics)
