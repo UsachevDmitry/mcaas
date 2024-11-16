@@ -33,7 +33,6 @@ func WithLoggingGet(h http.Handler) func(w http.ResponseWriter, r *http.Request)
 			"uri", uri,
 			"method", method,
 			"duration", duration,
-			"value", r.Body,
 		)
 	}
 	return logFn
