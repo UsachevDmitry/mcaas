@@ -98,5 +98,4 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 	// 	Value: &GaugeValueFloat64,
 	// }
 	// json.NewEncoder(w).Encode(metrics)
-	//
 }
