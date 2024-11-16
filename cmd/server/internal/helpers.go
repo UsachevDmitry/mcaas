@@ -2,7 +2,13 @@ package internal
 import (
 	"net/http"
 	"time"
+	"encoding/json"
 )
+
+type Message struct {
+	Message string `json:"message"`
+}
+
 var GlobalStatusCode int
 
 func WithLoggingPost(h http.Handler) func(w http.ResponseWriter, r *http.Request) {
@@ -38,6 +44,19 @@ func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.Respons
 	GlobalStatusCode = statusCode
 }
 
-type Message struct {
-	Message string `json:"message"`
+func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
+	CounterValue, _ := Data.GetCounter(name)
+	GaugeValue, _ := Data.GetGauge(name)
+	
+	var CounterValueInt64 int64 = int64(CounterValue)
+	var GaugeValueFloat64 float64 = float64(GaugeValue)
+
+	//ToDo разобраться с null и 0 при возврашение не заполненного значяения
+	var metrics = Metrics{
+		ID: name,    
+		MType: dataType,
+		Delta: &CounterValueInt64,
+		Value: &GaugeValueFloat64,
+	}
+	json.NewEncoder(w).Encode(metrics)
 }

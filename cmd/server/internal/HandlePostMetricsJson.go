@@ -69,6 +69,7 @@ func HandlePostMetricsJson() http.Handler {
 			} else {
 				Data.UpdateGauge(name, gauge(value))
 				WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+				PostMetricAnswer(name, dataType, w)
 				return
 			}
 		} else if dataType == "counter" {
@@ -81,6 +82,7 @@ func HandlePostMetricsJson() http.Handler {
 				} else {
 					Data.UpdateCounter(name, counter(value))
 					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+					PostMetricAnswer(name, dataType, w)
 					return
 				}
 			} else {
@@ -91,27 +93,13 @@ func HandlePostMetricsJson() http.Handler {
 				} else {
 					Data.AddCounter(name, counter(value))
 					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+					PostMetricAnswer(name, dataType, w)
 					return
 				}
 			}
 		} else {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 		}
-
-		CounterValue, _ := Data.GetCounter(name)
-		GaugeValue, _ := Data.GetGauge(name)
-		
-		var CounterValueInt64 int64 = int64(CounterValue)
-		var GaugeValueFloat64 float64 = float64(GaugeValue)
-
-		var metrics2 = Metrics{
-			ID: name,    
-			MType: dataType,
-			Delta: &CounterValueInt64,
-			Value: &GaugeValueFloat64,
-		}
-		
-		fmt.Println(metrics2)
 	}
 	return http.HandlerFunc(fn)
 }
@@ -122,3 +110,4 @@ func HandlePostMetricsJson() http.Handler {
 // 	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter value
 // 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge value
 //  } 
+
