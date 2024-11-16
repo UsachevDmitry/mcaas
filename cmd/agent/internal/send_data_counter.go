@@ -69,6 +69,7 @@ func SendDataCounterNewApi(reportInterval time.Duration) {
 				return
 			}
 			req.Header.Set("Content-Type", "application/json")
+			req.Header.Set("Status-Code", "200")
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
