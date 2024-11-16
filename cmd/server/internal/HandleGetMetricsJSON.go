@@ -7,7 +7,7 @@ import (
 
 func HandleGetMetricsJSON() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var ContentType string = "application/json"
+		var ContentType = "application/json"
 		var dataType string
 		var name string
 		var metrics Metrics

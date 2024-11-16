@@ -6,17 +6,11 @@ import (
 	"strconv"
 )
 
-//var StatusCode2 int
 var Size string
-
-// func WriteHeaderAndSaveStatus(statusCode int, w http.ResponseWriter) {
-// 	w.WriteHeader(statusCode)
-// 	StatusCode2 = statusCode
-// }
 
 func HandlePostMetrics() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var ContentType string = "text/plain"
+		var ContentType = "text/plain"
 		var dataType string
 		var name string
 		var value string
