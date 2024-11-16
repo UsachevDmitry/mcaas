@@ -81,7 +81,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 			}
 			defer resp.Body.Close()
 
-			if resp.StatusCode != http.StatusCreated {
+			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
 				return
 			}
