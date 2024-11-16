@@ -47,7 +47,7 @@ func HandlePostMetricsJSON() http.Handler {
 				return
 			} else {
 				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
-				Value = fmt.Sprintf("%10.10f", *metrics.Value)
+				Value = fmt.Sprintf("%10.15f", *metrics.Value)
 			}			
 		}
 
