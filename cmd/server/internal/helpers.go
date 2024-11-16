@@ -39,8 +39,8 @@ func WithLoggingGet(h http.Handler) func(w http.ResponseWriter, r *http.Request)
 }
 
 func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.ResponseWriter) {
-	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", ContentType)
+	w.WriteHeader(statusCode)
 	GlobalStatusCode = statusCode
 }
 
@@ -70,6 +70,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		}
 		json.NewEncoder(w).Encode(metrics)
 	}
+	
 
 	//ToDo почему omitempty не работает ? пришлось занести этот код в условия и убрать Delta или Value
 	// var metrics = Metrics{
