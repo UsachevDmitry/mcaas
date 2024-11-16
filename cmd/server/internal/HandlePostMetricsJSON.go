@@ -60,7 +60,8 @@ func HandlePostMetricsJSON() http.Handler {
 		}
 
 		if DataType == "gauge" {
-			value, err := strconv.ParseFloat(Value, 64)
+			// value, err := strconv.ParseFloat(Value, 64)
+			value, err := ParseFloat10(Value, 10)
 			if err != nil {
 				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 				return

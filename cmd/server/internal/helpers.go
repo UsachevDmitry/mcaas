@@ -3,6 +3,7 @@ import (
 	"net/http"
 	"time"
 	"encoding/json"
+	"strconv"
 )
 
 type Message struct {
@@ -87,7 +88,6 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		w.Write(requestBody)
 		//json.NewEncoder(w).Encode(metrics)
 	}
-	
 
 	//ToDo почему omitempty не работает ? пришлось занести этот код в условия и убрать Delta или Value
 	// var metrics = Metrics{
@@ -97,4 +97,15 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 	// 	Value: &GaugeValueFloat64,
 	// }
 	// json.NewEncoder(w).Encode(metrics)
+}
+
+func ParseFloat10(s string, precision int) (float64, error) {
+	var bitSize int
+	if precision > 0 {
+		bitSize = precision
+	} else {
+		bitSize = 64 // По умолчанию используем float64
+	}
+
+	return strconv.ParseFloat(s, bitSize)
 }
