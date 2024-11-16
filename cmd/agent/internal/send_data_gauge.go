@@ -57,6 +57,7 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 			var metrics = Metrics{
 				ID: name,
 				MType: "gauge",
+				Delta: nil,
 				Value: &GaugeValueFloat64,
 			}
 			jsonBody, err := json.Marshal(metrics)

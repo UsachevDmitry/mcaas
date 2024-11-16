@@ -57,6 +57,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 				ID: name,    
 				MType: "counter",
 				Delta: &CounterValueInt64,
+				Value: nil,
 			}
 			jsonBody, err := json.Marshal(metrics)
 			if err != nil {

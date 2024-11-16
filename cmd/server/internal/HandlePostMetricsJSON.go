@@ -60,12 +60,12 @@ func HandlePostMetricsJSON() http.Handler {
 		}
 
 		if DataType == "gauge" {
-			value, err := strconv.ParseFloat(Value, 64)
+			value2, err := strconv.ParseFloat(Value, 64)
 			if err != nil {
 				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 				return
 			} else {
-				Data.UpdateGauge(Name, gauge(value))
+				Data.UpdateGauge(Name, gauge(value2))
 				WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 				PostMetricAnswer(Name, DataType, w)
 				return
@@ -73,23 +73,23 @@ func HandlePostMetricsJSON() http.Handler {
 		} else if DataType == "counter" {
 			_, exists := Data.GetCounter(Name)
 			if !exists {
-				value, err := strconv.ParseInt(Value, 10, 64)
+				value2, err := strconv.ParseInt(Value, 10, 64)
 				if err != nil {
 					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 					return
 				} else {
-					Data.UpdateCounter(Name, counter(value))
+					Data.UpdateCounter(Name, counter(value2))
 					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
 				}
 			} else {
-				value, err := strconv.ParseInt(Value, 10, 64)
+				value2, err := strconv.ParseInt(Value, 10, 64)
 				if err != nil {
 					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 					return
 				} else {
-					Data.AddCounter(Name, counter(value))
+					Data.AddCounter(Name, counter(value2))
 					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
