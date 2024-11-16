@@ -10,12 +10,11 @@ import (
 func UpdateData(pollInterval time.Duration) {
 	var m runtime.MemStats
 	var mutex sync.Mutex
-
 	mutex.Lock()
 	defer mutex.Unlock()
-	runtime.ReadMemStats(&m)
 	var i = 0
 	for {
+		runtime.ReadMemStats(&m)
 		Data.UpdateGauge("Alloc", gauge(m.Alloc))
 		Data.UpdateGauge("BuckHashSys", gauge(m.BuckHashSys))
 		Data.UpdateGauge("Frees", gauge(m.Frees))

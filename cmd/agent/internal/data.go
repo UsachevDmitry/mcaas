@@ -57,3 +57,10 @@ func (ms MemStorage) DeleteGauge(key string) {
 func (ms MemStorage) DeleteCounter(key string) {
 	delete(ms.MetricsCounter, key)
 }
+
+type Metrics struct {
+	ID    string   `json:"id"`              // имя метрики key
+	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter 
+	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter value
+	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge value
+ }

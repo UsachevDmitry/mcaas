@@ -17,11 +17,11 @@ func main() {
 		defer wg.Done()
 	}()
 	go func() {
-		internal.SendDataCounter(time.Duration(*internal.ReportInterval))
+		internal.SendDataCounterNewApi(time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()
 	go func() {
-		internal.SendDataGauge(time.Duration(*internal.ReportInterval))
+		internal.SendDataGaugeNewApi(time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()
 	wg.Wait()
