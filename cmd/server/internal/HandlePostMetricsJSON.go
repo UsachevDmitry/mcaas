@@ -88,16 +88,16 @@ func HandlePostMetricsJSON() http.Handler {
 					return
 				// }
 			} else {
-				value2, err := strconv.ParseInt(Value, 10, 64)
-				if err != nil {
-					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
-					return
-				} else {
-					Data.AddCounter(Name, counter(value2))
+				// value2, err := strconv.ParseInt(Value, 10, 64)
+				// if err != nil {
+				// 	WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+				// 	return
+				// } else {
+					Data.AddCounter(Name, counter(ValueInt64)) //value2
 					//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
-				}
+				// }
 			}
 		} else {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
