@@ -17,8 +17,8 @@ func HandleGetMetricsJSON() http.Handler {
 		err := decoder.Decode(&metrics)
 		if err != nil {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
-			message := Message{Message: "provided json file is invalid."}
-			json.NewEncoder(w).Encode(message)
+			// message := Message{Message: "provided json file is invalid."}
+			// json.NewEncoder(w).Encode(message)
 			return
 		}
 		

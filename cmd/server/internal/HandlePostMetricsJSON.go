@@ -14,10 +14,7 @@ func HandlePostMetricsJSON() http.Handler {
 		var Name string
 		var Value string
 		var metrics Metrics
-		//var ValueInt64 int64
-		//var ValueFloat64 float64
-
-
+		var ValueInt64 int64
 		decoder := json.NewDecoder(r.Body)
 		decoder.DisallowUnknownFields()
 		err := decoder.Decode(&metrics)
@@ -27,8 +24,6 @@ func HandlePostMetricsJSON() http.Handler {
 			// json.NewEncoder(w).Encode(message)
 			return
 		}
-
-		
 		
 		DataType = metrics.MType
 		Name = metrics.ID
@@ -48,33 +43,32 @@ func HandlePostMetricsJSON() http.Handler {
 				return
 			} else {
 				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
-				Value = strconv.Itoa(int(*metrics.Delta))
-				//ValueInt64 = int64(*metrics.Delta)
+				//Value = strconv.Itoa(int(*metrics.Delta))
+
+				ValueInt64 = int64(*metrics.Delta)
 			}
 			_, exists := Data.GetCounter(Name)
 			if !exists {
-					value2, err := strconv.ParseInt(Value, 10, 64)
-					if err != nil {
-					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
-					return
-				} else {
-					Data.UpdateCounter(Name, counter(value2)) //value2
+					//value2, err := strconv.ParseInt(Value, 10, 64)
+					//if err != nil {
+					// WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+					// return
+			//} else {
+					Data.UpdateCounter(Name, counter(ValueInt64)) //value2
 					//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
-				}
 			} else {
-				value2, err := strconv.ParseInt(Value, 10, 64)
-				if err != nil {
-					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
-					return
-				} else {
-					Data.AddCounter(Name, counter(value2)) //value2
+				// value2, err := strconv.ParseInt(Value, 10, 64)
+				// if err != nil {
+				// 	WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+				// 	return
+				// } else {
+					Data.AddCounter(Name, counter(ValueInt64)) //value2
 					//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
 				}
-			}
 		} else if DataType == "gauge" {
 			if metrics.Value == nil {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
@@ -99,6 +93,10 @@ func HandlePostMetricsJSON() http.Handler {
 		} else {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 		}
+	}	
+	return http.HandlerFunc(fn)
+}
+
 
 
 		// if DataType == "gauge" {
@@ -140,6 +138,3 @@ func HandlePostMetricsJSON() http.Handler {
 		// } else {
 		// 	WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 		// }
-	}
-	return http.HandlerFunc(fn)
-}
