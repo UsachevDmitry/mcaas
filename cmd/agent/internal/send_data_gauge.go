@@ -23,7 +23,7 @@ func SendDataGauge(reportInterval time.Duration) {
 			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
 			if err != nil {
 				fmt.Println("Error creating request:", err)
-				return
+				continue
 			}
 			req.Header.Set("Content-Type", "text/plain")
 			//req.Header.Set("Status-Code", "200")
@@ -38,7 +38,7 @@ func SendDataGauge(reportInterval time.Duration) {
 
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
-				return
+				continue
 			}
 		}
 	}
@@ -63,13 +63,13 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 			jsonBody, err := json.Marshal(metrics)
 			if err != nil {
 				fmt.Println("Error:", err)
-				return
+				continue
 			}
 			
 			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
 			if err != nil {
 				fmt.Println("Error creating request:", err)
-				return
+				continue
 			}
 			req.Header.Set("Content-Type", "application/json")
 			//req.Header.Set("Status-Code", "200")
@@ -84,7 +84,7 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 
 			if resp.StatusCode != http.StatusOK{
 				fmt.Println("Error status:", resp.StatusCode)
-				return
+				continue
 			}
 		}
 	}

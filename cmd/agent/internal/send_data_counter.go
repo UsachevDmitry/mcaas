@@ -62,19 +62,20 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 			jsonBody, err := json.Marshal(metrics)
 			if err != nil {
 				fmt.Println("Error:", err)
-				return
+				continue
 			}
 			
 			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
 			if err != nil {
 				fmt.Println("Error creating request:", err)
-				return
+				continue
 			}
 			req.Header.Set("Content-Type", "application/json")
 			//req.Header.Set("Status-Code", "200")
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
+			
 			if err != nil {
 				fmt.Println("Error sending request:", err)
 				return
@@ -83,7 +84,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
-				return
+				continue
 			}
 		}
 	}
