@@ -35,6 +35,7 @@ func UpdateData(pollInterval time.Duration) {
 		Data.UpdateGauge("Mallocs", gauge(m.Mallocs))
 		Data.UpdateGauge("NextGC", gauge(m.NextGC))
 		Data.UpdateGauge("NumForcedGC", gauge(m.NumForcedGC))
+		Data.UpdateGauge("NumForcedGC", gauge(m.NumGC))
 		Data.UpdateGauge("OtherSys", gauge(m.OtherSys))
 		Data.UpdateGauge("PauseTotalNs", gauge(m.PauseTotalNs))
 		Data.UpdateGauge("StackInuse", gauge(m.StackInuse))
