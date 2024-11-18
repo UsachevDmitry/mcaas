@@ -15,6 +15,7 @@ func HandlePostMetricsJSON() http.Handler {
 		var Value string
 		var metrics Metrics
 		var ValueInt64 int64
+		var ValueFloat64 float64
 		decoder := json.NewDecoder(r.Body)
 		decoder.DisallowUnknownFields()
 		err := decoder.Decode(&metrics)
@@ -77,18 +78,18 @@ func HandlePostMetricsJSON() http.Handler {
 				return
 			} else {
 				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
-				Value = fmt.Sprintf("%10.15f", *metrics.Value)
-				//ValueFloat64 = float64(*metrics.Value)
-				value2, err := strconv.ParseFloat(Value, 64)			
-				if err != nil {
-					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
-					return
-				} else {
-					Data.UpdateGauge(Name, gauge(value2)) //value2
+				//Value = fmt.Sprintf("%10.15f", *metrics.Value)
+				ValueFloat64 = float64(*metrics.Value)
+				//value2, err := strconv.ParseFloat(Value, 64)			
+				// if err != nil {
+				// 	WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+				// 	return
+				// } else {
+					Data.UpdateGauge(Name, gauge(ValueFloat64)) //value2
 					//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					PostMetricAnswer(Name, DataType, w)
 					return
-				}
+				// }
 			}			
 		} else {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
