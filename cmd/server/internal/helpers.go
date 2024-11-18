@@ -45,8 +45,6 @@ func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.Respons
 }
 
 func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
-	var GaugeValue gauge
-	//var CounterValue counter
 	var CounterValueInt64 int64
 	var GaugeValueFloat64 float64
 
