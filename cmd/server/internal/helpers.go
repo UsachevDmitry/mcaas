@@ -52,7 +52,6 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		CounterValue, exists := Data.GetCounter(name)
 			if !exists {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, "application/json", w)
-				w.Write([]byte(""))
 				return
 			}
 		CounterValueInt64 = int64(CounterValue)
@@ -74,7 +73,6 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		GaugeValue, exists := Data.GetGauge(name)
 		if !exists {
 			WriteHeaderAndSaveStatus(http.StatusNotFound, "application/json", w)
-			w.Write([]byte(""))
 			return
 		}
 		GaugeValueFloat64 = float64(GaugeValue)

@@ -27,9 +27,19 @@ func HandlePostMetricsJSON() http.Handler {
 			// json.NewEncoder(w).Encode(message)
 			return
 		}
+
+		
 		
 		DataType = metrics.MType
 		Name = metrics.ID
+
+		if DataType == "" || Name == "" {
+			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
+			// message := Message{Message: "provided json file is invalid."}
+			// json.NewEncoder(w).Encode(message)
+			return
+		}
+
 		if DataType == "counter" {
 			if metrics.Delta == nil {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
@@ -41,40 +51,6 @@ func HandlePostMetricsJSON() http.Handler {
 				Value = strconv.Itoa(int(*metrics.Delta))
 				//ValueInt64 = int64(*metrics.Delta)
 			}
-		}
-		if DataType == "gauge" {
-			if metrics.Value == nil {
-				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-				// message := Message{Message: "gauge value == nil."}
-				// json.NewEncoder(w).Encode(message)
-				return
-			} else {
-				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
-				Value = fmt.Sprintf("%10.15f", *metrics.Value)
-				//ValueFloat64 = float64(*metrics.Value)
-			}			
-		}
-
-
-		if DataType == "" || Name == "" || Value == "" {
-			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-			// message := Message{Message: "provided json file is invalid."}
-			// json.NewEncoder(w).Encode(message)
-			return
-		}
-
-		if DataType == "gauge" {
-			value2, err := strconv.ParseFloat(Value, 64)			
-			if err != nil {
-				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
-				return
-			} else {
-				Data.UpdateGauge(Name, gauge(value2)) //value2
-				//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
-				PostMetricAnswer(Name, DataType, w)
-				return
-			}
-		} else if DataType == "counter" {
 			_, exists := Data.GetCounter(Name)
 			if !exists {
 					value2, err := strconv.ParseInt(Value, 10, 64)
@@ -99,9 +75,71 @@ func HandlePostMetricsJSON() http.Handler {
 					return
 				}
 			}
+		} else if DataType == "gauge" {
+			if metrics.Value == nil {
+				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
+				// message := Message{Message: "gauge value == nil."}
+				// json.NewEncoder(w).Encode(message)
+				return
+			} else {
+				//WriteHeaderAndSaveStatus(http.StatusCreated, ContentType, w)
+				Value = fmt.Sprintf("%10.15f", *metrics.Value)
+				//ValueFloat64 = float64(*metrics.Value)
+				value2, err := strconv.ParseFloat(Value, 64)			
+				if err != nil {
+					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+					return
+				} else {
+					Data.UpdateGauge(Name, gauge(value2)) //value2
+					//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+					PostMetricAnswer(Name, DataType, w)
+					return
+				}
+			}			
 		} else {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 		}
+
+
+		// if DataType == "gauge" {
+		// 	value2, err := strconv.ParseFloat(Value, 64)			
+		// 	if err != nil {
+		// 		WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+		// 		return
+		// 	} else {
+		// 		Data.UpdateGauge(Name, gauge(value2)) //value2
+		// 		//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+		// 		PostMetricAnswer(Name, DataType, w)
+		// 		return
+		// 	}
+		// } else if DataType == "counter" {
+		// 	_, exists := Data.GetCounter(Name)
+		// 	if !exists {
+		// 			value2, err := strconv.ParseInt(Value, 10, 64)
+		// 			if err != nil {
+		// 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+		// 			return
+		// 		} else {
+		// 			Data.UpdateCounter(Name, counter(value2)) //value2
+		// 			//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+		// 			PostMetricAnswer(Name, DataType, w)
+		// 			return
+		// 		}
+		// 	} else {
+		// 		value2, err := strconv.ParseInt(Value, 10, 64)
+		// 		if err != nil {
+		// 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+		// 			return
+		// 		} else {
+		// 			Data.AddCounter(Name, counter(value2)) //value2
+		// 			//WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
+		// 			PostMetricAnswer(Name, DataType, w)
+		// 			return
+		// 		}
+		// 	}
+		// } else {
+		// 	WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+		// }
 	}
 	return http.HandlerFunc(fn)
 }
