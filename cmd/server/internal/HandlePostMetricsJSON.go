@@ -1,10 +1,10 @@
 package internal
 
 import (
-	"fmt"
+	//"fmt"
 	"net/http"
 	"encoding/json"
-	"strconv"
+	//"strconv"
 )
 
 func HandlePostMetricsJSON() http.Handler {
@@ -12,7 +12,7 @@ func HandlePostMetricsJSON() http.Handler {
 		var ContentType = "application/json"
 		var DataType string
 		var Name string
-		var Value string
+		//var Value string
 		var metrics Metrics
 		var ValueInt64 int64
 		var ValueFloat64 float64
