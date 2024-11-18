@@ -26,7 +26,6 @@ func SendDataGauge(reportInterval time.Duration) {
 				continue
 			}
 			req.Header.Set("Content-Type", "text/plain")
-			//req.Header.Set("Status-Code", "200")
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
@@ -72,8 +71,6 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 				continue
 			}
 			req.Header.Set("Content-Type", "application/json")
-			//req.Header.Set("Status-Code", "200")
-
 			client := &http.Client{}
 			resp, err := client.Do(req)
 			if err != nil {

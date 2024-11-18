@@ -18,8 +18,6 @@ func HandlePostMetricsJSON() http.Handler {
 		err := decoder.Decode(&metrics)
 		if err != nil {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
-			// message := Message{Message: "provided json file is invalid."}
-			// json.NewEncoder(w).Encode(message)
 			return
 		}
 		
@@ -28,16 +26,12 @@ func HandlePostMetricsJSON() http.Handler {
 
 		if DataType == "" || Name == "" {
 			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-			// message := Message{Message: "provided json file is invalid."}
-			// json.NewEncoder(w).Encode(message)
 			return
 		}
 
 		if DataType == "counter" {
 			if metrics.Delta == nil {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-				// message := Message{Message: "counter value == nil."}
-				// json.NewEncoder(w).Encode(message)
 				return
 			} else {
 				ValueInt64 = int64(*metrics.Delta)
@@ -55,8 +49,6 @@ func HandlePostMetricsJSON() http.Handler {
 		} else if DataType == "gauge" {
 			if metrics.Value == nil {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-				// message := Message{Message: "gauge value == nil."}
-				// json.NewEncoder(w).Encode(message)
 				return
 			} else {
 				ValueFloat64 = float64(*metrics.Value)
