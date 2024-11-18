@@ -46,12 +46,16 @@ func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.Respons
 
 func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 	var GaugeValue gauge
-	var CounterValue counter
+	//var CounterValue counter
 	var CounterValueInt64 int64
 	var GaugeValueFloat64 float64
 
 	if dataType == "counter" {
-		CounterValue, _ = Data.GetCounter(name)
+		CounterValue, exists := Data.GetCounter(name)
+			if !exists {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
 		CounterValueInt64 = int64(CounterValue)
 		var metrics = Metrics{
 			ID: name,    
@@ -68,7 +72,11 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		w.Write(requestBody)
 		//json.NewEncoder(w).Encode(metrics)
 	} else if dataType == "gauge" {
-		GaugeValue, _ = Data.GetGauge(name)
+		GaugeValue, exists := Data.GetGauge(name)
+		if !exists {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
 		GaugeValueFloat64 = float64(GaugeValue)
 		var metrics = Metrics{
 			ID: name,    
