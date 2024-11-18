@@ -34,7 +34,7 @@ func SendDataGauge(reportInterval time.Duration) {
 				fmt.Println("Error sending request:", err)
 				continue
 			}
-			//defer resp.Body.Close()
+			resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
@@ -80,7 +80,7 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 				fmt.Println("Error sending request:", err)
 				continue
 			}
-			//defer resp.Body.Close()
+			resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK{
 				fmt.Println("Error status:", resp.StatusCode)

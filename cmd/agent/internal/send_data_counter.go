@@ -25,7 +25,6 @@ func SendDataCounter(reportInterval time.Duration) {
 				continue
 			}
 			req.Header.Set("Content-Type", "text/plain")
-			//req.Header.Set("Status-Code", "200")
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
@@ -33,7 +32,7 @@ func SendDataCounter(reportInterval time.Duration) {
 				fmt.Println("Error sending request:", err)
 				continue
 			}
-			//defer resp.Body.Close()
+			resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
@@ -80,7 +79,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 				fmt.Println("Error sending request:", err)
 				continue
 			}
-			//defer resp.Body.Close()
+			resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
