@@ -79,7 +79,7 @@ func GzipHandle(h http.Handler) http.HandlerFunc {
 				return
 			}
 			defer gz.Close()
-			w.Header().Set("Content-Type", ContentType)
+			w.Header().Set("Content-Type", "text/html")
 			w.Header().Set("Content-Encoding", "gzip")
 			// передаём обработчику страницы переменную типа gzipWriter для вывода данных
 			h.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
