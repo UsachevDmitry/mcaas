@@ -1,15 +1,18 @@
 package internal
+
 import (
-	"net/http"
-	"time"
-	"encoding/json"
-	"strings"
-	"compress/gzip"
-	"io"
-	"fmt"
 	"bytes"
-	"sync"
+	"compress/gzip"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 	"os"
+	//"runtime/metrics"
+	"strings"
+	"sync"
+	"time"
+	"bufio"
 )
 
 type Message struct {
@@ -185,13 +188,37 @@ func Compress(data []byte) ([]byte, error) {
 }
 
 
+func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
+	if !restore {
+		return
+	}
 
+	consumer, err := NewConsumer(fileStoragePathEnv)
+	if err != nil {
+		fmt.Println("Error creating consumer:", err)
+		return
+	}
+	defer consumer.Close()
+	for {
+		// Чтение данных из файла построчно
+		metrics, err := consumer.ReadLine()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			GlobalSugar.Error("Error reading from consumer:", err)
+			return
+		}
+		if metrics.MType == "gauge" {
+			Data.UpdateGauge(metrics.ID, gauge(*metrics.Value))
+		}
+		if metrics.MType == "counter" {
+			Data.UpdateCounter(metrics.ID, counter(*metrics.Delta))
+		}
+	}
+}
 
-
-
-
-
-func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, restore bool) {
+func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 	var mutex sync.Mutex
 	mutex.Lock()
 	
@@ -275,6 +302,7 @@ func (p *Producer) Close() error {
 
 type Consumer struct {
     file *os.File // файл для чтения
+	reader *bufio.Reader
 }
 
 func NewConsumer(filename string) (*Consumer, error) {
@@ -290,4 +318,21 @@ func NewConsumer(filename string) (*Consumer, error) {
 func (c *Consumer) Close() error {
     // закрываем файл
     return c.file.Close()
+} 
+
+func (c *Consumer) ReadLine() (*Metrics, error) {
+    // читаем данные до символа переноса строки
+    data, err := c.reader.ReadBytes('\n')
+    if err != nil {
+        return nil, err
+    }
+
+    // преобразуем данные из JSON-представления в структуру
+    metrics := Metrics{}
+    err = json.Unmarshal(data, &metrics)
+    if err != nil {
+        return nil, err
+    }
+
+    return &metrics, nil
 } 
