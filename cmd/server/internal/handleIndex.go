@@ -18,8 +18,8 @@ func HandleIndex() http.Handler {
 		}
 		tpl.ExecuteTemplate(w, "metrics", Data.MetricsGauge)
 		tpl.ExecuteTemplate(w, "metrics", Data.MetricsCounter)
-		w.Header().Set("Accept", "text/html")
-		w.Header().Set("Accept-Encoding", "gzip")
+		// w.Header().Set("Accept", "text/html")
+		// w.Header().Set("Accept-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 	}
 	return http.HandlerFunc(fn)
