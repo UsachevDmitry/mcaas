@@ -198,51 +198,59 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, rest
 	defer mutex.Unlock()
 	for {
 		time.Sleep(storeInterval * time.Second)
-		for name, value := range Data.MetricsGauge {
-			GaugeValueFloat64 := float64(value)
-			var metrics = Metrics{
-				ID: name,
-				MType: "gauge",
-				Delta: nil,
-				Value: &GaugeValueFloat64,
-			}
-			jsonBody, err := json.Marshal(metrics)
-			if err != nil {
-				GlobalSugar.Error("Error:", err)
-				continue
-			}
-			producer, err := NewProducer(*FileStoragePath)
+		{
+			Producer, err := NewProducer(*FileStoragePath)
 			if err != nil {
 				GlobalSugar.Error("Error creating producer:", err)
 				continue
 			}
-			producer.Close()
+			for name, value := range Data.MetricsGauge {
+				GaugeValueFloat64 := float64(value)
+				var metrics = Metrics{
+					ID: name,
+					MType: "gauge",
+					Delta: nil,
+					Value: &GaugeValueFloat64,
+				}
+				jsonBody, err := json.Marshal(metrics)
+				if err != nil {
+					GlobalSugar.Error("Error:", err)
+					continue
+				}
+				// producer, err := NewProducer(*FileStoragePath)
+				// if err != nil {
+				// 	GlobalSugar.Error("Error creating producer:", err)
+				// 	continue
+				// }
+				Producer.file.WriteString(string(jsonBody) + "\n")
+				//Producer.file.Write(jsonBody)
 
-			producer.file.Write(jsonBody)
+			}
+			for name, value := range Data.MetricsCounter {
+				CounterValueInt64 := int64(value)
+				var metrics = Metrics{
+					ID: name,
+					MType: "counter",
+					Delta: &CounterValueInt64,
+					Value: nil,
+				}
+				jsonBody, err := json.Marshal(metrics)
+				if err != nil {
+					GlobalSugar.Error("Error:", err)
+					continue
+				}
+				// producer, err := NewProducer(*FileStoragePath)
+				// if err != nil {
+				// 	GlobalSugar.Error("Error creating producer:", err)
+				// 	continue
+				// }
+				
+				Producer.file.WriteString(string(jsonBody) + "\n")//(jsonBody)
+				//Producer.Close()
+			}
+			Producer.Close()
 		}
-		for name, value := range Data.MetricsCounter {
-			CounterValueInt64 := int64(value)
-			var metrics = Metrics{
-				ID: name,
-				MType: "counter",
-				Delta: &CounterValueInt64,
-				Value: nil,
-			}
-			jsonBody, err := json.Marshal(metrics)
-			if err != nil {
-				GlobalSugar.Error("Error:", err)
-				continue
-			}
-			producer, err := NewProducer(*FileStoragePath)
-			if err != nil {
-				GlobalSugar.Error("Error creating producer:", err)
-				continue
-			}
-			producer.Close()
-
-			producer.file.Write(jsonBody)
-
-		}
+		
 	}
 }
 //--------------------------------------------
@@ -252,7 +260,7 @@ type Producer struct {
 
 func NewProducer(filename string) (*Producer, error) {
     // открываем файл для записи в конец
-    file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+    file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0666)
     if err != nil {
         return nil, err
     }
