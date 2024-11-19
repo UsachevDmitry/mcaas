@@ -207,7 +207,29 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, rest
 			producer, err := NewProducer(*FileStoragePath)
 			if err != nil {
 				GlobalSugar.Error("Error creating producer:", err)
-				return
+				continue
+			}
+			defer producer.Close()
+
+			producer.file.Write(jsonBody)
+		}
+		for name, value := range Data.MetricsCounter {
+			CounterValueInt64 := int64(value)
+			var metrics = Metrics{
+				ID: name,
+				MType: "counter",
+				Delta: &CounterValueInt64,
+				Value: nil,
+			}
+			jsonBody, err := json.Marshal(metrics)
+			if err != nil {
+				GlobalSugar.Error("Error:", err)
+				continue
+			}
+			producer, err := NewProducer(*FileStoragePath)
+			if err != nil {
+				GlobalSugar.Error("Error creating producer:", err)
+				continue
 			}
 			defer producer.Close()
 
