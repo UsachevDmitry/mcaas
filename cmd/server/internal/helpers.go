@@ -184,10 +184,17 @@ func Compress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+
+
+
+
+
+
+
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, restore bool) {
 	var mutex sync.Mutex
 	mutex.Lock()
-
+	
 	defer mutex.Unlock()
 	for {
 		time.Sleep(storeInterval * time.Second)
@@ -209,7 +216,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, rest
 				GlobalSugar.Error("Error creating producer:", err)
 				continue
 			}
-			defer producer.Close()
+			producer.Close()
 
 			producer.file.Write(jsonBody)
 		}
@@ -231,7 +238,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, rest
 				GlobalSugar.Error("Error creating producer:", err)
 				continue
 			}
-			defer producer.Close()
+			producer.Close()
 
 			producer.file.Write(jsonBody)
 
