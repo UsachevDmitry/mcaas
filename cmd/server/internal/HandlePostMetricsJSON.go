@@ -3,36 +3,18 @@ package internal
 import (
 	"net/http"
 	"encoding/json"
-	// "compress/gzip"
-	// "io"
-	// "fmt"
-	// "bytes"
 )
 
 func HandlePostMetricsJSON() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var ContentType = "application/json"
+		var ContentType string
 		var DataType string
 		var Name string
 		var metrics Metrics
 		var ValueInt64 int64
 		var ValueFloat64 float64
 
-		// // Чтение сжатых данных из тела запроса
-		// body, err2 := io.ReadAll(r.Body)
-		// if err2 != nil {
-		// 	fmt.Println("Error reading request body:", err2)
-		// 	return
-		// }
-
-		// // Распаковка данных
-		// //var data map[string]interface{}
-		// reader, err2 := gzip.NewReader(bytes.NewReader(body))
-		// if err2 != nil {
-		// 	fmt.Println("Error creating gzip reader:", err2)
-		// 	return
-		// }
-		// defer reader.Close()
+		ContentType = r.Header.Get("Content-Type")
 		
 		decoder := json.NewDecoder(r.Body)
 		decoder.DisallowUnknownFields()
