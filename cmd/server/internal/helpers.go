@@ -53,8 +53,9 @@ func (w gzipWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 } 
 
-func GzipHandle(h http.Handler) http.HandlerFunc {//func(w http.ResponseWriter, r *http.Request) {
+func GzipHandle(h http.Handler) http.HandlerFunc {
 	ArchFn := func(w http.ResponseWriter, r *http.Request) {
+			ContentType := r.Header.Get("Content-Type")
 			// проверяем, что клиент поддерживает gzip-сжатие
 			// это упрощённый пример. В реальном приложении следует проверять все
 			// значения r.Header.Values("Accept-Encoding") и разбирать строку
@@ -78,7 +79,7 @@ func GzipHandle(h http.Handler) http.HandlerFunc {//func(w http.ResponseWriter, 
 				return
 			}
 			defer gz.Close()
-
+			w.Header().Set("Content-Type", ContentType)
 			w.Header().Set("Content-Encoding", "gzip")
 			// передаём обработчику страницы переменную типа gzipWriter для вывода данных
 			h.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
