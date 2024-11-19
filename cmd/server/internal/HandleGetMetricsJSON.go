@@ -21,7 +21,7 @@ func HandleGetMetricsJSON() http.Handler {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 			return
 		}
-		PostMetricAnswer(metrics.ID, metrics.MType, w)
+		PostMetricAnswer(metrics.ID, metrics.MType, w, r)
 	}
 	return http.HandlerFunc(fn)
 }
