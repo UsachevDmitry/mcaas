@@ -11,13 +11,14 @@ const htmlTemplate = `{{ range $key, $value := . }}
 
 func HandleIndex() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
+		ContentType := r.Header.Get("Content-Type")
 		tpl, err := template.New("metrics").Parse(htmlTemplate)
 		if err != nil {
 			GlobalSugar.Fatalw(err.Error(), "event", "get index")
 		}
 		tpl.ExecuteTemplate(w, "metrics", Data.MetricsGauge)
 		tpl.ExecuteTemplate(w, "metrics", Data.MetricsCounter)
-		w.Header().Set("Content-Type", "text/html")
+		w.Header().Set("Content-Type", ContentType)
 		w.WriteHeader(http.StatusOK)
 	}
 	return http.HandlerFunc(fn)
