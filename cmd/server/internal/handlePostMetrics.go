@@ -10,11 +10,13 @@ var Size string
 
 func HandlePostMetrics() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var ContentType = "text/plain"
+		var ContentType string
 		var dataType string
 		var name string
 		var value string
 
+		ContentType = r.Header.Get("Content-Type")
+		
 		dataType = mux.Vars(r)["type"]
 		name = mux.Vars(r)["name"]
 		value = mux.Vars(r)["value"]
