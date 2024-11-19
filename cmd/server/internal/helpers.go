@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"bytes"
 	"sync"
+	"os"
 )
 
 type Message struct {
@@ -186,9 +187,70 @@ func Compress(data []byte) ([]byte, error) {
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, restore bool) {
 	var mutex sync.Mutex
 	mutex.Lock()
+
 	defer mutex.Unlock()
 	for {
 		time.Sleep(storeInterval * time.Second)
-		
+		for name, value := range Data.MetricsGauge {
+			GaugeValueFloat64 := float64(value)
+			var metrics = Metrics{
+				ID: name,
+				MType: "gauge",
+				Delta: nil,
+				Value: &GaugeValueFloat64,
+			}
+			jsonBody, err := json.Marshal(metrics)
+			if err != nil {
+				GlobalSugar.Error("Error:", err)
+				continue
+			}
+			producer, err := NewProducer(*FileStoragePath)
+			if err != nil {
+				GlobalSugar.Error("Error creating producer:", err)
+				return
+			}
+			defer producer.Close()
+
+			producer.file.Write(jsonBody)
+
+		}
 	}
 }
+//--------------------------------------------
+type Producer struct {
+    file *os.File // файл для записи
+}
+
+func NewProducer(filename string) (*Producer, error) {
+    // открываем файл для записи в конец
+    file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+    if err != nil {
+        return nil, err
+    }
+
+    return &Producer{file: file}, nil
+}
+
+func (p *Producer) Close() error {
+    // закрываем файл
+    return p.file.Close()
+}
+
+type Consumer struct {
+    file *os.File // файл для чтения
+}
+
+func NewConsumer(filename string) (*Consumer, error) {
+    // открываем файл для чтения
+    file, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0666)
+    if err != nil {
+        return nil, err
+    }
+
+    return &Consumer{file: file}, nil
+}
+
+func (c *Consumer) Close() error {
+    // закрываем файл
+    return c.file.Close()
+} 
