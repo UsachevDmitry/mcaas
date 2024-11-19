@@ -34,7 +34,7 @@ func HandlePostMetricsJSON() http.Handler {
 		// }
 		// defer reader.Close()
 		
-		decoder := json.NewDecoder(Decompress(r.Body))
+		decoder := json.NewDecoder(r.Body)
 		decoder.DisallowUnknownFields()
 		err := decoder.Decode(&metrics)
 		if err != nil {

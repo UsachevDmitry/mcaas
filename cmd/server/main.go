@@ -19,11 +19,11 @@ func main() {
 		*addr = addrEnv
 	}
 	router := mux.NewRouter()
-	router.HandleFunc("/", internal.GzipHandle(internal.WithLoggingGet(internal.HandleIndex()))).Methods(http.MethodGet)
-	router.HandleFunc("/update/", internal.GzipHandle(internal.WithLoggingGet(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
-	router.HandleFunc("/update/{type}/{name}/{value}", internal.GzipHandle(internal.WithLoggingPost(internal.HandlePostMetrics()))).Methods(http.MethodPost)
-	router.HandleFunc("/value/", internal.GzipHandle(internal.WithLoggingGet(internal.HandleGetMetricsJSON()))).Methods(http.MethodPost)
-	router.HandleFunc("/value/{type}/{name}", internal.GzipHandle(internal.WithLoggingGet(internal.HandleGetValue()))).Methods(http.MethodGet)
+	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
+	router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
+	router.HandleFunc("/update/{type}/{name}/{value}", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetrics()))).Methods(http.MethodPost)
+	router.HandleFunc("/value/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetMetricsJSON()))).Methods(http.MethodPost)
+	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
 	
 	internal.Logger()
 	internal.GlobalSugar.Infow(

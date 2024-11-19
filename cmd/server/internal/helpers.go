@@ -59,6 +59,11 @@ func GzipHandle(h http.Handler) http.HandlerFunc {//func(w http.ResponseWriter, 
 			// это упрощённый пример. В реальном приложении следует проверять все
 			// значения r.Header.Values("Accept-Encoding") и разбирать строку
 			// на составные части, чтобы избежать неожиданных результатов
+
+			if r.Header.Get("Content-Encoding") == "gzip" {
+				r.Body = Decompress(r.Body)
+			}
+
 			if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
 				// если gzip не поддерживается, передаём управление
 				// дальше без изменений
@@ -109,7 +114,9 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 			GlobalSugar.Errorln("Error marshaling JSON:", err)
 			return
 		}
+		//compressedJSONBody, _ := Compress(requestBody)
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else if dataType == "gauge" {
@@ -130,9 +137,10 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 			return
 		}
 
-		
+		//compressedJSONBody, _ := Compress(requestBody)
 		
 		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else {
@@ -171,4 +179,25 @@ func Decompress(r io.ReadCloser) *gzip.Reader {
 	}
 	defer reader.Close()
 	return reader
+}
+
+func Compress(data []byte) ([]byte, error) {
+	var b bytes.Buffer
+	// Создаём переменную w — в неё будут записываться входящие данные,
+	// которые будут сжиматься и сохраняться в bytes.Buffer
+	w := gzip.NewWriter(&b)
+	// Запись данных
+	_ , err := w.Write(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed write data to compress temporary buffer: %v", err)
+	}
+	// Обязательно нужно вызвать метод Close() — в противном случае часть данных
+	// может не записаться в буфер b; если нужно выгрузить все упакованные данные
+	// в какой-то момент сжатия, используйте метод Flush()
+	err = w.Close()
+	if err != nil {
+		return nil, fmt.Errorf("failed compress data: %v", err)
+	}
+	// Переменная b содержит сжатые данные
+	return b.Bytes(), nil
 }
