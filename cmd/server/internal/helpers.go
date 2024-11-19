@@ -183,11 +183,12 @@ func Compress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, restore string) {
+func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, restore bool) {
 	var mutex sync.Mutex
 	mutex.Lock()
 	defer mutex.Unlock()
 	for {
 		time.Sleep(storeInterval * time.Second)
+		
 	}
 }

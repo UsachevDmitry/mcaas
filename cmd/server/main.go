@@ -10,7 +10,7 @@ import (
 func main() {
 	internal.GetConfig()
 
-	go internal.SaveDataInFile(time.Duration(*internal.StoreInterval), fileStoragePathEnv, restore)
+	go internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath, *internal.Restore)
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
