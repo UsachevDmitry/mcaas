@@ -16,7 +16,7 @@ type Message struct {
 
 var GlobalStatusCode int
 
-func WithLoggingPost(h http.Handler) http.HandlerFunc { //func(w http.ResponseWriter, r *http.Request) {
+func WithLoggingPost(h http.Handler) http.HandlerFunc {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		h.ServeHTTP(w, r)
 		GlobalSugar.Infoln(
@@ -27,7 +27,7 @@ func WithLoggingPost(h http.Handler) http.HandlerFunc { //func(w http.ResponseWr
 	return logFn
 }
 
-func WithLoggingGet(h http.Handler) http.HandlerFunc {//func(w http.ResponseWriter, r *http.Request) {
+func WithLoggingGet(h http.Handler) http.HandlerFunc {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		uri := r.RequestURI
@@ -94,9 +94,10 @@ func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.Respons
 }
 
 func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *http.Request){
+	var ContentType string
 	var CounterValueInt64 int64
 	var GaugeValueFloat64 float64
-	var ContentType string
+
 	ContentType = r.Header.Get("Content-Type")
 
 	if dataType == "counter" {
