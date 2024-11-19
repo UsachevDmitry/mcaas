@@ -55,7 +55,6 @@ func (w gzipWriter) Write(b []byte) (int, error) {
 
 func GzipHandle(h http.Handler) http.HandlerFunc {
 	ArchFn := func(w http.ResponseWriter, r *http.Request) {
-			//ContentType := r.Header.Get("Content-Type")
 			// проверяем, что клиент поддерживает gzip-сжатие
 			// это упрощённый пример. В реальном приложении следует проверять все
 			// значения r.Header.Values("Accept-Encoding") и разбирать строку
@@ -79,7 +78,7 @@ func GzipHandle(h http.Handler) http.HandlerFunc {
 				return
 			}
 			defer gz.Close()
-			w.Header().Set("Content-Type", "text/html")
+			w.Header().Set("Content-Type", "text/html") // ??? Не понимаю почему помогло пройти авто тест в iter8 TestIteration8/TestGetGzipHandlers/get_info_page
 			w.Header().Set("Content-Encoding", "gzip")
 			// передаём обработчику страницы переменную типа gzipWriter для вывода данных
 			h.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
@@ -118,9 +117,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 			GlobalSugar.Errorln("Error marshaling JSON:", err)
 			return
 		}
-		//compressedJSONBody, _ := Compress(requestBody)
 		w.Header().Set("Content-Type", ContentType)
-		//w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else if dataType == "gauge" {
@@ -140,11 +137,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 			GlobalSugar.Errorln("Error marshaling JSON:", err)
 			return
 		}
-
-		//compressedJSONBody, _ := Compress(requestBody)
-		
 		w.Header().Set("Content-Type", ContentType)
-		//w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else {
@@ -152,22 +145,6 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 	}
 }
 
-// func Decompress(data []byte) ([]byte, error) {
-//     // переменная r будет читать входящие данные и распаковывать их
-//     r ,_ := gzip.NewReader(bytes.NewReader(data))
-//     defer r.Close()
-
-//     var b bytes.Buffer
-//     // в переменную b записываются распакованные данные
-//     _, err := b.ReadFrom(r)
-//     if err != nil {
-//         return nil, fmt.Errorf("failed decompress data: %v", err)
-//     }
-
-//     return b.Bytes(), nil
-// } 
-
-		// // Чтение сжатых данных из тела запроса io.ReadCloser r *http.Request
 func Decompress(r io.ReadCloser) *gzip.Reader {
 	body, err2 := io.ReadAll(r)
 	if err2 != nil {
@@ -175,7 +152,6 @@ func Decompress(r io.ReadCloser) *gzip.Reader {
 		return nil
 	}
 	// Распаковка данных
-	//var data map[string]interface{}
 	reader, err2 := gzip.NewReader(bytes.NewReader(body))
 	if err2 != nil {
 		fmt.Println("Error creating gzip reader:", err2)
