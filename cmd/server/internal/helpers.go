@@ -8,6 +8,7 @@ import (
 	"io"
 	"fmt"
 	"bytes"
+	"sync"
 )
 
 type Message struct {
@@ -180,4 +181,13 @@ func Compress(data []byte) ([]byte, error) {
 	}
 	// Переменная b содержит сжатые данные
 	return b.Bytes(), nil
+}
+
+func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string, restore string) {
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+	for {
+		time.Sleep(storeInterval * time.Second)
+	}
 }

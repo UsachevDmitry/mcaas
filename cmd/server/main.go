@@ -1,23 +1,17 @@
 package main
 
 import (
-	"flag"
 	"github.com/UsachevDmitry/mcaas/cmd/server/internal"
 	"github.com/gorilla/mux"
 	"net/http"
-	"os"
+	"time"
 )
 
-const defaultAddr = "localhost:8080"
-
-var addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
-
 func main() {
-	flag.Parse()
-	addrEnv := os.Getenv("ADDRESS")
-	if addrEnv != "" {
-		*addr = addrEnv
-	}
+	internal.GetConfig()
+
+	go internal.SaveDataInFile(time.Duration(*internal.StoreInterval), fileStoragePathEnv, restore)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
 	router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
@@ -28,9 +22,12 @@ func main() {
 	internal.Logger()
 	internal.GlobalSugar.Infow(
 		"Starting server",
-		"addr", *addr,
+		"ADDRESS", *internal.Addr,
+		"STORE_INTERVAL", *internal.StoreInterval,
+		"FILE_STORAGE_PATH", *internal.FileStoragePath, 
+		"RESTORE", *internal.Restore, 
 	)
-	if err := http.ListenAndServe(*addr, router); err != nil {
+	if err := http.ListenAndServe(*internal.Addr, router); err != nil {
 		internal.GlobalSugar.Fatalw(err.Error(), "event", "start server")
 	}
 }
