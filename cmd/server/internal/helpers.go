@@ -116,7 +116,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		}
 		//compressedJSONBody, _ := Compress(requestBody)
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Content-Encoding", "gzip")
+		//w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else if dataType == "gauge" {
@@ -140,7 +140,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		//compressedJSONBody, _ := Compress(requestBody)
 		
 		w.Header().Set("Content-Type", "application/json")
-		w.Header().Set("Content-Encoding", "gzip")
+		//w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else {
