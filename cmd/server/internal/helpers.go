@@ -55,7 +55,7 @@ func (w gzipWriter) Write(b []byte) (int, error) {
 
 func GzipHandle(h http.Handler) http.HandlerFunc {
 	ArchFn := func(w http.ResponseWriter, r *http.Request) {
-			ContentType := r.Header.Get("Content-Type")
+			//ContentType := r.Header.Get("Content-Type")
 			// проверяем, что клиент поддерживает gzip-сжатие
 			// это упрощённый пример. В реальном приложении следует проверять все
 			// значения r.Header.Values("Accept-Encoding") и разбирать строку
