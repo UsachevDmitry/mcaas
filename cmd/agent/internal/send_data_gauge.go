@@ -19,7 +19,6 @@ func SendDataGauge(reportInterval time.Duration) {
 		time.Sleep(reportInterval * time.Second)
 		for key, value := range Data.MetricsGauge {
 			url := "http://" + *Addr + "/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
-
 			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
 			if err != nil {
 				fmt.Println("Error creating request:", err)
@@ -64,12 +63,15 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 				fmt.Println("Error:", err)
 				continue
 			}
-			
-			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
+
+			compressedJsonBody, _ := Compress(jsonBody)
+	
+			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(compressedJsonBody))
 			if err != nil {
 				fmt.Println("Error creating request:", err)
 				continue
 			}
+			req.Header.Set("Accept-Encoding", "gzip")
 			req.Header.Set("Content-Type", "application/json")
 			client := &http.Client{}
 			resp, err := client.Do(req)

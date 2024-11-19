@@ -6,7 +6,7 @@ import (
 )
 
 const htmlTemplate = `{{ range $key, $value := . }}
-<p>Ключ: {{ $key }}<br>Значение: {{ $value }}</p>
+<p>Key: {{ $key }}<br>Value: {{ $value }}</p>
 {{ end }}`
 
 func HandleIndex() http.Handler {

@@ -3,6 +3,11 @@ import (
 	"net/http"
 	"time"
 	"encoding/json"
+	"strings"
+	"compress/gzip"
+	"io"
+	"fmt"
+	"bytes"
 )
 
 type Message struct {
@@ -11,7 +16,7 @@ type Message struct {
 
 var GlobalStatusCode int
 
-func WithLoggingPost(h http.Handler) func(w http.ResponseWriter, r *http.Request) {
+func WithLoggingPost(h http.Handler) http.HandlerFunc { //func(w http.ResponseWriter, r *http.Request) {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		h.ServeHTTP(w, r)
 		GlobalSugar.Infoln(
@@ -22,7 +27,7 @@ func WithLoggingPost(h http.Handler) func(w http.ResponseWriter, r *http.Request
 	return logFn
 }
 
-func WithLoggingGet(h http.Handler) func(w http.ResponseWriter, r *http.Request) {
+func WithLoggingGet(h http.Handler) http.HandlerFunc {//func(w http.ResponseWriter, r *http.Request) {
 	logFn := func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		uri := r.RequestURI
@@ -37,6 +42,45 @@ func WithLoggingGet(h http.Handler) func(w http.ResponseWriter, r *http.Request)
 	}
 	return logFn
 }
+
+type gzipWriter struct {
+	http.ResponseWriter
+	Writer io.Writer
+}
+
+func (w gzipWriter) Write(b []byte) (int, error) {
+	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
+	return w.Writer.Write(b)
+} 
+
+func GzipHandle(h http.Handler) http.HandlerFunc {//func(w http.ResponseWriter, r *http.Request) {
+	ArchFn := func(w http.ResponseWriter, r *http.Request) {
+			// проверяем, что клиент поддерживает gzip-сжатие
+			// это упрощённый пример. В реальном приложении следует проверять все
+			// значения r.Header.Values("Accept-Encoding") и разбирать строку
+			// на составные части, чтобы избежать неожиданных результатов
+			if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+				// если gzip не поддерживается, передаём управление
+				// дальше без изменений
+				h.ServeHTTP(w, r)
+				return
+			}
+
+			// создаём gzip.Writer поверх текущего w
+			gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
+			if err != nil {
+				io.WriteString(w, err.Error())
+				return
+			}
+			defer gz.Close()
+
+			w.Header().Set("Content-Encoding", "gzip")
+			// передаём обработчику страницы переменную типа gzipWriter для вывода данных
+			h.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
+	}
+	return ArchFn
+}
+
 
 func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", ContentType)
@@ -85,6 +129,8 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 			GlobalSugar.Errorln("Error marshaling JSON:", err)
 			return
 		}
+
+		
 		
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -92,4 +138,37 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 	} else {
 		WriteHeaderAndSaveStatus(http.StatusNotFound, "application/json", w)
 	}
+}
+
+// func Decompress(data []byte) ([]byte, error) {
+//     // переменная r будет читать входящие данные и распаковывать их
+//     r ,_ := gzip.NewReader(bytes.NewReader(data))
+//     defer r.Close()
+
+//     var b bytes.Buffer
+//     // в переменную b записываются распакованные данные
+//     _, err := b.ReadFrom(r)
+//     if err != nil {
+//         return nil, fmt.Errorf("failed decompress data: %v", err)
+//     }
+
+//     return b.Bytes(), nil
+// } 
+
+		// // Чтение сжатых данных из тела запроса io.ReadCloser r *http.Request
+func Decompress(r io.ReadCloser) *gzip.Reader {
+	body, err2 := io.ReadAll(r)
+	if err2 != nil {
+		fmt.Println("Error reading request body:", err2)
+		return nil
+	}
+	// Распаковка данных
+	//var data map[string]interface{}
+	reader, err2 := gzip.NewReader(bytes.NewReader(body))
+	if err2 != nil {
+		fmt.Println("Error creating gzip reader:", err2)
+		return nil
+	}
+	defer reader.Close()
+	return reader
 }

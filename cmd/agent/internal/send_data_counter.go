@@ -62,13 +62,17 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 			if err != nil {
 				fmt.Println("Error:", err)
 				continue
+
 			}
 			
-			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonBody))
+			compressedJsonBody, _ := Compress(jsonBody)
+
+			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(compressedJsonBody))
 			if err != nil {
 				fmt.Println("Error creating request:", err)
 				continue
 			}
+			req.Header.Set("Accept-Encoding", "gzip")
 			req.Header.Set("Content-Type", "application/json")
 
 			client := &http.Client{}

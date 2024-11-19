@@ -10,7 +10,7 @@ func HandleGetMetricsJSON() http.Handler {
 		var ContentType = "application/json"
 		var metrics Metrics
 
-		decoder := json.NewDecoder(r.Body)
+		decoder := json.NewDecoder(Decompress(r.Body))
 		decoder.DisallowUnknownFields()
 		err := decoder.Decode(&metrics)
 		if err != nil {
