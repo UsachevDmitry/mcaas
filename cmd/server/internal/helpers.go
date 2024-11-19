@@ -93,14 +93,16 @@ func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.Respons
 	GlobalStatusCode = statusCode
 }
 
-func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
+func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *http.Request){
 	var CounterValueInt64 int64
 	var GaugeValueFloat64 float64
+	var ContentType string
+	ContentType = r.Header.Get("Content-Type")
 
 	if dataType == "counter" {
 		CounterValue, exists := Data.GetCounter(name)
 			if !exists {
-				WriteHeaderAndSaveStatus(http.StatusNotFound, "application/json", w)
+				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
 				return
 			}
 		CounterValueInt64 = int64(CounterValue)
@@ -115,14 +117,14 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 			return
 		}
 		//compressedJSONBody, _ := Compress(requestBody)
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", ContentType)
 		//w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else if dataType == "gauge" {
 		GaugeValue, exists := Data.GetGauge(name)
 		if !exists {
-			WriteHeaderAndSaveStatus(http.StatusNotFound, "application/json", w)
+			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
 			return
 		}
 		GaugeValueFloat64 = float64(GaugeValue)
@@ -139,12 +141,12 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 
 		//compressedJSONBody, _ := Compress(requestBody)
 		
-		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", ContentType)
 		//w.Header().Set("Content-Encoding", "gzip")
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else {
-		WriteHeaderAndSaveStatus(http.StatusNotFound, "application/json", w)
+		WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
 	}
 }
 
