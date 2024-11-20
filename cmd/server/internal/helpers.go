@@ -272,9 +272,12 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 				Producer.file.WriteString(string(jsonBody) + "\n")
 			}
 			Producer.Close()
+			if storeInterval == 0 {
+				return
+			} else {
 			time.Sleep(storeInterval * time.Second)
+			}
 		}
-
 	}
 }
 
