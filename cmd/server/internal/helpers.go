@@ -8,11 +8,10 @@ import (
 	"io"
 	"net/http"
 	"os"
-	//"runtime/metrics"
+	"bufio"
 	"strings"
 	"sync"
 	"time"
-	"bufio"
 )
 
 type Message struct {
@@ -188,34 +187,64 @@ func Compress(data []byte) ([]byte, error) {
 }
 
 
+
+
+// func (b *Backup) Restore() {
+// 	for {
+// 		metric, err := b.restorer.ReadMetric()
+// 		if err != nil {
+// 			if err == io.EOF {
+// 				break
+// 			}
+// 			log.Printf("unable to restore metric: %v", err)
+// 		}
+// 		err = b.storage.Store(*metric)
+// 		if err != nil {
+// 			log.Printf("unable to store metric, during backup restore: %v", err)
+// 		}
+// 	}
+// }
+
+
+
+
 func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if !restore {
 		return
 	}
+	
+	file, err := os.Open(fileStoragePathEnv)
+    if err != nil {
+        GlobalSugar.Fatal(err)
+    }
+    defer file.Close()
 
-	consumer, err := NewConsumer(fileStoragePathEnv)
-	if err != nil {
-		fmt.Println("Error creating consumer:", err)
-		return
-	}
-	defer consumer.Close()
-	for {
-		// Чтение данных из файла построчно
-		metrics, err := consumer.ReadLine()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			GlobalSugar.Error("Error reading from consumer:", err)
-			return
-		}
+    scanner := bufio.NewScanner(file)
+    var metrics Metrics
+    for scanner.Scan() {
+        json.Unmarshal([]byte(scanner.Text()), &metrics)
+
 		if metrics.MType == "gauge" {
 			Data.UpdateGauge(metrics.ID, gauge(*metrics.Value))
 		}
 		if metrics.MType == "counter" {
 			Data.UpdateCounter(metrics.ID, counter(*metrics.Delta))
 		}
-	}
+    }
+
+    if err := scanner.Err(); err != nil {
+        GlobalSugar.Fatal(err)
+    }
+  
+    
+		// if metrics.MType == "gauge" {
+		// 	Data.UpdateGauge(metrics.ID, gauge(*metrics.Value))
+		// }
+		// if metrics.MType == "counter" {
+		// 	Data.UpdateCounter(metrics.ID, counter(*metrics.Delta))
+		// }
+		
+	
 }
 
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
@@ -320,19 +349,74 @@ func (c *Consumer) Close() error {
     return c.file.Close()
 } 
 
-func (c *Consumer) ReadLine() (*Metrics, error) {
-    // читаем данные до символа переноса строки
-    data, err := c.reader.ReadBytes('\n')
-    if err != nil {
-        return nil, err
-    }
+// func (c *Consumer) ReadMetric() (*Metrics, error) {
+// 	data, err := c.reader.ReadBytes('\n')
+// 	if err != nil {
+// 		if err == io.EOF {
+// 			err = nil
+// 		}
+// 		return nil, err
+// 	}
 
-    // преобразуем данные из JSON-представления в структуру
-    metrics := Metrics{}
-    err = json.Unmarshal(data, &metrics)
-    if err != nil {
-        return nil, err
-    }
+// 	metric := model.NewMetric()
+// 	if err = json.Unmarshal(data, metric); err != nil {
+// 		return nil, err
+// 	}
 
-    return &metrics, nil
-} 
+// 	if err = metric.CheckValid(); err != nil {
+// 		return nil, err
+// 	}
+// 	return metric, nil
+// }
+
+
+// func (r *Restorer) ReadMetric() (*model.Metric, error) {
+// 	data, err := r.reader.ReadBytes('\n')
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	metric := model.NewMetric()
+// 	if err = json.Unmarshal(data, metric); err != nil {
+// 		return nil, err
+// 	}
+
+// 	if err = metric.CheckValid(); err != nil {
+// 		return nil, err
+// 	}
+// 	return metric, nil
+// }
+
+
+
+
+
+
+
+
+// func (c *Consumer) ReadLine2() (*Metrics, error) {
+// 	var line string
+
+// 	// Чтение строки из файла
+// 	_, err := c.file.ReadString('\n')
+// 	if err != nil {
+// 		if err == io.EOF {
+// 			err = nil
+// 		}
+// 		return nil, err
+	// }
+
+// 	// Разделение строки на JSON-объект
+// 	jsonData := string(line)
+// 	jsonData = jsonData:len(jsonData)-1 // Убираем символ новой строки
+
+// 	var person Person
+// 	err = json.Unmarshal(byte(jsonData), &person)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	line = fmt.Sprintf("%+v\n", person) // Форматируем строку для вывода
+
+// 	return &person, nil
+// }
