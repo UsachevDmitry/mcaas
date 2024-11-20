@@ -304,7 +304,6 @@ func (p *Producer) Close() error {
 
 type Consumer struct {
     file *os.File // файл для чтения
-	reader *bufio.Reader
 }
 
 func NewConsumer(filename string) (*Consumer, error) {
