@@ -6,6 +6,10 @@ import (
 	"net/http"
 	"sync"
 	"time"
+	"os/signal"
+	"os"
+	"context"
+	"syscall"
 )
 
 func main() {
@@ -36,7 +40,30 @@ func main() {
 		"RESTORE", *internal.Restore,
 	)
 
-	if err := http.ListenAndServe(*internal.Addr, router); err != nil {
-		internal.GlobalSugar.Fatalw(err.Error(), "event", "start server")
+	// err := http.ListenAndServe(*internal.Addr, router); 
+	// if err != nil {
+	// 	internal.GlobalSugar.Fatalw(err.Error(), "event", "start server")
+	// }
+
+	srv := &http.Server{
+		Addr: *internal.Addr,
+		Handler: router,
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	go func() {
+		<-ctx.Done()
+		internal.GlobalSugar.Fatalw("Graceful shutdown signal received")
+		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+		srv.Shutdown(ctx)
+		os.Exit(0)
+	}()
+
+	err := srv.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
+		internal.GlobalSugar.Fatalw("Error starting server:", err)
+		os.Exit(1)
 	}
 }
