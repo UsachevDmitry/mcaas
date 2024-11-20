@@ -5,12 +5,20 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+	"sync"
 )
 
 func main() {
+	var wg sync.WaitGroup
+
 	internal.GetConfig()
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
-	go internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+
+	wg.Add(1)
+	go func() {
+		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+		defer wg.Done()
+	}()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
