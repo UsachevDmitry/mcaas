@@ -18,25 +18,6 @@ func main() {
 	internal.GetConfig()
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
-
-
-	wg.Add(1)
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(*internal.StoreInterval+1)*time.Second)
-		defer cancel()
-		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
-		defer wg.Done()
-		
-		select {
-		case <-ctx.Done():
-			internal.GlobalSugar.Infoln("Context timed out")
-		case <-time.After(time.Duration(*internal.StoreInterval+1)):
-			internal.GlobalSugar.Infoln("Operation completed")
-	}
-	}()
-
-
-
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
 	router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
@@ -53,15 +34,16 @@ func main() {
 		"RESTORE", *internal.Restore,
 	)
 
-	// err := http.ListenAndServe(*internal.Addr, router); 
-	// if err != nil {
-	// 	internal.GlobalSugar.Fatalw(err.Error(), "event", "start server")
-	// }
-
 	srv := &http.Server{
 		Addr: *internal.Addr,
 		Handler: router,
 	}
+
+	wg.Add(1)
+	go func() {
+		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+		defer wg.Done()
+	}()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
