@@ -1,18 +1,18 @@
 package internal
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
-	"encoding/json"
-	"bytes"
 )
 
 func SendDataCounter(reportInterval time.Duration) {
 	var mutex sync.Mutex
-	
+
 	mutex.Lock()
 	defer mutex.Unlock()
 	for {
@@ -44,7 +44,7 @@ func SendDataCounter(reportInterval time.Duration) {
 
 func SendDataCounterNewAPI(reportInterval time.Duration) {
 	var mutex sync.Mutex
-	
+
 	mutex.Lock()
 	defer mutex.Unlock()
 	for {
@@ -53,7 +53,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 			url := "http://" + *Addr + "/update/"
 			CounterValueInt64 := int64(value)
 			var metrics = Metrics{
-				ID: name,    
+				ID:    name,
 				MType: "counter",
 				Delta: &CounterValueInt64,
 				Value: nil,
@@ -64,7 +64,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 				continue
 
 			}
-			
+
 			compressedJSONBody, _ := Compress(jsonBody)
 
 			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(compressedJSONBody))
@@ -77,7 +77,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 
 			client := &http.Client{}
 			resp, err := client.Do(req)
-			
+
 			if err != nil {
 				fmt.Println("Error sending request:", err)
 				continue

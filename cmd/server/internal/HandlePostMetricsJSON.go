@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 func HandlePostMetricsJSON() http.Handler {
@@ -23,7 +23,7 @@ func HandlePostMetricsJSON() http.Handler {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 			return
 		}
-		
+
 		DataType = metrics.MType
 		Name = metrics.ID
 
@@ -41,14 +41,14 @@ func HandlePostMetricsJSON() http.Handler {
 			}
 			_, exists := Data.GetCounter(Name)
 			if !exists {
-				Data.UpdateCounter(Name, counter(ValueInt64))				
+				Data.UpdateCounter(Name, counter(ValueInt64))
 				PostMetricAnswer(Name, DataType, w, r)
 				return
 			} else {
 				Data.AddCounter(Name, counter(ValueInt64))
 				PostMetricAnswer(Name, DataType, w, r)
 				return
-				}
+			}
 		} else if DataType == "gauge" {
 			if metrics.Value == nil {
 				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
@@ -58,10 +58,10 @@ func HandlePostMetricsJSON() http.Handler {
 				Data.UpdateGauge(Name, gauge(ValueFloat64))
 				PostMetricAnswer(Name, DataType, w, r)
 				return
-			}			
+			}
 		} else {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 		}
-	}	
+	}
 	return http.HandlerFunc(fn)
 }

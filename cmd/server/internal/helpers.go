@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bufio"
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
@@ -8,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"bufio"
 	"strings"
 	"sync"
 	"time"
@@ -55,41 +55,40 @@ type gzipWriter struct {
 func (w gzipWriter) Write(b []byte) (int, error) {
 	// w.Writer будет отвечать за gzip-сжатие, поэтому пишем в него
 	return w.Writer.Write(b)
-} 
+}
 
 func GzipHandle(h http.Handler) http.HandlerFunc {
 	ArchFn := func(w http.ResponseWriter, r *http.Request) {
-			// проверяем, что клиент поддерживает gzip-сжатие
-			// это упрощённый пример. В реальном приложении следует проверять все
-			// значения r.Header.Values("Accept-Encoding") и разбирать строку
-			// на составные части, чтобы избежать неожиданных результатов
+		// проверяем, что клиент поддерживает gzip-сжатие
+		// это упрощённый пример. В реальном приложении следует проверять все
+		// значения r.Header.Values("Accept-Encoding") и разбирать строку
+		// на составные части, чтобы избежать неожиданных результатов
 
-			if r.Header.Get("Content-Encoding") == "gzip" {
-				r.Body = Decompress(r.Body)
-			}
+		if r.Header.Get("Content-Encoding") == "gzip" {
+			r.Body = Decompress(r.Body)
+		}
 
-			if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
-				// если gzip не поддерживается, передаём управление
-				// дальше без изменений
-				h.ServeHTTP(w, r)
-				return
-			}
+		if !strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+			// если gzip не поддерживается, передаём управление
+			// дальше без изменений
+			h.ServeHTTP(w, r)
+			return
+		}
 
-			// создаём gzip.Writer поверх текущего w
-			gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
-			if err != nil {
-				io.WriteString(w, err.Error())
-				return
-			}
-			defer gz.Close()
-			w.Header().Set("Content-Type", "text/html") // ??? Не понимаю почему помогло пройти авто тест в iter8 TestIteration8/TestGetGzipHandlers/get_info_page
-			w.Header().Set("Content-Encoding", "gzip")
-			// передаём обработчику страницы переменную типа gzipWriter для вывода данных
-			h.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
+		// создаём gzip.Writer поверх текущего w
+		gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
+		if err != nil {
+			io.WriteString(w, err.Error())
+			return
+		}
+		defer gz.Close()
+		w.Header().Set("Content-Type", "text/html") // ??? Не понимаю почему помогло пройти авто тест в iter8 TestIteration8/TestGetGzipHandlers/get_info_page
+		w.Header().Set("Content-Encoding", "gzip")
+		// передаём обработчику страницы переменную типа gzipWriter для вывода данных
+		h.ServeHTTP(gzipWriter{ResponseWriter: w, Writer: gz}, r)
 	}
 	return ArchFn
 }
-
 
 func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", ContentType)
@@ -97,7 +96,7 @@ func WriteHeaderAndSaveStatus(statusCode int, ContentType string, w http.Respons
 	GlobalStatusCode = statusCode
 }
 
-func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *http.Request){
+func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *http.Request) {
 	var ContentType string
 	var CounterValueInt64 int64
 	var GaugeValueFloat64 float64
@@ -106,13 +105,13 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 
 	if dataType == "counter" {
 		CounterValue, exists := Data.GetCounter(name)
-			if !exists {
-				WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
-				return
-			}
+		if !exists {
+			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
+			return
+		}
 		CounterValueInt64 = int64(CounterValue)
 		var metrics = Metrics{
-			ID: name,    
+			ID:    name,
 			MType: dataType,
 			Delta: &CounterValueInt64,
 		}
@@ -132,9 +131,9 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 		}
 		GaugeValueFloat64 = float64(GaugeValue)
 		var metrics = Metrics{
-			ID: name,    
+			ID:    name,
 			MType: dataType,
-	        Value: &GaugeValueFloat64,
+			Value: &GaugeValueFloat64,
 		}
 		requestBody, err := json.Marshal(metrics)
 		if err != nil {
@@ -171,7 +170,7 @@ func Compress(data []byte) ([]byte, error) {
 	// которые будут сжиматься и сохраняться в bytes.Buffer
 	w := gzip.NewWriter(&b)
 	// Запись данных
-	_ , err := w.Write(data)
+	_, err := w.Write(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed write data to compress temporary buffer: %v", err)
 	}
@@ -185,7 +184,6 @@ func Compress(data []byte) ([]byte, error) {
 	// Переменная b содержит сжатые данные
 	return b.Bytes(), nil
 }
-
 
 // func (b *Backup) Restore() {
 // 	for {
@@ -203,24 +201,21 @@ func Compress(data []byte) ([]byte, error) {
 // 	}
 // }
 
-
-
-
 func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if !restore {
 		return
 	}
-	
-	file, err := os.Open(fileStoragePathEnv)
-    if err != nil {
-        GlobalSugar.Fatal(err)
-    }
-    defer file.Close()
 
-    scanner := bufio.NewScanner(file)
-    var metrics Metrics
-    for scanner.Scan() {
-        json.Unmarshal([]byte(scanner.Text()), &metrics)
+	file, err := os.Open(fileStoragePathEnv)
+	if err != nil {
+		GlobalSugar.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	var metrics Metrics
+	for scanner.Scan() {
+		json.Unmarshal([]byte(scanner.Text()), &metrics)
 
 		if metrics.MType == "gauge" {
 			Data.UpdateGauge(metrics.ID, gauge(*metrics.Value))
@@ -228,16 +223,16 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 		if metrics.MType == "counter" {
 			Data.UpdateCounter(metrics.ID, counter(*metrics.Delta))
 		}
-    }
-    if err := scanner.Err(); err != nil {
-        GlobalSugar.Fatal(err)
-    }
+	}
+	if err := scanner.Err(); err != nil {
+		GlobalSugar.Fatal(err)
+	}
 }
 
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 	var mutex sync.Mutex
 	mutex.Lock()
-	
+
 	defer mutex.Unlock()
 	for {
 		time.Sleep(storeInterval * time.Second)
@@ -250,7 +245,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 			for name, value := range Data.MetricsGauge {
 				GaugeValueFloat64 := float64(value)
 				var metrics = Metrics{
-					ID: name,
+					ID:    name,
 					MType: "gauge",
 					Delta: nil,
 					Value: &GaugeValueFloat64,
@@ -265,7 +260,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 			for name, value := range Data.MetricsCounter {
 				CounterValueInt64 := int64(value)
 				var metrics = Metrics{
-					ID: name,
+					ID:    name,
 					MType: "counter",
 					Delta: &CounterValueInt64,
 					Value: nil,
@@ -279,44 +274,44 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 			}
 			Producer.Close()
 		}
-		
+
 	}
 }
 
 type Producer struct {
-    file *os.File // файл для записи
+	file *os.File // файл для записи
 }
 
 func NewProducer(filename string) (*Producer, error) {
-    // открываем файл для записи в конец
-    file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0666)
-    if err != nil {
-        return nil, err
-    }
+	// открываем файл для записи в конец
+	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return nil, err
+	}
 
-    return &Producer{file: file}, nil
+	return &Producer{file: file}, nil
 }
 
 func (p *Producer) Close() error {
-    // закрываем файл
-    return p.file.Close()
+	// закрываем файл
+	return p.file.Close()
 }
 
 type Consumer struct {
-    file *os.File // файл для чтения
+	file *os.File // файл для чтения
 }
 
 func NewConsumer(filename string) (*Consumer, error) {
-    // открываем файл для чтения
-    file, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0666)
-    if err != nil {
-        return nil, err
-    }
+	// открываем файл для чтения
+	file, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return nil, err
+	}
 
-    return &Consumer{file: file}, nil
+	return &Consumer{file: file}, nil
 }
 
 func (c *Consumer) Close() error {
-    // закрываем файл
-    return c.file.Close()
-} 
+	// закрываем файл
+	return c.file.Close()
+}

@@ -1,12 +1,12 @@
 package internal
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"sync"
 	"time"
-	"encoding/json"
-	"bytes"
 )
 
 func SendDataGauge(reportInterval time.Duration) {
@@ -53,7 +53,7 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 			url := "http://" + *Addr + "/update/"
 			GaugeValueFloat64 := float64(value)
 			var metrics = Metrics{
-				ID: name,
+				ID:    name,
 				MType: "gauge",
 				Delta: nil,
 				Value: &GaugeValueFloat64,
@@ -65,7 +65,7 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 			}
 
 			compressedJSONBody, _ := Compress(jsonBody)
-	
+
 			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(compressedJSONBody))
 			if err != nil {
 				fmt.Println("Error creating request:", err)
@@ -81,7 +81,7 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 			}
 			resp.Body.Close()
 
-			if resp.StatusCode != http.StatusOK{
+			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
 				continue
 			}

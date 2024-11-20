@@ -1,14 +1,14 @@
 package internal
 
 import (
-	"net/http"
-	"encoding/json"
 	"bytes"
-	"fmt"
 	"compress/gzip"
+	"encoding/json"
+	"fmt"
+	"net/http"
 )
 
-func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
+func PostMetricAnswer(name string, dataType string, w http.ResponseWriter) {
 	var GaugeValue gauge
 	var CounterValue counter
 	var CounterValueInt64 int64
@@ -18,7 +18,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		CounterValue, _ = Data.GetCounter(name)
 		CounterValueInt64 = int64(CounterValue)
 		var metrics = Metrics{
-			ID: name,    
+			ID:    name,
 			MType: dataType,
 			Delta: &CounterValueInt64,
 		}
@@ -28,9 +28,9 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter){
 		GaugeValue, _ = Data.GetGauge(name)
 		GaugeValueFloat64 = float64(GaugeValue)
 		var metrics = Metrics{
-			ID: name,    
+			ID:    name,
 			MType: dataType,
-	        Value: &GaugeValueFloat64,
+			Value: &GaugeValueFloat64,
 		}
 		json.NewEncoder(w).Encode(metrics)
 	}
@@ -42,7 +42,7 @@ func Compress(data []byte) ([]byte, error) {
 	// которые будут сжиматься и сохраняться в bytes.Buffer
 	w := gzip.NewWriter(&b)
 	// Запись данных
-	_ , err := w.Write(data)
+	_, err := w.Write(data)
 	if err != nil {
 		return nil, fmt.Errorf("failed write data to compress temporary buffer: %v", err)
 	}

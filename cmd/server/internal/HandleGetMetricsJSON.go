@@ -1,8 +1,8 @@
 package internal
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 func HandleGetMetricsJSON() http.Handler {

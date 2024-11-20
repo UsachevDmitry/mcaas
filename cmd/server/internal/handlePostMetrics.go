@@ -16,7 +16,7 @@ func HandlePostMetrics() http.Handler {
 		var value string
 
 		ContentType = r.Header.Get("Content-Type")
-		
+
 		dataType = mux.Vars(r)["type"]
 		name = mux.Vars(r)["name"]
 		value = mux.Vars(r)["value"]
