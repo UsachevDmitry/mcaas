@@ -235,7 +235,6 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 
 	defer mutex.Unlock()
 	for {
-		time.Sleep(storeInterval * time.Second)
 		{
 			Producer, err := NewProducer(*FileStoragePath)
 			if err != nil {
@@ -273,6 +272,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 				Producer.file.WriteString(string(jsonBody) + "\n")
 			}
 			Producer.Close()
+			time.Sleep(storeInterval * time.Second)
 		}
 
 	}

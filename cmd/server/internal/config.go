@@ -8,7 +8,7 @@ import (
 
 const (
 	defaultAddr            = "localhost:8080"
-	defaultStoreInterval   = 3
+	defaultStoreInterval   = 300
 	defaultFileStoragePath = "/tmp/file"
 	defaultRestore         = true
 )
