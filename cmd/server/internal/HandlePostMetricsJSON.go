@@ -15,7 +15,7 @@ func HandlePostMetricsJSON() http.Handler {
 		var ValueFloat64 float64
 
 		ContentType = r.Header.Get("Content-Type")
-		
+
 		decoder := json.NewDecoder(r.Body)
 		decoder.DisallowUnknownFields()
 		err := decoder.Decode(&metrics)
