@@ -20,7 +20,7 @@ func main() {
 		defer wg.Done()
 	}()
 
-	internal.Logger()
+	
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
@@ -29,6 +29,7 @@ func main() {
 	router.HandleFunc("/value/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetMetricsJSON()))).Methods(http.MethodPost)
 	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
 	
+	internal.Logger()
 	internal.GlobalSugar.Infow(
 		"Starting server",
 		"ADDRESS", *internal.Addr,
