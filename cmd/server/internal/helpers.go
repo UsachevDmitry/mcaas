@@ -187,8 +187,6 @@ func Compress(data []byte) ([]byte, error) {
 }
 
 
-
-
 // func (b *Backup) Restore() {
 // 	for {
 // 		metric, err := b.restorer.ReadMetric()
@@ -231,20 +229,9 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 			Data.UpdateCounter(metrics.ID, counter(*metrics.Delta))
 		}
     }
-
     if err := scanner.Err(); err != nil {
         GlobalSugar.Fatal(err)
     }
-  
-    
-		// if metrics.MType == "gauge" {
-		// 	Data.UpdateGauge(metrics.ID, gauge(*metrics.Value))
-		// }
-		// if metrics.MType == "counter" {
-		// 	Data.UpdateCounter(metrics.ID, counter(*metrics.Delta))
-		// }
-		
-	
 }
 
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
@@ -273,14 +260,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 					GlobalSugar.Error("Error:", err)
 					continue
 				}
-				// producer, err := NewProducer(*FileStoragePath)
-				// if err != nil {
-				// 	GlobalSugar.Error("Error creating producer:", err)
-				// 	continue
-				// }
 				Producer.file.WriteString(string(jsonBody) + "\n")
-				//Producer.file.Write(jsonBody)
-
 			}
 			for name, value := range Data.MetricsCounter {
 				CounterValueInt64 := int64(value)
@@ -295,21 +275,14 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 					GlobalSugar.Error("Error:", err)
 					continue
 				}
-				// producer, err := NewProducer(*FileStoragePath)
-				// if err != nil {
-				// 	GlobalSugar.Error("Error creating producer:", err)
-				// 	continue
-				// }
-				
-				Producer.file.WriteString(string(jsonBody) + "\n")//(jsonBody)
-				//Producer.Close()
+				Producer.file.WriteString(string(jsonBody) + "\n")
 			}
 			Producer.Close()
 		}
 		
 	}
 }
-//--------------------------------------------
+
 type Producer struct {
     file *os.File // файл для записи
 }
@@ -348,75 +321,3 @@ func (c *Consumer) Close() error {
     // закрываем файл
     return c.file.Close()
 } 
-
-// func (c *Consumer) ReadMetric() (*Metrics, error) {
-// 	data, err := c.reader.ReadBytes('\n')
-// 	if err != nil {
-// 		if err == io.EOF {
-// 			err = nil
-// 		}
-// 		return nil, err
-// 	}
-
-// 	metric := model.NewMetric()
-// 	if err = json.Unmarshal(data, metric); err != nil {
-// 		return nil, err
-// 	}
-
-// 	if err = metric.CheckValid(); err != nil {
-// 		return nil, err
-// 	}
-// 	return metric, nil
-// }
-
-
-// func (r *Restorer) ReadMetric() (*model.Metric, error) {
-// 	data, err := r.reader.ReadBytes('\n')
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	metric := model.NewMetric()
-// 	if err = json.Unmarshal(data, metric); err != nil {
-// 		return nil, err
-// 	}
-
-// 	if err = metric.CheckValid(); err != nil {
-// 		return nil, err
-// 	}
-// 	return metric, nil
-// }
-
-
-
-
-
-
-
-
-// func (c *Consumer) ReadLine2() (*Metrics, error) {
-// 	var line string
-
-// 	// Чтение строки из файла
-// 	_, err := c.file.ReadString('\n')
-// 	if err != nil {
-// 		if err == io.EOF {
-// 			err = nil
-// 		}
-// 		return nil, err
-	// }
-
-// 	// Разделение строки на JSON-объект
-// 	jsonData := string(line)
-// 	jsonData = jsonData:len(jsonData)-1 // Убираем символ новой строки
-
-// 	var person Person
-// 	err = json.Unmarshal(byte(jsonData), &person)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	line = fmt.Sprintf("%+v\n", person) // Форматируем строку для вывода
-
-// 	return &person, nil
-// }
