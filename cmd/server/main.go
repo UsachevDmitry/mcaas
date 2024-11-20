@@ -25,11 +25,11 @@ func main() {
 	}()
 
 	router := mux.NewRouter()
-	go router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
-	go router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
-	go router.HandleFunc("/update/{type}/{name}/{value}", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetrics()))).Methods(http.MethodPost)
-	go router.HandleFunc("/value/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetMetricsJSON()))).Methods(http.MethodPost)
-	go router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
+	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
+	router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
+	router.HandleFunc("/update/{type}/{name}/{value}", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetrics()))).Methods(http.MethodPost)
+	router.HandleFunc("/value/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetMetricsJSON()))).Methods(http.MethodPost)
+	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
 
 	internal.Logger()
 	internal.GlobalSugar.Infow(
@@ -55,7 +55,7 @@ func main() {
 
 	go func() {
 		<-ctx.Done()
-		internal.GlobalSugar.Fatalw("Graceful shutdown signal received")
+		internal.GlobalSugar.Infoln("Graceful shutdown signal received")
 		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
 		srv.Shutdown(ctx)
 		os.Exit(0)
@@ -63,7 +63,7 @@ func main() {
 
 	err := srv.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
-		internal.GlobalSugar.Fatalw("Error starting server:", err)
+		internal.GlobalSugar.Infoln("Error starting server:", err)
 		os.Exit(1)
 	}
 }
