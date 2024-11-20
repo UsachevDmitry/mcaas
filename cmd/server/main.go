@@ -56,7 +56,7 @@ func main() {
 	go func() {
 		<-ctx.Done()
 		internal.GlobalSugar.Infoln("Graceful shutdown signal received")
-		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+		internal.SaveDataInFile(time.Duration(0), *internal.FileStoragePath)
 		srv.Shutdown(ctx)
 		os.Exit(0)
 	}()
