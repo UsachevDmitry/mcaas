@@ -185,22 +185,6 @@ func Compress(data []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-// func (b *Backup) Restore() {
-// 	for {
-// 		metric, err := b.restorer.ReadMetric()
-// 		if err != nil {
-// 			if err == io.EOF {
-// 				break
-// 			}
-// 			log.Printf("unable to restore metric: %v", err)
-// 		}
-// 		err = b.storage.Store(*metric)
-// 		if err != nil {
-// 			log.Printf("unable to store metric, during backup restore: %v", err)
-// 		}
-// 	}
-// }
-
 func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if !restore {
 		return
@@ -208,7 +192,9 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if _, err := os.Stat(fileStoragePathEnv); os.IsNotExist(err) {
 		GlobalSugar.Infoln("Файл не существует")
 		return
-	} 
+	} else {
+		fmt.Println("Файл существует")
+	}
 
 	file, err := os.Open(fileStoragePathEnv)
 	if err != nil {
@@ -278,9 +264,9 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 			Producer.Close()
 			if storeInterval == time.Duration(0) {
 				return
-			} else {
-			time.Sleep(storeInterval * time.Second)
-			}
+			} //else {
+			// time.Sleep(storeInterval * time.Second)
+			// }
 		}
 	}
 }
