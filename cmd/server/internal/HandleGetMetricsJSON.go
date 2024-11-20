@@ -14,7 +14,7 @@ func HandleGetMetricsJSON() http.Handler {
 		decoder.DisallowUnknownFields()
 		err := decoder.Decode(&metrics)
 		if err != nil {
-			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
 			return
 		}
 		PostMetricAnswer(metrics.ID, metrics.MType, w, r)
