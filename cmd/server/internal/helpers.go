@@ -205,6 +205,10 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if !restore {
 		return
 	}
+	if _, err := os.Stat(fileStoragePathEnv); os.IsNotExist(err) {
+		GlobalSugar.Infoln("Файл не существует")
+		return
+	} 
 
 	file, err := os.Open(fileStoragePathEnv)
 	if err != nil {
@@ -233,7 +237,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 	var mutex sync.Mutex
 	mutex.Lock()
 	defer mutex.Unlock()
-	
+
 	for {
 		{
 			Producer, err := NewProducer(*FileStoragePath)

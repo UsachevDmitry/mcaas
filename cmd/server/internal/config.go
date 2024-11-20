@@ -7,11 +7,12 @@ import (
 )
 
 const (
-	defaultAddr            = "localhost:8080"
-	defaultStoreInterval   = 0
+	defaultAddr = "localhost:8080"
+	defaultStoreInterval = 300
 	defaultFileStoragePath = "/tmp/file"
-	defaultRestore         = true
+	defaultRestore = true
 )
+
 
 var Addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
 var StoreInterval = flag.Int("i", defaultStoreInterval, "Интервал времени")
