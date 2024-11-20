@@ -232,8 +232,8 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 	var mutex sync.Mutex
 	mutex.Lock()
-
 	defer mutex.Unlock()
+	
 	for {
 		{
 			Producer, err := NewProducer(*FileStoragePath)
@@ -272,7 +272,7 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 				Producer.file.WriteString(string(jsonBody) + "\n")
 			}
 			Producer.Close()
-			if storeInterval == 0 {
+			if storeInterval == time.Duration(0) {
 				return
 			} else {
 			time.Sleep(storeInterval * time.Second)
