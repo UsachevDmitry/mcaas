@@ -16,7 +16,7 @@ func main() {
 
 	// wg.Add(1)
 	// go func() {
-	internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+	go internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
 	// 	defer wg.Done()
 	// }()
 
