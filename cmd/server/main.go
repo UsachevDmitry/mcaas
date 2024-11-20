@@ -18,22 +18,24 @@ func main() {
 	internal.GetConfig()
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(*internal.StoreInterval+1)*time.Second)
-	defer cancel()
+
 
 	wg.Add(1)
 	go func() {
-
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(*internal.StoreInterval+1)*time.Second)
+		defer cancel()
 		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
 		defer wg.Done()
+		
+		select {
+		case <-ctx.Done():
+			internal.GlobalSugar.Infoln("Context timed out")
+		case <-time.After(time.Duration(*internal.StoreInterval+1)):
+			internal.GlobalSugar.Infoln("Operation completed")
+	}
 	}()
 
-	// select {
-	// case <-ctx.Done():
-	// 	internal.GlobalSugar.Infoln("Context timed out")
-	// case <-time.After(time.Duration(*internal.StoreInterval+1)):
-	// 	internal.GlobalSugar.Infoln("Operation completed")
-	// }
+
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
