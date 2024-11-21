@@ -189,17 +189,31 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if !restore {
 		return
 	}
-	if _, err := os.Stat(fileStoragePathEnv); os.IsNotExist(err) {
-		GlobalSugar.Infoln("Файл не существует")
+	fileInfo , err := os.Stat(fileStoragePathEnv)
+	if os.IsNotExist(err) {
+		fmt.Println("Файл не существует")
 		return
 	} else {
 		fmt.Println("Файл существует")
+	}
+	// Проверяем, что файл не пустой
+	if err != nil {
+		fmt.Println("Ошибка при проверке файла:", err)
+		return
+	}
+
+	if fileInfo.Size() > 0 {
+		fmt.Println("Файл не пустой")
+	} else {
+		fmt.Println("Файл пустой")
+		return
 	}
 
 	file, err := os.Open(fileStoragePathEnv)
 	if err != nil {
 		GlobalSugar.Fatal(err)
 	}
+
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
