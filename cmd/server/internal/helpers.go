@@ -264,9 +264,9 @@ func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
 			Producer.Close()
 			if storeInterval == time.Duration(0) {
 				return
-			} //else {
-			// time.Sleep(storeInterval * time.Second)
-			// }
+			} else {
+				time.Sleep(storeInterval * time.Second)
+			}
 		}
 	}
 }

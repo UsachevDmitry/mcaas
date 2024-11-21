@@ -4,48 +4,25 @@ import (
 	"github.com/UsachevDmitry/mcaas/cmd/server/internal"
 	"github.com/gorilla/mux"
 	"net/http"
-	//"sync"
+	"sync"
 	"time"
 	"os/signal"
 	"os"
 	"context"
 	"syscall"
-	"fmt"
 )
 
 func main() {
-	//var wg sync.WaitGroup
+	var wg sync.WaitGroup
 
 	internal.GetConfig()
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
-	ctx1, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	// Запускаем функцию каждые 300 секунд
-	ticker := time.NewTicker(300 * time.Second)
+	wg.Add(1)
 	go func() {
-		for {
-			select {
-			case <-ctx1.Done():
-				fmt.Println("Context canceled")
-				return
-			case <-ticker.C:
-				internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
-			}
-		}
+		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+		defer wg.Done()
 	}()
-
-	// Ждем завершения работы программы
-	// fmt.Println("Программа запущена, ждем завершения...")
-	// <-ctx1.Done()
-	// fmt.Println("Программа завершена")
-
-	// wg.Add(1)
-	// go func() {
-	// 	internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
-	// 	defer wg.Done()
-	// }()
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
