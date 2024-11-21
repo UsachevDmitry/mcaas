@@ -1,15 +1,15 @@
 package main
 
 import (
+	"context"
 	"github.com/UsachevDmitry/mcaas/cmd/server/internal"
 	"github.com/gorilla/mux"
 	"net/http"
-	"sync"
-	"time"
-	"os/signal"
 	"os"
-	"context"
+	"os/signal"
+	"sync"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 	internal.GetConfig()
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
-	wg.Add(1) 
+	wg.Add(1)
 	go func() {
 		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
 		defer wg.Done()
@@ -41,15 +41,13 @@ func main() {
 	)
 
 	srv := &http.Server{
-		Addr: *internal.Addr,
+		Addr:    *internal.Addr,
 		Handler: router,
 	}
-
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT, syscall.SIGHUP)
 	defer stop()
 
-	
 	go func() {
 		<-ctx.Done()
 		internal.GlobalSugar.Infoln("Graceful shutdown signal received")
