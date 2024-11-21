@@ -17,8 +17,7 @@ func main() {
 
 	internal.GetConfig()
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
-
-	wg.Add(1)
+	wg.Add(1) 
 	go func() {
 		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
 		defer wg.Done()
