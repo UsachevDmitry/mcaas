@@ -38,6 +38,7 @@ func (ms MemStorage) AddCounter(key string, value counter) {
 	ms.MetricsCounter[key] += value
 }
 
+
 func (ms MemStorage) GetGauge(key string) (gauge, bool) {
 	value, ok := ms.MetricsGauge[key]
 	if !ok {
@@ -46,8 +47,30 @@ func (ms MemStorage) GetGauge(key string) (gauge, bool) {
 	return value, true
 }
 
+func GetGauge(key string) (gauge, bool) {
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+	value, ok := Data.GetGauge(key)
+	if !ok {
+		return 0, false
+	}
+	return value, true
+}
+
 func (ms MemStorage) GetCounter(key string) (counter, bool) {
 	value, ok := ms.MetricsCounter[key]
+	if !ok {
+		return 0, false
+	}
+	return value, true
+}
+
+func GetCounter(key string) (counter, bool) {
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+	value, ok := Data.GetCounter(key)
 	if !ok {
 		return 0, false
 	}
