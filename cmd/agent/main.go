@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/UsachevDmitry/mcaas/cmd/agent/internal"
+	"github.com/UsachevDmitry/mcaas/internal/agent"
 	"sync"
 	"time"
 )

@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"github.com/UsachevDmitry/mcaas/cmd/server/internal"
+	"github.com/UsachevDmitry/mcaas/internal/server"
 	"github.com/gorilla/mux"
 	"net/http"
 	"os"
