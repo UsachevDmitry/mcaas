@@ -84,3 +84,18 @@ func (ms MemStorage) GetMetricsGauge() map[string]gauge {
 	copiedMetrics := Data.MetricsGauge
 	return copiedMetrics
 }
+
+func (ms MemStorage) GetMetrics() MemStorage {
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+	copiedData := Data
+	return copiedData
+}
+
+func (ms MemStorage) SetMetrics(updatedData MemStorage)  {
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+	Data = updatedData
+}
