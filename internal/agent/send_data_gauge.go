@@ -5,19 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 )
 
 func SendDataGauge(reportInterval time.Duration) {
-	var mutex sync.Mutex
-
-	mutex.Lock()
-	defer mutex.Unlock()
-
 	for {
 		time.Sleep(reportInterval * time.Second)
-		for key, value := range Data.MetricsGauge {
+		for key, value := range Data.GetMetricsGauge() {
 			url := "http://" + *Addr + "/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
 			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
 			if err != nil {
@@ -43,13 +37,9 @@ func SendDataGauge(reportInterval time.Duration) {
 }
 
 func SendDataGaugeNewAPI(reportInterval time.Duration) {
-	var mutex sync.Mutex
-
-	mutex.Lock()
-	defer mutex.Unlock()
 	for {
 		time.Sleep(reportInterval * time.Second)
-		for name, value := range Data.MetricsGauge {
+		for name, value := range Data.GetMetricsGauge() {
 			url := "http://" + *Addr + "/update/"
 			GaugeValueFloat64 := float64(value)
 			var metrics = Metrics{

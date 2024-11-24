@@ -1,5 +1,9 @@
 package internal
 
+import (
+	"sync"
+)
+
 type gauge float64
 type counter int64
 type MemStorage struct {
@@ -63,4 +67,20 @@ type Metrics struct {
 	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
 	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter value
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge value
+}
+
+func (ms MemStorage) GetMetricsCounter() map[string]counter {
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+	copiedMetrics := Data.MetricsCounter
+	return copiedMetrics
+}
+
+func (ms MemStorage) GetMetricsGauge() map[string]gauge {
+	var mutex sync.Mutex
+	mutex.Lock()
+	defer mutex.Unlock()
+	copiedMetrics := Data.MetricsGauge
+	return copiedMetrics
 }

@@ -6,18 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 )
 
 func SendDataCounter(reportInterval time.Duration) {
-	var mutex sync.Mutex
-
-	mutex.Lock()
-	defer mutex.Unlock()
 	for {
 		time.Sleep(reportInterval * time.Second)
-		for key, value := range Data.MetricsCounter {
+		for key, value := range Data.GetMetricsCounter() {
 			url := "http://" + *Addr + "/update/counter/" + key + "/" + strconv.FormatInt(int64(value), 10)
 			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
 			if err != nil {
@@ -43,13 +38,9 @@ func SendDataCounter(reportInterval time.Duration) {
 }
 
 func SendDataCounterNewAPI(reportInterval time.Duration) {
-	var mutex sync.Mutex
-
-	mutex.Lock()
-	defer mutex.Unlock()
 	for {
 		time.Sleep(reportInterval * time.Second)
-		for name, value := range Data.MetricsCounter {
+		for name, value := range Data.GetMetricsCounter() {
 			url := "http://" + *Addr + "/update/"
 			CounterValueInt64 := int64(value)
 			var metrics = Metrics{
