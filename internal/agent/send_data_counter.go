@@ -51,12 +51,16 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 			}
 			jsonBody, err := json.Marshal(metrics)
 			if err != nil {
-				fmt.Println("Error:", err)
+				fmt.Println("Error marshal:", err)
 				continue
 
 			}
 
-			compressedJSONBody, _ := Compress(jsonBody)
+			compressedJSONBody, err := Compress(jsonBody)
+			if err != nil {
+				fmt.Println("Error compress jsonBody", err)
+				continue
+			}
 
 			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(compressedJSONBody))
 			if err != nil {

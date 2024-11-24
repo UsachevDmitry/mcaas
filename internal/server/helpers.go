@@ -104,7 +104,6 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 	ContentType = r.Header.Get("Content-Type")
 
 	if dataType == "counter" {
-		//CounterValue, exists := Data.GetCounter(name)
 		CounterValue, exists := GetCounter(name)
 		if !exists {
 			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
@@ -125,7 +124,6 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else if dataType == "gauge" {
-		//GaugeValue, exists := Data.GetGauge(name)
 		GaugeValue, exists := GetGauge(name)
 		if !exists {
 			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)

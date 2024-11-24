@@ -54,7 +54,11 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 				continue
 			}
 
-			compressedJSONBody, _ := Compress(jsonBody)
+			compressedJSONBody, err := Compress(jsonBody)
+			if err != nil {
+				fmt.Println("Error compress jsonBody", err)
+				continue
+			}
 
 			req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(compressedJSONBody))
 			if err != nil {
