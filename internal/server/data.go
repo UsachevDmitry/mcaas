@@ -9,13 +9,13 @@ type counter int64
 type MemStorage struct {
 	MetricsGauge   map[string]gauge
 	MetricsCounter map[string]counter
-	Mutex *sync.Mutex
+	Mutex sync.Mutex
 }
 
 var Data = &MemStorage{
 	MetricsGauge:   map[string]gauge{},
 	MetricsCounter: map[string]counter{},
-	Mutex: &sync.Mutex{},
+	Mutex: sync.Mutex{},
 }
 
 type MemStorageInterface interface {
