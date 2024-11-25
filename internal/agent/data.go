@@ -12,9 +12,10 @@ type MemStorage struct {
 	Mutex *sync.Mutex
 }
 
-var Data = MemStorage{
+var Data = &MemStorage{
 	MetricsGauge:   map[string]gauge{},
 	MetricsCounter: map[string]counter{},
+	Mutex: &sync.Mutex{},
 }
 
 type MemStorageInterface interface {
@@ -27,26 +28,26 @@ type MemStorageInterface interface {
 	DeleteCounter(key string)
 }
 
-func (ms MemStorage) UpdateGauge(key string, value gauge) {
+func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsGauge[key] = value
 }
 
-func (ms MemStorage) UpdateCounter(key string, value counter) {
+func (ms *MemStorage) UpdateCounter(key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] = value
 }
 
-func (ms MemStorage) AddCounter(key string, value counter) {
+func (ms *MemStorage) AddCounter(key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] += value
 }
 
 
-func (ms MemStorage) GetGauge(key string) (gauge, bool) {
+func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	value, ok := ms.MetricsGauge[key]
@@ -64,7 +65,7 @@ func GetGauge(key string) (gauge, bool) {
 	return value, true
 }
 
-func (ms MemStorage) GetCounter(key string) (counter, bool) {
+func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	value, ok := ms.MetricsCounter[key]
@@ -82,13 +83,13 @@ func GetCounter(key string) (counter, bool) {
 	return value, true
 }
 
-func (ms MemStorage) DeleteGauge(key string) {
+func (ms *MemStorage) DeleteGauge(key string) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	delete(ms.MetricsGauge, key)
 }
 
-func (ms MemStorage) DeleteCounter(key string) {
+func (ms *MemStorage) DeleteCounter(key string) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	delete(ms.MetricsCounter, key)
@@ -101,28 +102,28 @@ type Metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge value
 }
 
-func (ms MemStorage) GetMetricsCounter() map[string]counter {
+func (ms *MemStorage) GetMetricsCounter() map[string]counter {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	copiedMetrics := Data.MetricsCounter
 	return copiedMetrics
 }
 
-func (ms MemStorage) GetMetricsGauge() map[string]gauge {
+func (ms *MemStorage) GetMetricsGauge() map[string]gauge {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	copiedMetrics := Data.MetricsGauge
 	return copiedMetrics
 }
 
-func (ms MemStorage) GetMetrics() MemStorage {
+func (ms *MemStorage) GetMetrics() *MemStorage {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	copiedData := Data
 	return copiedData
 }
 
-func (ms MemStorage) SetMetrics(updatedData MemStorage)  {
+func (ms *MemStorage) SetMetrics(updatedData *MemStorage)  {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	Data = updatedData
