@@ -23,7 +23,7 @@ func main() {
 		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
 		defer wg.Done()
 	}()
-
+	
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
 	router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
@@ -61,4 +61,5 @@ func main() {
 		internal.GlobalSugar.Infoln("Error starting server:", err)
 		os.Exit(1)
 	}
+	wg.Wait()
 }
