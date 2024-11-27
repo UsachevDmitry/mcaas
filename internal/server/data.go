@@ -2,6 +2,7 @@ package internal
 
 import (
 	"sync"
+	"database/sql"
 )
 
 type gauge float64
@@ -17,6 +18,8 @@ var Data = &MemStorage{
 	MetricsCounter: map[string]counter{},
 	Mutex: sync.Mutex{},
 }
+
+var DB *sql.DB
 
 type MemStorageInterface interface {
 	UpdateGauge(key string, value gauge)

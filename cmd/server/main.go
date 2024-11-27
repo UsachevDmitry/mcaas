@@ -10,6 +10,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"database/sql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
@@ -17,6 +19,15 @@ func main() {
 
 	internal.GetConfig()
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
+
+	var errdb error
+	internal.DB, errdb = sql.Open("pgx", *internal.DatabaseDsn)
+
+	if errdb != nil {
+		panic(errdb)
+	}
+	defer internal.DB.Close()
+
 
 	wg.Add(1)
 	go func() {
@@ -30,6 +41,7 @@ func main() {
 	router.HandleFunc("/update/{type}/{name}/{value}", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetrics()))).Methods(http.MethodPost)
 	router.HandleFunc("/value/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetMetricsJSON()))).Methods(http.MethodPost)
 	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
+	router.HandleFunc("/ping/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetPing()))).Methods(http.MethodGet)
 
 	internal.Logger()
 	internal.GlobalSugar.Infow(
