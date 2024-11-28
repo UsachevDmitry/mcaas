@@ -15,7 +15,7 @@ func HandleGetValue() http.Handler {
 		name = mux.Vars(r)["name"]
 
 		if dataType == "gauge" {
-			value, exists := Data.GetGauge(name)
+			value, exists := GetGauge(name)
 			if !exists {
 				w.WriteHeader(http.StatusNotFound)
 				return
@@ -24,7 +24,7 @@ func HandleGetValue() http.Handler {
 			w.WriteHeader(http.StatusOK)
 			return
 		} else if dataType == "counter" {
-			value, exists := Data.GetCounter(name)
+			value, exists := GetCounter(name)
 			if !exists {
 				w.WriteHeader(http.StatusNotFound)
 				return

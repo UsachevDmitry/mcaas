@@ -37,16 +37,28 @@ func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 	ms.MetricsGauge[key] = value
 }
 
+func UpdateGauge(key string, value gauge) { 
+	Data.UpdateGauge(key, value)
+}
+
 func (ms *MemStorage) UpdateCounter(key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] = value
 }
 
+func UpdateCounter(key string, value counter) { 
+	Data.UpdateCounter(key, value)
+}
+
 func (ms *MemStorage) AddCounter(key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] += value
+}
+
+func AddCounter(key string, value counter) {
+	Data.AddCounter(key, value)
 }
 
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
@@ -91,10 +103,18 @@ func (ms *MemStorage) DeleteGauge(key string) {
 	delete(ms.MetricsGauge, key)
 }
 
+func DeleteGauge(key string) {
+	Data.DeleteGauge(key)
+}
+
 func (ms *MemStorage) DeleteCounter(key string) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	delete(ms.MetricsCounter, key)
+}
+
+func DeleteCounter(key string) {
+	Data.DeleteCounter(key)
 }
 
 type Metrics struct {

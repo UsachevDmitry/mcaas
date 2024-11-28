@@ -39,13 +39,13 @@ func HandlePostMetricsJSON() http.Handler {
 			} else {
 				ValueInt64 = int64(*metrics.Delta)
 			}
-			_, exists := Data.GetCounter(Name)
+			_, exists := GetCounter(Name)
 			if !exists {
-				Data.UpdateCounter(Name, counter(ValueInt64))
+				UpdateCounter(Name, counter(ValueInt64))
 				PostMetricAnswer(Name, DataType, w, r)
 				return
 			} else {
-				Data.AddCounter(Name, counter(ValueInt64))
+				AddCounter(Name, counter(ValueInt64))
 				PostMetricAnswer(Name, DataType, w, r)
 				return
 			}
@@ -55,7 +55,7 @@ func HandlePostMetricsJSON() http.Handler {
 				return
 			} else {
 				ValueFloat64 = float64(*metrics.Value)
-				Data.UpdateGauge(Name, gauge(ValueFloat64))
+				UpdateGauge(Name, gauge(ValueFloat64))
 				PostMetricAnswer(Name, DataType, w, r)
 				return
 			}

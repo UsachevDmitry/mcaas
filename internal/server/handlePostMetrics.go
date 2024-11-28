@@ -1,9 +1,9 @@
 package internal
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+	"github.com/gorilla/mux"
 )
 
 var Size string
@@ -32,19 +32,19 @@ func HandlePostMetrics() http.Handler {
 				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 				return
 			} else {
-				Data.UpdateGauge(name, gauge(value))
+				UpdateGauge(name, gauge(value))
 				WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 				return
 			}
 		} else if dataType == "counter" {
-			_, exists := Data.GetCounter(name)
+			_, exists := GetCounter(name)
 			if !exists {
 				value, err := strconv.ParseInt(value, 10, 64)
 				if err != nil {
 					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 					return
 				} else {
-					Data.UpdateCounter(name, counter(value))
+					UpdateCounter(name, counter(value))
 					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					return
 				}
@@ -54,7 +54,7 @@ func HandlePostMetrics() http.Handler {
 					WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 					return
 				} else {
-					Data.AddCounter(name, counter(value))
+					AddCounter(name, counter(value))
 					WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 					return
 				}

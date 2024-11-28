@@ -222,10 +222,10 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 		json.Unmarshal([]byte(scanner.Text()), &metrics)
 
 		if metrics.MType == "gauge" {
-			Data.UpdateGauge(metrics.ID, gauge(*metrics.Value))
+			UpdateGauge(metrics.ID, gauge(*metrics.Value))
 		}
 		if metrics.MType == "counter" {
-			Data.UpdateCounter(metrics.ID, counter(*metrics.Delta))
+			UpdateCounter(metrics.ID, counter(*metrics.Delta))
 		}
 	}
 	if err := scanner.Err(); err != nil {
