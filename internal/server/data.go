@@ -89,7 +89,7 @@ func GetGauge(key string) (gauge, bool) {
 	var Value gauge
 	var Ok bool
 	if FlagUsePosgresSQL {
-		Value, Ok = GetGaugeSQL(key)
+		Value, Ok = GetGaugeSQL(context.Background(), key)
 	} else {
 		Value, Ok = Data.GetGauge(key)
 	}
@@ -113,7 +113,7 @@ func GetCounter(key string) (counter, bool) {
 	var Value counter
 	var Ok bool
 	if FlagUsePosgresSQL {
-		Value, Ok = GetCounterSQL(key)
+		Value, Ok = GetCounterSQL(context.Background(), key)
 	} else {
 		Value, Ok = Data.GetCounter(key)
 	}

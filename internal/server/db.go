@@ -50,7 +50,7 @@ WHEN NOT MATCHED THEN
 }
 
 func AddCounterSQL(ctx context.Context, key string, value counter) {
-  newValue, _ := GetCounterSQL(key)
+  newValue, _ := GetCounterSQL(ctx, key)
   newValue += value
 	_, err := DB.ExecContext(ctx, `MERGE INTO metrics_counter AS target
 USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
@@ -62,9 +62,10 @@ WHEN MATCHED THEN
     }
 }
 
-func GetCounterSQL(key string) (counter, bool) {
+func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
   var value counter
-	rows, err :=  DB.Query(`SELECT * FROM metrics_counter WHERE key = $1::text`, key)
+	//rows, err :=  DB.Query(`SELECT * FROM metrics_counter WHERE key = $1::text`, key)
+  rows, err :=  DB.QueryContext(ctx, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
   if err != nil {
     fmt.Println("TEST!!!! Counter !!!")
     //GlobalSugar.Panic(err)
@@ -82,9 +83,9 @@ func GetCounterSQL(key string) (counter, bool) {
 	return value, true
 }
 
-func GetGaugeSQL(key string) (gauge, bool) {
+func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
   var value gauge
-	rows, err :=  DB.Query(`SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
+	rows, err :=  DB.QueryContext(ctx, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
   if err != nil {
     fmt.Println("TEST!!!! Gauge !!!")
     //GlobalSugar.Panic(err)
