@@ -20,17 +20,6 @@ func CreateTables(ctx context.Context) {
     if err != nil {
         GlobalSugar.Fatal(err)
     }
-
-    // _, err = DB.ExecContext(ctx, `\copy (SELECT 'Key' AS key, 'Value' AS value FROM metrics_counter) TO stdout`)
-    // if err != nil {
-    //     GlobalSugar.Infoln(err)
-    // }
-
-    // _, err = DB.ExecContext(ctx, `INSERT INTO metrics_counter (key, value) VALUES ('key1', 100)`)
-    // if err != nil {
-    //     GlobalSugar.Infoln(err)
-    // }
-
 }
 
 func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
@@ -82,7 +71,6 @@ func GetCounterSQL(key string) (counter, bool) {
     err = rows.Scan(&key, &value)
     if err != nil {
       return 0, false
-    //panic(err)
     }
   }
 

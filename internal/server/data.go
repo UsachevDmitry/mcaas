@@ -43,7 +43,7 @@ func UpdateGauge(key string, value gauge) {
 	if FlagUsePosgresSQL {
 		UpdateGaugeSQL(context.Background(), key, value)
 	} else {
-	Data.UpdateGauge(key, value)
+		Data.UpdateGauge(key, value)
 	}
 }
 
