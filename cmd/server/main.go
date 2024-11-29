@@ -18,17 +18,17 @@ func main() {
 	var wg sync.WaitGroup
 	internal.Logger()
 	internal.GetConfig()
+	if internal.FlagUsePosgresSQL {
+		var errdb error
+		internal.DB, errdb = sql.Open("pgx", *internal.DatabaseDsn)
+		if errdb != nil {
+			panic(errdb)
+		}
+		defer internal.DB.Close()
+		internal.CreateTables(context.Background())
+    } 
 
-	var errdb error
-	internal.DB, errdb = sql.Open("pgx", *internal.DatabaseDsn)
-	if errdb != nil {
-		panic(errdb)
-	}
-	defer internal.DB.Close()
-
-	internal.CreateTables(context.Background())
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
-
 
 	wg.Add(1)
 	go func() {

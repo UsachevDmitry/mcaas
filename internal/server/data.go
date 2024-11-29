@@ -21,6 +21,7 @@ var Data = &MemStorage{
 }
 
 var DB *sql.DB
+var FlagUsePosgresSQL bool
 
 type MemStorageInterface interface {
 	UpdateGauge(key string, value gauge)
@@ -39,8 +40,11 @@ func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 }
 
 func UpdateGauge(key string, value gauge) {
-	UpdateGaugeSQL(context.Background(), key, value) 
+	if FlagUsePosgresSQL {
+		UpdateGaugeSQL(context.Background(), key, value)
+	} else {
 	Data.UpdateGauge(key, value)
+	}
 }
 
 func (ms *MemStorage) UpdateCounter(key string, value counter) {
@@ -50,8 +54,11 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 }
 
 func UpdateCounter(key string, value counter) {
-	UpdateCounterSQL(context.Background(), key, value)  
-	Data.UpdateCounter(key, value)
+	if FlagUsePosgresSQL {
+		UpdateCounterSQL(context.Background(), key, value)
+	} else {  
+		Data.UpdateCounter(key, value)
+	}
 }
 
 func (ms *MemStorage) AddCounter(key string, value counter) {
@@ -61,8 +68,11 @@ func (ms *MemStorage) AddCounter(key string, value counter) {
 }
 
 func AddCounter(key string, value counter) {
-	AddCounterSQL(context.Background(), key, value)
-	Data.AddCounter(key, value)
+	if FlagUsePosgresSQL {
+		AddCounterSQL(context.Background(), key, value)
+	} else {
+		Data.AddCounter(key, value)
+	}
 }
 
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
@@ -76,12 +86,17 @@ func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 }
 
 func GetGauge(key string) (gauge, bool) {
-	value, ok := GetGaugeSQL(key)
-	//value, ok := Data.GetGauge(key)
-	if !ok {
+	var Value gauge
+	var Ok bool
+	if FlagUsePosgresSQL {
+		Value, Ok = GetGaugeSQL(key)
+	} else {
+		Value, Ok = Data.GetGauge(key)
+	}
+	if !Ok {
 		return 0, false
 	}
-	return value, true
+	return Value, true
 }
 
 func (ms *MemStorage) GetCounter(key string) (counter, bool) {
@@ -95,12 +110,17 @@ func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 }
 
 func GetCounter(key string) (counter, bool) {
-	value, ok := GetCounterSQL(key)
-	//value, ok := Data.GetCounter(key)
-	if !ok {
+	var Value counter
+	var Ok bool
+	if FlagUsePosgresSQL {
+		Value, Ok = GetCounterSQL(key)
+	} else {
+		Value, Ok = Data.GetCounter(key)
+	}
+	if !Ok {
 		return 0, false
 	}
-	return value, true
+	return Value, true
 }
 
 func (ms *MemStorage) DeleteGauge(key string) {
