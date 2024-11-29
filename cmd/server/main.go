@@ -27,16 +27,16 @@ func main() {
 		}
 		defer internal.DB.Close()
 		internal.CreateTables(context.Background())
-    } 
+    }
 
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
-
-	wg.Add(1)
-	go func() {
-		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
-		defer wg.Done()
-	}()
-	
+	if !internal.FlagUsePosgresSQL {
+		wg.Add(1)
+		go func() {
+			internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+			defer wg.Done()
+		}()
+	}
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
 	router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
