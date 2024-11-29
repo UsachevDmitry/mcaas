@@ -65,7 +65,7 @@ func GetCounterSQL(key string) (counter, bool) {
   var value counter
 	rows, err :=  DB.Query(`SELECT * FROM metrics_counter WHERE key = $1`, key)
   if err != nil {
-    panic(err)
+    GlobalSugar.Panic(err)
   }
   for rows.Next() {
     err = rows.Scan(&key, &value)
@@ -82,7 +82,7 @@ func GetGaugeSQL(key string) (gauge, bool) {
   var value gauge
 	rows, err :=  DB.Query(`SELECT * FROM metrics_gauge WHERE key = $1`, key)
   if err != nil {
-    panic(err)
+    GlobalSugar.Panic(err)
   }
   for rows.Next() {
     err = rows.Scan(&key, &value)
