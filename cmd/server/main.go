@@ -2,15 +2,17 @@ package main
 
 import (
 	"context"
-	"github.com/UsachevDmitry/mcaas/internal/server"
-	"github.com/gorilla/mux"
+	"database/sql"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
-	"database/sql"
+
+	"github.com/UsachevDmitry/mcaas/internal/server"
+	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
