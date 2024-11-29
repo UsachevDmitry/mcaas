@@ -56,7 +56,9 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 ON (target.key = source.key)
 WHEN MATCHED THEN
- UPDATE SET value = source.value`, key, newValue)
+ UPDATE SET value = source.value
+WHEN NOT MATCHED THEN
+ INSERT (key, value) VALUES (source.key, source.value)`, key, newValue)
     if err != nil {
         GlobalSugar.Infoln(err)
     }
