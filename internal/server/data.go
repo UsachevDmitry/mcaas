@@ -1,8 +1,9 @@
 package internal
 
 import (
-	"sync"
+	"context"
 	"database/sql"
+	"sync"
 )
 
 type gauge float64
@@ -37,7 +38,8 @@ func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 	ms.MetricsGauge[key] = value
 }
 
-func UpdateGauge(key string, value gauge) { 
+func UpdateGauge(key string, value gauge) {
+	UpdateGaugeSQL(context.Background(), key, value) 
 	Data.UpdateGauge(key, value)
 }
 
@@ -47,7 +49,8 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 	ms.MetricsCounter[key] = value
 }
 
-func UpdateCounter(key string, value counter) { 
+func UpdateCounter(key string, value counter) {
+	UpdateCounterSQL(context.Background(), key, value)  
 	Data.UpdateCounter(key, value)
 }
 
@@ -58,6 +61,7 @@ func (ms *MemStorage) AddCounter(key string, value counter) {
 }
 
 func AddCounter(key string, value counter) {
+	AddCounterSQL(context.Background(), key, value)
 	Data.AddCounter(key, value)
 }
 
@@ -72,7 +76,8 @@ func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 }
 
 func GetGauge(key string) (gauge, bool) {
-	value, ok := Data.GetGauge(key)
+	value, ok := GetGaugeSQL(key)
+	//value, ok := Data.GetGauge(key)
 	if !ok {
 		return 0, false
 	}
@@ -90,7 +95,8 @@ func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 }
 
 func GetCounter(key string) (counter, bool) {
-	value, ok := Data.GetCounter(key)
+	value, ok := GetCounterSQL(key)
+	//value, ok := Data.GetCounter(key)
 	if !ok {
 		return 0, false
 	}

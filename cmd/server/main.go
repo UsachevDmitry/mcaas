@@ -16,17 +16,18 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
-
+	internal.Logger()
 	internal.GetConfig()
-	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
 	var errdb error
 	internal.DB, errdb = sql.Open("pgx", *internal.DatabaseDsn)
-
 	if errdb != nil {
 		panic(errdb)
 	}
 	defer internal.DB.Close()
+
+	internal.CreateTables(context.Background())
+	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
 
 	wg.Add(1)
@@ -43,7 +44,7 @@ func main() {
 	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
 	router.HandleFunc("/ping", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetPing()))).Methods(http.MethodGet)
 
-	internal.Logger()
+	
 	internal.GlobalSugar.Infow(
 		"Starting server",
 		"ADDRESS", *internal.Addr,
