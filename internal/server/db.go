@@ -25,7 +25,7 @@ func CreateTables(ctx context.Context) {
 
 func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 	_, err := DB.ExecContext(ctx, `MERGE INTO metrics_gauge AS target
-USING (VALUES ($1, $2::double precision)) AS source (key, value)
+USING (VALUES ($1::text, $2::double precision)) AS source (key, value)
 ON (target.key = source.key)
 WHEN MATCHED THEN
  UPDATE SET value = source.value
@@ -38,7 +38,7 @@ WHEN NOT MATCHED THEN
 
 func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 	_, err := DB.ExecContext(ctx, `MERGE INTO metrics_counter AS target
-USING (VALUES ($1, $2::bigint)) AS source (key, value)
+USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 ON (target.key = source.key)
 WHEN MATCHED THEN
  UPDATE SET value = source.value
