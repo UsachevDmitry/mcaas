@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"fmt"
 )
 
 func CreateTables(ctx context.Context) {
@@ -63,9 +64,10 @@ WHEN MATCHED THEN
 
 func GetCounterSQL(key string) (counter, bool) {
   var value counter
-	rows, err :=  DB.Query(`SELECT * FROM metrics_counter WHERE key = '$1'`, key)
+	rows, err :=  DB.Query(`SELECT * FROM metrics_counter WHERE key = $1`, key)
   if err != nil {
-    GlobalSugar.Panic(err)
+    fmt.Println("TEST!!!! Counter !!!")
+    //GlobalSugar.Panic(err)
   }
   defer rows.Close() 
   for rows.Next() {
@@ -73,15 +75,19 @@ func GetCounterSQL(key string) (counter, bool) {
     if err != nil {
       return 0, false
     }
+  }
+  if err := rows.Err(); err != nil {
+    GlobalSugar.Errorf("Ошибка итерации по строкам: %v", err)
   }
 	return value, true
 }
 
 func GetGaugeSQL(key string) (gauge, bool) {
   var value gauge
-	rows, err :=  DB.Query(`SELECT * FROM metrics_gauge WHERE key = '$1'`, key)
+	rows, err :=  DB.Query(`SELECT * FROM metrics_gauge WHERE key = $1`, key)
   if err != nil {
-    GlobalSugar.Panic(err)
+    fmt.Println("TEST!!!! Gauge !!!")
+    //GlobalSugar.Panic(err)
   }
   defer rows.Close() 
   for rows.Next() {
@@ -89,6 +95,9 @@ func GetGaugeSQL(key string) (gauge, bool) {
     if err != nil {
       return 0, false
     }
+  }
+  if err := rows.Err(); err != nil {
+    GlobalSugar.Errorf("Ошибка итерации по строкам: %v", err)
   }
 	return value, true
 }
