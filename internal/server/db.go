@@ -63,33 +63,32 @@ WHEN MATCHED THEN
 
 func GetCounterSQL(key string) (counter, bool) {
   var value counter
-	rows, err :=  DB.Query(`SELECT * FROM metrics_counter WHERE key = $1`, key)
+	rows, err :=  DB.Query(`SELECT * FROM metrics_counter WHERE key = '$1'`, key)
   if err != nil {
     GlobalSugar.Panic(err)
   }
+  defer rows.Close() 
   for rows.Next() {
     err = rows.Scan(&key, &value)
     if err != nil {
       return 0, false
     }
   }
-
-  defer rows.Close() 
 	return value, true
 }
 
 func GetGaugeSQL(key string) (gauge, bool) {
   var value gauge
-	rows, err :=  DB.Query(`SELECT * FROM metrics_gauge WHERE key = $1`, key)
+	rows, err :=  DB.Query(`SELECT * FROM metrics_gauge WHERE key = '$1'`, key)
   if err != nil {
     GlobalSugar.Panic(err)
   }
+  defer rows.Close() 
   for rows.Next() {
     err = rows.Scan(&key, &value)
     if err != nil {
       return 0, false
     }
   }
-  defer rows.Close() 
 	return value, true
 }
