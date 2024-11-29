@@ -15,6 +15,7 @@ func HandleIndex() http.Handler {
 		if err != nil {
 			GlobalSugar.Fatalw(err.Error(), "event", "get index")
 		}
+		//need fix
 		tpl.ExecuteTemplate(w, "metrics", Data.MetricsGauge)
 		tpl.ExecuteTemplate(w, "metrics", Data.MetricsCounter)
 		w.WriteHeader(http.StatusOK)
