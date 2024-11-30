@@ -102,17 +102,19 @@ type Metrics struct {
 }
 
 var MetricsList []Metrics
+var mutexForMetricsList sync.Mutex
 
 func AppendMetrics(metric Metrics) {
+	mutexForMetricsList.Lock()
+	defer mutexForMetricsList.Unlock()
 	MetricsList = append(MetricsList, metric)
 }
 
 func ClearMetrics() {
+	mutexForMetricsList.Lock()
+	defer mutexForMetricsList.Unlock()
 	MetricsList = nil
 }
-
-
-
 
 func (ms *MemStorage) GetMetricsCounter() map[string]counter {
 	ms.Mutex.Lock()

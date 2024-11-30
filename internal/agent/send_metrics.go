@@ -14,6 +14,10 @@ func SendMetrics(reportInterval time.Duration) {
 
 		url := "http://" + *Addr + "/updates/"
 
+		if len(MetricsList) == 0 {
+			continue
+		} 
+
 		jsonBody, err := json.Marshal(MetricsList)
 		if err != nil {
 			fmt.Println("Error:", err)

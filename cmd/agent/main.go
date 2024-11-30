@@ -16,14 +16,6 @@ func main() {
 		internal.UpdateData(time.Duration(*internal.PollInterval))
 		defer wg.Done()
 	}()
-	// go func() {
-	// 	internal.SendDataCounterNewAPI(time.Duration(*internal.ReportInterval))
-	// 	defer wg.Done()
-	// }()
-	// go func() {
-	// 	internal.SendDataGaugeNewAPI(time.Duration(*internal.ReportInterval))
-	// 	defer wg.Done()
-	// }()
 	go func() {
 		internal.CollectDataCounterListNewAPI(time.Duration(*internal.ReportInterval))
 		defer wg.Done()
