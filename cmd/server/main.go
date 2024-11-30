@@ -3,16 +3,15 @@ package main
 import (
 	"context"
 	"database/sql"
+	"github.com/UsachevDmitry/mcaas/internal/server"
+	"github.com/gorilla/mux"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
-
-	"github.com/UsachevDmitry/mcaas/internal/server"
-	"github.com/gorilla/mux"
-	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
@@ -27,7 +26,7 @@ func main() {
 		}
 		defer internal.DB.Close()
 		internal.CreateTables(context.Background())
-    }
+	}
 
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
@@ -40,7 +39,7 @@ func main() {
 	} else {
 		wg.Done()
 	}
-	
+
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)
 	router.HandleFunc("/update/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsJSON()))).Methods(http.MethodPost)
@@ -49,7 +48,6 @@ func main() {
 	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
 	router.HandleFunc("/ping", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetPing()))).Methods(http.MethodGet)
 
-	
 	internal.GlobalSugar.Infow(
 		"Starting server",
 		"ADDRESS", *internal.Addr,

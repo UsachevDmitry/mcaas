@@ -9,13 +9,13 @@ type counter int64
 type MemStorage struct {
 	MetricsGauge   map[string]gauge
 	MetricsCounter map[string]counter
-	Mutex sync.Mutex
+	Mutex          sync.Mutex
 }
 
 var Data = &MemStorage{
 	MetricsGauge:   map[string]gauge{},
 	MetricsCounter: map[string]counter{},
-	Mutex: sync.Mutex{},
+	Mutex:          sync.Mutex{},
 }
 
 type MemStorageInterface interface {
@@ -45,7 +45,6 @@ func (ms *MemStorage) AddCounter(key string, value counter) {
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] += value
 }
-
 
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 	ms.Mutex.Lock()
@@ -123,7 +122,7 @@ func (ms *MemStorage) GetMetrics() *MemStorage {
 	return copiedData
 }
 
-func (ms *MemStorage) SetMetrics(updatedData *MemStorage)  {
+func (ms *MemStorage) SetMetrics(updatedData *MemStorage) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	Data = updatedData

@@ -11,13 +11,13 @@ type counter int64
 type MemStorage struct {
 	MetricsGauge   map[string]gauge
 	MetricsCounter map[string]counter
-	Mutex sync.Mutex
+	Mutex          sync.Mutex
 }
 
 var Data = &MemStorage{
 	MetricsGauge:   map[string]gauge{},
 	MetricsCounter: map[string]counter{},
-	Mutex: sync.Mutex{},
+	Mutex:          sync.Mutex{},
 }
 
 var DB *sql.DB
@@ -56,7 +56,7 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 func UpdateCounter(key string, value counter) {
 	if FlagUsePosgresSQL {
 		UpdateCounterSQL(context.Background(), key, value)
-	} else {  
+	} else {
 		Data.UpdateCounter(key, value)
 	}
 }

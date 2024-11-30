@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	defaultAddr = "localhost:8080"
-	defaultStoreInterval = 300
+	defaultAddr            = "localhost:8080"
+	defaultStoreInterval   = 300
 	defaultFileStoragePath = "/tmp/file"
-	defaultRestore = true
-	defaultDatabaseDsn = ""
+	defaultRestore         = true
+	defaultDatabaseDsn     = ""
 	//defaultDatabaseDsn = "host=localhost user=postgres password=P@ssw0rd dbname=test"
 )
 
@@ -56,8 +56,8 @@ func GetConfig() {
 	if databaseDsnEnv != "" {
 		*DatabaseDsn = databaseDsnEnv
 	}
-
-	if *DatabaseDsn != defaultDatabaseDsn { //*DatabaseDsn != "" ||
+	
+	if *DatabaseDsn != defaultDatabaseDsn {
 		FlagUsePosgresSQL = true
 	} else {
 		FlagUsePosgresSQL = false

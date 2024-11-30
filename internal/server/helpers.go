@@ -189,7 +189,7 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if !restore {
 		return
 	}
-	fileInfo , err := os.Stat(fileStoragePathEnv)
+	fileInfo, err := os.Stat(fileStoragePathEnv)
 	if os.IsNotExist(err) {
 		fmt.Println("Файл не существует")
 		return
