@@ -47,6 +47,7 @@ func main() {
 	router.HandleFunc("/value/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetMetricsJSON()))).Methods(http.MethodPost)
 	router.HandleFunc("/value/{type}/{name}", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetValue()))).Methods(http.MethodGet)
 	router.HandleFunc("/ping", internal.WithLoggingGet(internal.GzipHandle(internal.HandleGetPing()))).Methods(http.MethodGet)
+	router.HandleFunc("/updates/", internal.WithLoggingGet(internal.GzipHandle(internal.HandlePostMetricsListJSON()))).Methods(http.MethodPost)
 
 	internal.GlobalSugar.Infow(
 		"Starting server",

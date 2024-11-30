@@ -101,6 +101,19 @@ type Metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge value
 }
 
+var MetricsList []Metrics
+
+func AppendMetrics(metric Metrics) {
+	MetricsList = append(MetricsList, metric)
+}
+
+func ClearMetrics() {
+	MetricsList = nil
+}
+
+
+
+
 func (ms *MemStorage) GetMetricsCounter() map[string]counter {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()

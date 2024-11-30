@@ -86,3 +86,21 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 		}
 	}
 }
+
+func CollectDataCounterListNewAPI(reportInterval time.Duration) {
+	for {
+		time.Sleep(reportInterval * time.Second)
+		for name, value := range Data.GetMetricsCounter() {
+			CounterValueInt64 := int64(value)
+			var metrics = Metrics{
+				ID:    name,
+				MType: "counter",
+				Delta: &CounterValueInt64,
+				Value: nil,
+			}
+			AppendMetrics(metrics)
+		}
+	}
+}
+
+

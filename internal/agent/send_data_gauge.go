@@ -82,3 +82,19 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 		}
 	}
 }
+
+func CollectDataGaugeListNewAPI(reportInterval time.Duration) {
+	for {
+		time.Sleep(reportInterval * time.Second)
+		for name, value := range Data.GetMetricsGauge() {
+			GaugeValueFloat64 := float64(value)
+			var metrics = Metrics{
+				ID:    name,
+				MType: "gauge",
+				Delta: nil,
+				Value: &GaugeValueFloat64,
+			}
+			AppendMetrics(metrics)
+		}
+	}
+}
