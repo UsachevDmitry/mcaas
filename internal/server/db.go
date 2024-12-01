@@ -35,7 +35,7 @@ func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
+			GlobalSugar.Infof("Retry after %v second\n", i)
 			time.Sleep(time.Second * time.Duration(i))
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -59,7 +59,7 @@ func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
 		if err != nil {
 			GlobalSugar.Infoln("Error update counter:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
+			GlobalSugar.Infof("Retry after %v second\n", i)
 			time.Sleep(time.Second * time.Duration(i))
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -89,7 +89,7 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 		INSERT (key, value) VALUES (source.key, source.value)`, key, newValue)
 		if err != nil {
 			GlobalSugar.Infoln("Error add counter:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
+			GlobalSugar.Infof("Retry after %v second\n", i)
 			time.Sleep(time.Second * time.Duration(i))
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -110,7 +110,7 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 		Rows, err = DB.QueryContext(ctx, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
 		if err != nil {
 			GlobalSugar.Errorln("Error querying database:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
+			GlobalSugar.Infof("Retry after %v second\n", i)
 			time.Sleep(time.Second * time.Duration(i))
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -144,7 +144,7 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 		Rows, err = DB.QueryContext(ctx, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
 		if err != nil {
 			GlobalSugar.Errorln("Error querying database:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
+			GlobalSugar.Infof("Retry after %v second\n", i)
 			time.Sleep(time.Second * time.Duration(i))
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")

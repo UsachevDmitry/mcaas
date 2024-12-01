@@ -212,7 +212,7 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	for i := 1; i < 6; i += 2 {
 		file, err = os.Open(fileStoragePathEnv)
 		if err != nil {
-			GlobalSugar.Infof("Retry after %v second", i)
+			GlobalSugar.Infof("Retry after %v second\n", i)
 			time.Sleep(time.Second * time.Duration(i))
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")

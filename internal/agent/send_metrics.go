@@ -42,7 +42,7 @@ func SendMetrics(reportInterval time.Duration) {
 			resp, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Error sending request:", err)
-				fmt.Printf("Retry after %v second", i)
+				fmt.Printf("Retry after %v second\n", i)
 				time.Sleep(time.Second * time.Duration(i))
 				if i == 5 {
 					fmt.Println("All retries exhausted, exiting...")
