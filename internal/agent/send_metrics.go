@@ -38,25 +38,23 @@ func SendMetrics(reportInterval time.Duration) {
 		req.Header.Set("Content-Encoding", "gzip")
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}
-		for i := 0; i < 3; i++ {
+		for i := 1; i < 6; i+=2 {
 			resp, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Error sending request:", err)
-				time.Sleep(5 * time.Second)
+				time.Sleep(time.Second * time.Duration(i))
 				continue
-			} else {
-				i=3
 			}
-			resp.Body.Close()
-
+			
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
-				time.Sleep(5 * time.Second)
+				time.Sleep(time.Second * time.Duration(i))
 				continue
 			} else {
-				i=3
+				i = 6
 			}
-			if i == 2 {
+			resp.Body.Close()
+			if i == 5 {
 				fmt.Println("All retries exhausted, exiting...")
 				break
 			}
