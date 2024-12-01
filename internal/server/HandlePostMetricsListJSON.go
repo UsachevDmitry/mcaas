@@ -15,7 +15,6 @@ func HandlePostMetricsListJSON() http.Handler {
 
 		var metricsList []Metrics
 
-
 		ContentType = r.Header.Get("Content-Type")
 
 		decoder := json.NewDecoder(r.Body)

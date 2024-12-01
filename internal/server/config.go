@@ -12,7 +12,7 @@ const (
 	defaultFileStoragePath = "/tmp/file"
 	defaultRestore         = true
 	defaultDatabaseDsn     = ""
-	//defaultDatabaseDsn = "host=localhost user=postgres password=P@ssw0rd dbname=test"
+	//defaultDatabaseDsn = "host=localhost user=postgres password=P@ssw0rd dbname=test" // need for local experements
 )
 
 var Addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
@@ -56,7 +56,7 @@ func GetConfig() {
 	if databaseDsnEnv != "" {
 		*DatabaseDsn = databaseDsnEnv
 	}
-	//FlagUsePosgresSQL = true
+	// FlagUsePosgresSQL = true // need for local experements
 	if *DatabaseDsn != defaultDatabaseDsn {
 		FlagUsePosgresSQL = true
 	} else {

@@ -102,5 +102,3 @@ func CollectDataCounterListNewAPI(reportInterval time.Duration) {
 		}
 	}
 }
-
-

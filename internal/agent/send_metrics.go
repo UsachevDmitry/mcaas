@@ -16,7 +16,7 @@ func SendMetrics(reportInterval time.Duration) {
 
 		if len(MetricsList) == 0 {
 			continue
-		} 
+		}
 
 		jsonBody, err := json.Marshal(MetricsList)
 		if err != nil {
@@ -38,10 +38,11 @@ func SendMetrics(reportInterval time.Duration) {
 		req.Header.Set("Content-Encoding", "gzip")
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}
-		for i := 1; i < 6; i+=2 {
+		for i := 1; i < 6; i += 2 {
 			resp, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Error sending request:", err)
+				fmt.Printf("Retry after %v second", i)
 				time.Sleep(time.Second * time.Duration(i))
 				if i == 5 {
 					fmt.Println("All retries exhausted, exiting...")
@@ -49,7 +50,7 @@ func SendMetrics(reportInterval time.Duration) {
 				}
 				continue
 			}
-			
+
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
 				time.Sleep(time.Second * time.Duration(i))

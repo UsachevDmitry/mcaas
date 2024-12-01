@@ -208,10 +208,21 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 		fmt.Println("Файл пустой")
 		return
 	}
-
-	file, err := os.Open(fileStoragePathEnv)
-	if err != nil {
-		GlobalSugar.Fatal(err)
+	var file *os.File
+	for i := 1; i < 6; i += 2 {
+		file, err = os.Open(fileStoragePathEnv)
+		if err != nil {
+			GlobalSugar.Infof("Retry after %v second", i)
+			time.Sleep(time.Second * time.Duration(i))
+			if i == 5 {
+				GlobalSugar.Errorln("All retries exhausted, exiting...")
+				GlobalSugar.Fatal(err)
+				break
+			}
+			continue
+		} else {
+			i = 6
+		}
 	}
 
 	defer file.Close()
