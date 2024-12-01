@@ -42,7 +42,7 @@ func SendMetrics(reportInterval time.Duration) {
 			resp, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Error sending request:", err)
-				time.Sleep(5 * time.Second) // Задержка перед следующей попыткой
+				time.Sleep(5 * time.Second)
 				continue
 			} else {
 				i=3
@@ -51,7 +51,7 @@ func SendMetrics(reportInterval time.Duration) {
 
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
-				time.Sleep(5 * time.Second) // Задержка перед следующей попыткой
+				time.Sleep(5 * time.Second)
 				continue
 			} else {
 				i=3
