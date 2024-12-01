@@ -43,21 +43,25 @@ func SendMetrics(reportInterval time.Duration) {
 			if err != nil {
 				fmt.Println("Error sending request:", err)
 				time.Sleep(time.Second * time.Duration(i))
+				if i == 5 {
+					fmt.Println("All retries exhausted, exiting...")
+					break
+				}
 				continue
 			}
 			
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
 				time.Sleep(time.Second * time.Duration(i))
+				if i == 5 {
+					fmt.Println("All retries exhausted, exiting...")
+					break
+				}
 				continue
 			} else {
 				i = 6
 			}
 			resp.Body.Close()
-			if i == 5 {
-				fmt.Println("All retries exhausted, exiting...")
-				break
-			}
 		}
 	}
 }
