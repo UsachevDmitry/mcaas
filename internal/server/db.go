@@ -113,8 +113,8 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
-		cancel()
 		if err != nil {
+			cancel()
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -124,6 +124,7 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 			countRetry++
 			continue
 		}
+		defer cancel()
 	}
 	defer Rows.Close()
 	for Rows.Next() {
@@ -148,8 +149,8 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
-		cancel()
 		if err != nil {
+			cancel()
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -159,6 +160,7 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 			countRetry++
 			continue
 		}
+		defer cancel()
 	}
 	defer Rows.Close()
 	for Rows.Next() {
