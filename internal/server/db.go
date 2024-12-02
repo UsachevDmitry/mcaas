@@ -122,8 +122,6 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
-		DBMutex.Lock()
-		defer DBMutex.Unlock()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
 		cancel()
 		if err != nil {
@@ -160,8 +158,6 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
-		DBMutex.Lock()
-		defer DBMutex.Unlock()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
 		cancel()
 		if err != nil {
