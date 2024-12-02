@@ -7,8 +7,6 @@ import (
 )
 
 func CreateTables(ctx context.Context) {
-	DBMutex.Lock()
-	defer DBMutex.Unlock()
 	_, err := DB.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS metrics_gauge (
         "key" TEXT,
         "value" DOUBLE PRECISION
