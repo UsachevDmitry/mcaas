@@ -21,6 +21,7 @@ var Data = &MemStorage{
 }
 
 var DB *sql.DB
+var DBMutex sync.Mutex
 var FlagUsePosgresSQL bool
 
 type MemStorageInterface interface {

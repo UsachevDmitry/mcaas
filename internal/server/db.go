@@ -7,6 +7,8 @@ import (
 )
 
 func CreateTables(ctx context.Context) {
+	DBMutex.Lock()
+	defer DBMutex.Unlock()
 	_, err := DB.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS metrics_gauge (
         "key" TEXT,
         "value" DOUBLE PRECISION
@@ -25,6 +27,8 @@ func CreateTables(ctx context.Context) {
 }
 
 func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
+	DBMutex.Lock()
+	defer DBMutex.Unlock()
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
@@ -51,6 +55,8 @@ func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 }
 
 func UpdateCounterSQL(ctx context.Context, key string, value counter) {
+	DBMutex.Lock()
+	defer DBMutex.Unlock()
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
@@ -77,6 +83,8 @@ func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 }
 
 func AddCounterSQL(ctx context.Context, key string, value counter) {
+	DBMutex.Lock()
+	defer DBMutex.Unlock()
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
 		newValue, ok := GetCounterSQL(ctx, key)
@@ -109,6 +117,8 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 }
 
 func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
+	DBMutex.Lock()
+	defer DBMutex.Unlock()
 	var value counter
 	var Rows *sql.Rows
 	var err error
@@ -145,6 +155,8 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 }
 
 func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
+	DBMutex.Lock()
+	defer DBMutex.Unlock()
 	var value gauge
 	var Rows *sql.Rows
 	var err error
