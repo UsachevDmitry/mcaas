@@ -98,7 +98,7 @@ func CollectDataCounterListNewAPI(reportInterval time.Duration) {
 				Delta: &CounterValueInt64,
 				Value: nil,
 			}
-			AppendMetrics(metrics)
+			DataMetricsList.AppendMetrics(metrics)
 		}
 	}
 }

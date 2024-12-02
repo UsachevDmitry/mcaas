@@ -94,7 +94,7 @@ func CollectDataGaugeListNewAPI(reportInterval time.Duration) {
 				Delta: nil,
 				Value: &GaugeValueFloat64,
 			}
-			AppendMetrics(metrics)
+			DataMetricsList.AppendMetrics(metrics)
 		}
 	}
 }
