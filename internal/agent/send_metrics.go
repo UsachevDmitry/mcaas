@@ -33,6 +33,7 @@ func SendMetrics(reportInterval time.Duration) {
 		var countRetry = 1
 		for i := 1; i < 6; i += 2 {
 			ctxWithTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(i)*time.Second)
+			defer cancel()
 			req, err := http.NewRequestWithContext(ctxWithTimeout, http.MethodPost, url, bytes.NewBuffer(compressedJSONBody))
 			if err != nil {
 				cancel()
@@ -51,12 +52,12 @@ func SendMetrics(reportInterval time.Duration) {
 			resp, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Error sending request:", err)
+			}
 			if resp.StatusCode != http.StatusOK {
 				fmt.Println("Error status:", resp.StatusCode)
 			}
 			resp.Body.Close()
 			cancel()
-			}
 		}
 	}
 }
