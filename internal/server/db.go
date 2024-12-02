@@ -37,6 +37,7 @@ func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
 		if err != nil {
+			cancel()
 			GlobalSugar.Infoln("Error update gauge:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -62,6 +63,7 @@ func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
 		if err != nil {
+			cancel()
 			GlobalSugar.Infoln("Error update counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -93,6 +95,7 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, newValue)
 		if err != nil {
+			cancel()
 			GlobalSugar.Infoln("Error add counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -115,6 +118,7 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 		defer cancel()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
 		if err != nil {
+			cancel()
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
@@ -150,7 +154,7 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 		defer cancel()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
 		if err != nil {
-
+			cancel()
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
