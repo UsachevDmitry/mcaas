@@ -24,26 +24,25 @@ func CreateTables(ctx context.Context) {
 	}
 }
 
-func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
+func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {	
 	for i := 1; i < 6; i += 2 {
-		_, err := DB.ExecContext(ctx, `MERGE INTO metrics_gauge AS target
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		_, err := DB.ExecContext(ctxWithTimeout, `MERGE INTO metrics_gauge AS target
 		USING (VALUES ($1::text, $2::double precision)) AS source (key, value)
 		ON (target.key = source.key)
 		WHEN MATCHED THEN
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
-			GlobalSugar.Infof("Retry after %v second\n", i)
-			time.Sleep(time.Second * time.Duration(i))
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
 				break
 			}
+			GlobalSugar.Infoln("Retry...")
 			continue
-		} else {
-			i = 6
 		}
 	}
 }
