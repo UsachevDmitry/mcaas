@@ -38,6 +38,7 @@ func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
 			if i == 5 {
@@ -65,6 +66,7 @@ func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update counter:", err)
 			if i == 5 {
@@ -98,6 +100,7 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, newValue)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error add counter:", err)
 			if i == 5 {
@@ -122,6 +125,7 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
@@ -159,6 +163,7 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
