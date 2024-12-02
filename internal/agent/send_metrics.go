@@ -14,16 +14,16 @@ func SendMetrics(reportInterval time.Duration) {
 
 		url := "http://" + *Addr + "/updates/"
 
-		if len(MetricsList) == 0 {
+		if len(DataMetricsList.MetricsList) == 0 {
 			continue
 		}
 
-		jsonBody, err := json.Marshal(MetricsList)
+		jsonBody, err := json.Marshal(DataMetricsList.MetricsList)
 		if err != nil {
 			fmt.Println("Error:", err)
 			continue
 		}
-		ClearMetrics() // Очишаем список
+		DataMetricsList.ClearMetrics() // Очишаем список
 		compressedJSONBody, err := Compress(jsonBody)
 		if err != nil {
 			fmt.Println("Error compress jsonBody", err)
