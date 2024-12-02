@@ -148,7 +148,7 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
-		defer cancel()
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
