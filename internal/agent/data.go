@@ -101,20 +101,42 @@ type Metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge value
 }
 
-var MetricsList []Metrics
-var mutexForMetricsList sync.Mutex
+// var MetricsList []Metrics
+// var mutexForMetricsList sync.Mutex
 
-func AppendMetrics(metric Metrics) {
-	mutexForMetricsList.Lock()
-	defer mutexForMetricsList.Unlock()
-	MetricsList = append(MetricsList, metric)
+type MetricsList struct {
+	MetricsList []Metrics
+    Mutex sync.Mutex
 }
 
-func ClearMetrics() {
-	mutexForMetricsList.Lock()
-	defer mutexForMetricsList.Unlock()
-	MetricsList = nil
+var DataMetricsList = &MetricsList{
+	MetricsList: []Metrics{},
+	Mutex:      sync.Mutex{},
 }
+
+func (ml *MetricsList) AppendMetrics(metric Metrics) {
+	ml.Mutex.Lock()
+	defer ml.Mutex.Unlock()
+	DataMetricsList.MetricsList = append(DataMetricsList.MetricsList, metric)
+}
+
+func (ml *MetricsList) ClearMetrics(metric Metrics) {
+	ml.Mutex.Lock()
+	defer ml.Mutex.Unlock()
+	DataMetricsList.MetricsList = nil
+}
+
+// func AppendMetrics(metric Metrics) {
+// 	mutexForMetricsList.Lock()
+// 	defer mutexForMetricsList.Unlock()
+// 	MetricsList = append(MetricsList, metric)
+// }
+
+// func ClearMetrics() {
+// 	mutexForMetricsList.Lock()
+// 	defer mutexForMetricsList.Unlock()
+// 	MetricsList = nil
+// }
 
 func (ms *MemStorage) GetMetricsCounter() map[string]counter {
 	ms.Mutex.Lock()
