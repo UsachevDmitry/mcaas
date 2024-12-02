@@ -27,12 +27,12 @@ func CreateTables(ctx context.Context) {
 }
 
 func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
-	DBMutex.Lock()
-	defer DBMutex.Unlock()
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
+		DBMutex.Lock()
+		defer DBMutex.Unlock()
 		_, err := DB.ExecContext(ctxWithTimeout, `MERGE INTO metrics_gauge AS target
 		USING (VALUES ($1::text, $2::double precision)) AS source (key, value)
 		ON (target.key = source.key)
@@ -55,12 +55,12 @@ func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 }
 
 func UpdateCounterSQL(ctx context.Context, key string, value counter) {
-	DBMutex.Lock()
-	defer DBMutex.Unlock()
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
+		DBMutex.Lock()
+		defer DBMutex.Unlock()
 		_, err := DB.ExecContext(ctxWithTimeout, `MERGE INTO metrics_counter AS target
 		USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 		ON (target.key = source.key)
@@ -83,8 +83,6 @@ func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 }
 
 func AddCounterSQL(ctx context.Context, key string, value counter) {
-	DBMutex.Lock()
-	defer DBMutex.Unlock()
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
 		newValue, ok := GetCounterSQL(ctx, key)
@@ -95,6 +93,8 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 		newValue += value
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
+		DBMutex.Lock()
+		defer DBMutex.Unlock()
 		_, err := DB.ExecContext(ctxWithTimeout, `MERGE INTO metrics_counter AS target
 		USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 		ON (target.key = source.key)
@@ -117,8 +117,6 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 }
 
 func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
-	DBMutex.Lock()
-	defer DBMutex.Unlock()
 	var value counter
 	var Rows *sql.Rows
 	var err error
@@ -126,6 +124,8 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
+		DBMutex.Lock()
+		defer DBMutex.Unlock()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
 		if err != nil {
 			cancel()
@@ -155,8 +155,6 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 }
 
 func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
-	DBMutex.Lock()
-	defer DBMutex.Unlock()
 	var value gauge
 	var Rows *sql.Rows
 	var err error
@@ -164,6 +162,8 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 	for i := 1; i < 6; i += 2 {
 		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
+		DBMutex.Lock()
+		defer DBMutex.Unlock()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
 		if err != nil {
 			cancel()
