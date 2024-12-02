@@ -8,17 +8,17 @@ import (
 
 func CreateTables(ctx context.Context) {
 	_, err := DB.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS metrics_gauge (
-        "key" TEXT,
-        "value" DOUBLE PRECISION
-      )`)
+		"key" TEXT,
+		"value" DOUBLE PRECISION
+	)`)
 	if err != nil {
 		GlobalSugar.Fatal(err)
 	}
 
 	_, err = DB.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS metrics_counter (
-        "key" TEXT,
-        "value" BIGINT
-      )`)
+		"key" TEXT,
+		"value" BIGINT
+	)`)
 	if err != nil {
 		GlobalSugar.Fatal(err)
 	}
