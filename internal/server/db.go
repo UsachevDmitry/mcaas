@@ -124,12 +124,13 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 	var value counter
 	var Rows *sql.Rows
 	var err error
-	var countRetry = 1	
+	var countRetry = 1
+	var cancel context.CancelFunc
+	var ctxWithTimeout context.Context	
 	for i := 1; i < 6; i += 2 {
-		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel = context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
-		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
@@ -138,6 +139,7 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
+			cancel()
 			continue
 		} else {
 			break
@@ -163,11 +165,12 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 	var Rows *sql.Rows
 	var err error
 	var countRetry = 1
+	var cancel context.CancelFunc
+	var ctxWithTimeout context.Context
 	for i := 1; i < 6; i += 2 {
-		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel = context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
 		Rows, err = DB.QueryContext(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
-		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
@@ -176,6 +179,7 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
+			cancel()
 			continue
 		} else {
 			break
