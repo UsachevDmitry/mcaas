@@ -246,7 +246,7 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 	if err := scanner.Err(); err != nil {
 		GlobalSugar.Fatal(err)
 	}
-
+	fmt.Println("ok2...")
 }
 
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
