@@ -38,7 +38,7 @@ func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
-		cancel()	
+		//cancel()	
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
 			if i == 5 {
@@ -68,7 +68,7 @@ func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
-		cancel()
+		//cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update counter:", err)
 			if i == 5 {
@@ -104,7 +104,7 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, newValue)
-		cancel()
+		//cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error add counter:", err)
 			if i == 5 {
