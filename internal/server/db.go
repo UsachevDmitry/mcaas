@@ -139,7 +139,7 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
-			cancel()
+			//cancel()
 			continue
 		} else {
 			break
@@ -179,7 +179,7 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
-			cancel()
+			//cancel()
 			continue
 		} else {
 			break
