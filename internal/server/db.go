@@ -24,10 +24,10 @@ func CreateTables(ctx context.Context) {
 	}
 }
 
-func UpdateGaugeSQL(key string, value gauge) {
+func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
-		ctxWithTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
@@ -38,7 +38,7 @@ func UpdateGaugeSQL(key string, value gauge) {
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
-		cancel()
+		cancel()	
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
 			if i == 5 {
@@ -48,14 +48,16 @@ func UpdateGaugeSQL(key string, value gauge) {
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
+		} else {
+			break
 		}
 	}
 }
 
-func UpdateCounterSQL(key string, value counter) {
+func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
-		ctxWithTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
@@ -76,6 +78,8 @@ func UpdateCounterSQL(key string, value counter) {
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
+		} else {
+			break
 		}
 	}
 }
@@ -89,7 +93,7 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 			break
 		}
 		newValue += value
-		ctxWithTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
 		defer cancel()
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
@@ -110,6 +114,8 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
+		} else {
+			break
 		}
 	}
 }
@@ -133,6 +139,8 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
+		} else {
+			break
 		}
 	}
 	defer Rows.Close()
@@ -169,6 +177,8 @@ func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
+		} else {
+			break
 		}
 	}
 	defer Rows.Close()

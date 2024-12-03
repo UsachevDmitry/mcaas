@@ -42,7 +42,7 @@ func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 
 func UpdateGauge(key string, value gauge) {
 	if FlagUsePosgresSQL {
-		UpdateGaugeSQL(key, value)
+		UpdateGaugeSQL(context.Background(), key, value)
 	} else {
 		Data.UpdateGauge(key, value)
 	}
@@ -56,7 +56,7 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 
 func UpdateCounter(key string, value counter) {
 	if FlagUsePosgresSQL {
-		UpdateCounterSQL(key, value)
+		UpdateCounterSQL(context.Background(), key, value)
 	} else {
 		Data.UpdateCounter(key, value)
 	}

@@ -209,21 +209,24 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 		return
 	}
 	var file *os.File
-	for i := 1; i < 6; i += 2 {
-		file, err = os.Open(fileStoragePathEnv)
-		if err != nil {
-			GlobalSugar.Infof("Retry after %v second\n", i)
-			time.Sleep(time.Second * time.Duration(i))
-			if i == 5 {
-				GlobalSugar.Errorln("All retries exhausted, exiting...")
-				GlobalSugar.Fatal(err)
-				break
-			}
-			continue
-		} else {
-			i = 6
-		}
+	//for i := 1; i < 6; i += 2 {
+	file, err = os.Open(fileStoragePathEnv)
+	fmt.Println("ok...")
+	if err != nil {
+		GlobalSugar.Infoln("fail...")
 	}
+	// 		GlobalSugar.Infof("Retry after %v second\n", i)
+	// 		time.Sleep(time.Second * time.Duration(i))
+	// 		if i == 5 {
+	// 			GlobalSugar.Errorln("All retries exhausted, exiting...")
+	// 			GlobalSugar.Fatal(err)
+	// 			break
+	// 		}
+	// 		continue
+	// 	} else {
+	// 		i = 6
+	// 	}
+	// }
 
 	defer file.Close()
 
@@ -239,9 +242,11 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 			UpdateCounter(metrics.ID, counter(*metrics.Delta))
 		}
 	}
+
 	if err := scanner.Err(); err != nil {
 		GlobalSugar.Fatal(err)
 	}
+
 }
 
 func SaveDataInFile(storeInterval time.Duration, fileStoragePathEnv string) {
