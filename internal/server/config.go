@@ -56,7 +56,7 @@ func GetConfig() {
 	if databaseDsnEnv != "" {
 		*DatabaseDsn = databaseDsnEnv
 	}
-	FlagUsePosgresSQL = true // need for local experements
+	//FlagUsePosgresSQL = true // need for local experements
 	if *DatabaseDsn != defaultDatabaseDsn {
 		FlagUsePosgresSQL = true
 	} else {
