@@ -58,8 +58,8 @@ func GetConfig() {
 	}
 	// FlagUsePosgresSQL = true // need for local experements
 	if *DatabaseDsn != defaultDatabaseDsn {
-		FlagUsePosgresSQL = true
+		Config.Type = "postgres"
 	} else {
-		FlagUsePosgresSQL = false
+		Config.Type = "mem"
 	}
 }

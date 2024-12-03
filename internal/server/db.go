@@ -1,13 +1,36 @@
 package internal
 
 import (
-	"context"
 	"database/sql"
 	"time"
 )
+func (p *PostgresStorage) Exec(query string, args ...interface{}) (sql.Result, error) {
+	return p.db.Exec(query, args...)
+}
 
-func CreateTables(ctx context.Context) {
-	_, err := DB.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS metrics_gauge (
+func (p *PostgresStorage) Query(query string, args ...interface{}) (*sql.Rows, error) {
+	return p.db.Query(query, args...)
+}
+
+// func (p *PostgresStorage) Open(driverName, dataSourceName string) (*sql.DB, error) {
+// 	return p.db.Open(driverName, dataSourceName)
+// }
+
+func (p *PostgresStorage) Connect() error {
+	var err error
+	p.db, err = sql.Open("pgx", *DatabaseDsn)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *PostgresStorage) Close() error {
+	return p.db.Close()
+}
+
+func (p *PostgresStorage) CreateTables() {
+	_, err := p.Exec(`CREATE TABLE IF NOT EXISTS metrics_gauge (
 		"key" TEXT,
 		"value" DOUBLE PRECISION
 	)`)
@@ -15,7 +38,7 @@ func CreateTables(ctx context.Context) {
 		GlobalSugar.Fatal(err)
 	}
 
-	_, err = DB.ExecContext(ctx, `CREATE TABLE IF NOT EXISTS metrics_counter (
+	_, err = p.Exec(`CREATE TABLE IF NOT EXISTS metrics_counter (
 		"key" TEXT,
 		"value" BIGINT
 	)`)
@@ -24,38 +47,29 @@ func CreateTables(ctx context.Context) {
 	}
 }
 
-func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
-	var countRetry = 1	
+func (p *PostgresStorage) UpdateGauge(key string, value gauge) {
 	for i := 1; i < 6; i += 2 {
-		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
-		defer cancel()
-		DBMutex.Lock()
-		defer DBMutex.Unlock()
-		_, err := DB.ExecContext(ctxWithTimeout, `MERGE INTO metrics_gauge AS target
+		_, err := p.Exec(`MERGE INTO metrics_gauge AS target
 		USING (VALUES ($1::text, $2::double precision)) AS source (key, value)
 		ON (target.key = source.key)
 		WHEN MATCHED THEN
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
-		cancel()	
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
-			if i == 5 {
-				GlobalSugar.Errorln("All retries exhausted, exiting...")
-				break
-			}
-			GlobalSugar.Infof("Retry %v...", countRetry)
-			countRetry++
+			GlobalSugar.Infof("Retry after %v second", i)
+			time.Sleep(time.Second * time.Duration(i))
 			continue
+		} else {
+			break
 		}
-		break
 	}
 }
 
-func UpdateCounterSQL(ctx context.Context, key string, value counter) {
+func (p *PostgresStorage) UpdateCounter(key string, value counter) {
 	for i := 1; i < 6; i += 2 {
-		_, err := DB.ExecContext(ctx, `MERGE INTO metrics_counter AS target
+		_, err := p.Exec(`MERGE INTO metrics_counter AS target
 		USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 		ON (target.key = source.key)
 		WHEN MATCHED THEN
@@ -73,15 +87,15 @@ func UpdateCounterSQL(ctx context.Context, key string, value counter) {
 	}
 }
 
-func AddCounterSQL(ctx context.Context, key string, value counter) {	
+func (p *PostgresStorage) AddCounter(key string, value counter) {	
 	for i := 1; i < 6; i += 2 {
-		newValue, ok := GetCounterSQL(ctx, key)
+		newValue, ok := p.GetCounter(key)
 		if !ok {
 			GlobalSugar.Infoln("Error Get counter")
 			break
 		}
 		newValue += value
-		_, err := DB.ExecContext(ctx, `MERGE INTO metrics_counter AS target
+		_, err := p.Exec(`MERGE INTO metrics_counter AS target
 		USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 		ON (target.key = source.key)
 		WHEN MATCHED THEN
@@ -99,12 +113,12 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 	}
 }
 
-func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
+func (p *PostgresStorage) GetCounter(key string) (counter, bool) {
 	var value counter
 	var Rows *sql.Rows
 	var err error
 	for i := 1; i < 6; i += 2 {
-		Rows, err = DB.QueryContext(ctx, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
+		Rows, err = p.Query(`SELECT * FROM metrics_counter WHERE key = $1::text`, key)
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
@@ -133,12 +147,12 @@ func GetCounterSQL(ctx context.Context, key string) (counter, bool) {
 	return value, true
 }
 
-func GetGaugeSQL(ctx context.Context, key string) (gauge, bool) {
+func (p *PostgresStorage) GetGauge(key string) (gauge, bool) {
 	var value gauge
 	var Rows *sql.Rows
 	var err error
 	for i := 1; i < 6; i += 2 {
-		Rows, err = DB.QueryContext(ctx, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
+		Rows, err = p.Query(`SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
 		if err != nil {
 			GlobalSugar.Infoln("Error get gauge:", err)
 			if i == 5 {

@@ -1,38 +1,62 @@
 package internal
 
 import (
-	"context"
 	"database/sql"
 	"sync"
+	"fmt"
 )
 
 type gauge float64
 type counter int64
+
 type MemStorage struct {
 	MetricsGauge   map[string]gauge
 	MetricsCounter map[string]counter
 	Mutex          sync.Mutex
 }
 
-var Data = &MemStorage{
-	MetricsGauge:   map[string]gauge{},
-	MetricsCounter: map[string]counter{},
-	Mutex:          sync.Mutex{},
+type PostgresStorage struct {
+	db *sql.DB
 }
 
-var DB *sql.DB
-var DBMutex sync.Mutex
-var FlagUsePosgresSQL bool
-
-type MemStorageInterface interface {
+type Storage interface {
 	UpdateGauge(key string, value gauge)
 	UpdateCounter(key string, value counter)
 	AddCounter(key string, value counter)
 	GetGauge(key string) (gauge, bool)
 	GetCounter(key string) (counter, bool)
-	DeleteGauge(key string)
-	DeleteCounter(key string)
+	Close() error
 }
+
+type DatabaseConfig struct {
+	Type string
+}
+
+var Config DatabaseConfig
+
+func SelectStorage(config DatabaseConfig) (Storage, error) {
+	switch config.Type {
+	case "mem":
+		db := &MemStorage{
+			MetricsGauge:   map[string]gauge{},
+			MetricsCounter: map[string]counter{},
+			Mutex:          sync.Mutex{},
+		}
+		return db, nil
+	case "postgres":
+		db := &PostgresStorage{}
+		errdb := db.Connect()
+		if errdb != nil {
+			panic(errdb)
+		}
+		db.CreateTables()
+		return db, nil
+	default:
+		return nil, fmt.Errorf("Неизвестная база данных: %s", config.Type)
+	}
+}
+
+var FlagUsePosgresSQL bool
 
 func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 	ms.Mutex.Lock()
@@ -41,11 +65,12 @@ func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 }
 
 func UpdateGauge(key string, value gauge) {
-	if FlagUsePosgresSQL {
-		UpdateGaugeSQL(context.Background(), key, value)
-	} else {
-		Data.UpdateGauge(key, value)
+	db, err := SelectStorage(Config)
+	if err != nil {
+		fmt.Println("Ошибка выбора базы данных:", err)
+		return
 	}
+	db.UpdateGauge(key, value)
 }
 
 func (ms *MemStorage) UpdateCounter(key string, value counter) {
@@ -55,11 +80,12 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 }
 
 func UpdateCounter(key string, value counter) {
-	if FlagUsePosgresSQL {
-		UpdateCounterSQL(context.Background(), key, value)
-	} else {
-		Data.UpdateCounter(key, value)
+	db, err := SelectStorage(Config)
+	if err != nil {
+		fmt.Println("Ошибка выбора базы данных:", err)
+		return
 	}
+	db.UpdateCounter(key, value)
 }
 
 func (ms *MemStorage) AddCounter(key string, value counter) {
@@ -69,11 +95,12 @@ func (ms *MemStorage) AddCounter(key string, value counter) {
 }
 
 func AddCounter(key string, value counter) {
-	if FlagUsePosgresSQL {
-		AddCounterSQL(context.Background(), key, value)
-	} else {
-		Data.AddCounter(key, value)
+	db, err := SelectStorage(Config)
+	if err != nil {
+		fmt.Println("Ошибка выбора базы данных:", err)
+		return
 	}
+	db.AddCounter(key, value)
 }
 
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
@@ -89,11 +116,12 @@ func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 func GetGauge(key string) (gauge, bool) {
 	var Value gauge
 	var Ok bool
-	if FlagUsePosgresSQL {
-		Value, Ok = GetGaugeSQL(context.Background(), key)
-	} else {
-		Value, Ok = Data.GetGauge(key)
+	db, err := SelectStorage(Config)
+	if err != nil {
+		fmt.Println("Ошибка выбора базы данных:", err)
+		return 0, false
 	}
+	Value, Ok = db.GetGauge(key)
 	if !Ok {
 		return 0, false
 	}
@@ -113,36 +141,44 @@ func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 func GetCounter(key string) (counter, bool) {
 	var Value counter
 	var Ok bool
-	if FlagUsePosgresSQL {
-		Value, Ok = GetCounterSQL(context.Background(), key)
-	} else {
-		Value, Ok = Data.GetCounter(key)
+	db, err := SelectStorage(Config)
+	if err != nil {
+		fmt.Println("Ошибка выбора базы данных:", err)
+		return 0, false
 	}
+	Value, Ok = db.GetCounter(key)
 	if !Ok {
 		return 0, false
 	}
 	return Value, true
 }
 
-func (ms *MemStorage) DeleteGauge(key string) {
+func (ms *MemStorage) Close() error {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
-	delete(ms.MetricsGauge, key)
+	ms.MetricsGauge = nil
+	return nil
 }
 
-func DeleteGauge(key string) {
-	Data.DeleteGauge(key)
-}
+// func (ms *MemStorage) DeleteGauge(key string) {
+// 	ms.Mutex.Lock()
+// 	defer ms.Mutex.Unlock()
+// 	delete(ms.MetricsGauge, key)
+// }
 
-func (ms *MemStorage) DeleteCounter(key string) {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
-	delete(ms.MetricsCounter, key)
-}
+// func DeleteGauge(key string) {
+// 	Data.DeleteGauge(key)
+// }
 
-func DeleteCounter(key string) {
-	Data.DeleteCounter(key)
-}
+// func (ms *MemStorage) DeleteCounter(key string) {
+// 	ms.Mutex.Lock()
+// 	defer ms.Mutex.Unlock()
+// 	delete(ms.MetricsCounter, key)
+// }
+
+// func DeleteCounter(key string) {
+// 	Data.DeleteCounter(key)
+// }
 
 type Metrics struct {
 	ID    string   `json:"id"`              // имя метрики key

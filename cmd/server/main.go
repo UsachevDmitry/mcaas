@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"database/sql"
+	//"database/sql"
 	"github.com/UsachevDmitry/mcaas/internal/server"
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -18,15 +18,11 @@ func main() {
 	var wg sync.WaitGroup
 	internal.Logger()
 	internal.GetConfig()
-	if internal.FlagUsePosgresSQL {
-		var errdb error
-		internal.DB, errdb = sql.Open("pgx", *internal.DatabaseDsn)
-		if errdb != nil {
-			panic(errdb)
-		}
-		defer internal.DB.Close()
-		internal.CreateTables(context.Background())
+	db, err := internal.SelectStorage(internal.Config)
+	if err != nil {
+		internal.GlobalSugar.Errorln(err)
 	}
+    db.Close()
 
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
@@ -73,7 +69,7 @@ func main() {
 		os.Exit(0)
 	}()
 
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		internal.GlobalSugar.Infoln("Error starting server:", err)
 		os.Exit(1)
