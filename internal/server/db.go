@@ -24,10 +24,10 @@ func CreateTables(ctx context.Context) {
 	}
 }
 
-func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
+func UpdateGaugeSQL(key string, value gauge) {
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
-		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(i)*time.Second)
 		defer cancel()
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
@@ -52,10 +52,10 @@ func UpdateGaugeSQL(ctx context.Context, key string, value gauge) {
 	}
 }
 
-func UpdateCounterSQL(ctx context.Context, key string, value counter) {
+func UpdateCounterSQL(key string, value counter) {
 	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
-		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(i)*time.Second)
 		defer cancel()
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
@@ -89,7 +89,7 @@ func AddCounterSQL(ctx context.Context, key string, value counter) {
 			break
 		}
 		newValue += value
-		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		ctxWithTimeout, cancel := context.WithTimeout(context.Background(), time.Duration(i)*time.Second)
 		defer cancel()
 		DBMutex.Lock()
 		defer DBMutex.Unlock()
