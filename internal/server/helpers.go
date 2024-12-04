@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"context"
 )
 
 type Message struct {
@@ -104,7 +105,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 	ContentType = r.Header.Get("Content-Type")
 
 	if dataType == "counter" {
-		CounterValue, exists := GetCounter(name)
+		CounterValue, exists := GetCounter(context.Background(), name)
 		if !exists {
 			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
 			return
@@ -124,7 +125,7 @@ func PostMetricAnswer(name string, dataType string, w http.ResponseWriter, r *ht
 		w.WriteHeader(http.StatusOK)
 		w.Write(requestBody)
 	} else if dataType == "gauge" {
-		GaugeValue, exists := GetGauge(name)
+		GaugeValue, exists := GetGauge(context.Background(), name)
 		if !exists {
 			WriteHeaderAndSaveStatus(http.StatusNotFound, ContentType, w)
 			return
@@ -236,10 +237,10 @@ func ImportDataFromFile(fileStoragePathEnv string, restore bool) {
 		json.Unmarshal([]byte(scanner.Text()), &metrics)
 
 		if metrics.MType == "gauge" {
-			UpdateGauge(metrics.ID, gauge(*metrics.Value))
+			UpdateGauge(context.Background(), metrics.ID, gauge(*metrics.Value))
 		}
 		if metrics.MType == "counter" {
-			UpdateCounter(metrics.ID, counter(*metrics.Delta))
+			UpdateCounter(context.Background(), metrics.ID, counter(*metrics.Delta))
 		}
 	}
 

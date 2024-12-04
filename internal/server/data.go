@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"sync"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type gauge float64
@@ -23,16 +24,17 @@ var Data = &MemStorage{
 }
 
 type PostgresStorage struct {
-	db *sql.DB
+	//db *sql.DB
+	db *pgxpool.Pool
 }
 
 type Storage interface {
-	UpdateGauge(key string, value gauge)
-	UpdateCounter(key string, value counter)
-	AddCounter(key string, value counter)
-	GetGauge(key string) (gauge, bool)
-	GetCounter(key string) (counter, bool)
-	Close() error
+	UpdateGauge(ctx context.Context, key string, value gauge)
+	UpdateCounter(ctx context.Context, key string, value counter)
+	AddCounter(ctx context.Context, key string, value counter)
+	GetGauge(ctx context.Context, key string) (gauge, bool)
+	GetCounter(ctx context.Context, key string) (counter, bool)
+	Close()
 	PingContext(ctx context.Context) error
 }
 
@@ -58,7 +60,7 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 		if errdb != nil {
 			panic(errdb)
 		}
-		db.CreateTables()
+		db.CreateTables(context.Background())
 		return db, nil
 	default:
 		return nil, fmt.Errorf("неизвестная база данных: %s", config.Type)
@@ -68,52 +70,52 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 var FlagUsePosgresSQL bool
 var Testdb *sql.DB
 
-func (ms *MemStorage) UpdateGauge(key string, value gauge) {
+func (ms *MemStorage) UpdateGauge(ctx context.Context, key string, value gauge) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsGauge[key] = value
 }
 
-func UpdateGauge(key string, value gauge) {
+func UpdateGauge(ctx context.Context, key string, value gauge) {
 	db, err := SelectStorage(Config)
 	if err != nil {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return
 	}
-	db.UpdateGauge(key, value)
+	db.UpdateGauge(ctx, key, value)
 }
 
-func (ms *MemStorage) UpdateCounter(key string, value counter) {
+func (ms *MemStorage) UpdateCounter(ctx context.Context, key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] = value
 }
 
-func UpdateCounter(key string, value counter) {
+func UpdateCounter(ctx context.Context, key string, value counter) {
 	db, err := SelectStorage(Config)
 	if err != nil {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return
 	}
-	db.UpdateCounter(key, value)
+	db.UpdateCounter(ctx, key, value)
 }
 
-func (ms *MemStorage) AddCounter(key string, value counter) {
+func (ms *MemStorage) AddCounter(ctx context.Context, key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] += value
 }
 
-func AddCounter(key string, value counter) {
+func AddCounter(ctx context.Context, key string, value counter) {
 	db, err := SelectStorage(Config)
 	if err != nil {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return
 	}
-	db.AddCounter(key, value)
+	db.AddCounter(ctx, key, value)
 }
 
-func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
+func (ms *MemStorage) GetGauge(ctx context.Context, key string) (gauge, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	value, ok := Data.MetricsGauge[key]
@@ -123,7 +125,7 @@ func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 	return value, true
 }
 
-func GetGauge(key string) (gauge, bool) {
+func GetGauge(ctx context.Context, key string) (gauge, bool) {
 	var value gauge
 	var ok bool
 	db, err := SelectStorage(Config)
@@ -131,14 +133,14 @@ func GetGauge(key string) (gauge, bool) {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return 0, false
 	}
-	value, ok = db.GetGauge(key)
+	value, ok = db.GetGauge(ctx, key)
 	if !ok {
 		return 0, false
 	}
 	return value, true
 }
 
-func (ms *MemStorage) GetCounter(key string) (counter, bool) {
+func (ms *MemStorage) GetCounter(ctx context.Context, key string) (counter, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	value, ok := Data.MetricsCounter[key]
@@ -148,7 +150,7 @@ func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 	return value, true
 }
 
-func GetCounter(key string) (counter, bool) {
+func GetCounter(ctx context.Context, key string) (counter, bool) {
 	var Value counter
 	var Ok bool
 	db, err := SelectStorage(Config)
@@ -157,19 +159,19 @@ func GetCounter(key string) (counter, bool) {
 		return 0, false
 	}
 	
-	Value, Ok = db.GetCounter(key)
+	Value, Ok = db.GetCounter(ctx, key)
 	if !Ok {
-		fmt.Println("YYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!")
+		//fmt.Println("YYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!")
 		return 0, false
 	}
 	return Value, true
 }
 
-func (ms *MemStorage) Close() error {
+func (ms *MemStorage) Close() {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	//Data.MetricsGauge = nil
-	return nil
+	//return nil
 }
 
 func (ms *MemStorage) PingContext(ctx context.Context) error {

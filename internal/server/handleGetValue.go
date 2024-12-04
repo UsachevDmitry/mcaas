@@ -1,9 +1,11 @@
 package internal
 
 import (
+	"context"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func HandleGetValue() http.Handler {
@@ -15,7 +17,7 @@ func HandleGetValue() http.Handler {
 		name = mux.Vars(r)["name"]
 
 		if dataType == "gauge" {
-			value, exists := GetGauge(name)
+			value, exists := GetGauge(context.Background(), name)
 			if !exists {
 				w.WriteHeader(http.StatusNotFound)
 				return
@@ -24,7 +26,7 @@ func HandleGetValue() http.Handler {
 			w.WriteHeader(http.StatusOK)
 			return
 		} else if dataType == "counter" {
-			value, exists := GetCounter(name)
+			value, exists := GetCounter(context.Background(), name)
 			if !exists {
 				w.WriteHeader(http.StatusNotFound)
 				return

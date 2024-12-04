@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"net/http"
+	"context"
 )
 
 func HandlePostMetricsListJSON() http.Handler {
@@ -40,12 +41,12 @@ func HandlePostMetricsListJSON() http.Handler {
 				} else {
 					ValueInt64 = int64(*metrics.Delta)
 				}
-				_, exists := GetCounter(Name)
+				_, exists := GetCounter(context.Background(), Name)
 				if !exists {
-					UpdateCounter(Name, counter(ValueInt64))
+					UpdateCounter(context.Background(), Name, counter(ValueInt64))
 					continue
 				} else {
-					AddCounter(Name, counter(ValueInt64))
+					AddCounter(context.Background(), Name, counter(ValueInt64))
 					continue
 				}
 			} else if DataType == "gauge" {
@@ -53,7 +54,7 @@ func HandlePostMetricsListJSON() http.Handler {
 					continue
 				} else {
 					ValueFloat64 = float64(*metrics.Value)
-					UpdateGauge(Name, gauge(ValueFloat64))
+					UpdateGauge(context.Background(), Name, gauge(ValueFloat64))
 					continue
 				}
 			} else {
