@@ -24,8 +24,8 @@ func (p *PostgresStorage) Connect() error {
 	if err != nil {
 		GlobalSugar.Fatalf("Не удалось инициализировать пул: %v", err)
 	}
-	poolConfig.MaxConns = 3 // Максимальное количество соединений в пуле
-	poolConfig.MinConns = 3 // Минимальное количество поддерживаемых соединений
+	poolConfig.MaxConns = 1 // Максимальное количество соединений в пуле
+	poolConfig.MinConns = 1 // Минимальное количество поддерживаемых соединений
 
 	p.db, err = pgxpool.New(context.Background(), *DatabaseDsn)
 	if err != nil {
@@ -62,7 +62,6 @@ func (p *PostgresStorage) CreateTableCounter(ctx context.Context) {
 
 func (p *PostgresStorage) UpdateGauge(ctx context.Context, key string, value gauge) {
 	for i := 1; i < 6; i += 2 {
-		p.Connect()
 		_, err := p.Exec(ctx, `MERGE INTO metrics_gauge AS target
 		USING (VALUES ($1::text, $2::double precision)) AS source (key, value)
 		ON (target.key = source.key)
@@ -70,7 +69,6 @@ func (p *PostgresStorage) UpdateGauge(ctx context.Context, key string, value gau
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
-		p.Close()
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
 			GlobalSugar.Infof("Retry after %v second", i)
@@ -84,7 +82,6 @@ func (p *PostgresStorage) UpdateGauge(ctx context.Context, key string, value gau
 
 func (p *PostgresStorage) UpdateCounter(ctx context.Context, key string, value counter) {
 	for i := 1; i < 6; i += 2 {
-		p.Connect()
 		_, err := p.Exec(ctx, `MERGE INTO metrics_counter AS target
 		USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 		ON (target.key = source.key)
@@ -92,7 +89,6 @@ func (p *PostgresStorage) UpdateCounter(ctx context.Context, key string, value c
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
-		p.Close()
 		if err != nil {
 			GlobalSugar.Infoln("Error update counter:", err)
 			GlobalSugar.Infof("Retry after %v second", i)
