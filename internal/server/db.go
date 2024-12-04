@@ -40,8 +40,6 @@ func (p *PostgresStorage) Close() {
 	p.db.Close()
 }
 
-
-
 func (p *PostgresStorage) CreateTableGauge(ctx context.Context) {
 	_, err := p.Exec(ctx, `CREATE TABLE IF NOT EXISTS metrics_gauge (
 		"key" TEXT,
