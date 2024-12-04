@@ -26,22 +26,24 @@ func (p *PostgresStorage) Connect() error {
 	}
 	poolConfig.MaxConns = 1 // Максимальное количество соединений в пуле
 	poolConfig.MinConns = 1 // Минимальное количество поддерживаемых соединений
-
-	p.db, err = pgxpool.New(context.Background(), *DatabaseDsn)
+	poolConfig.ConnConfig.TLSConfig = nil
+	p.db, err = pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
 		GlobalSugar.Fatalf("QueryRow failed: %v\n", err)
 		return err
 	}
-
+	
 	return err
-}
+} 
 
 func (p *PostgresStorage) Close() {
 	p.db.Close()
 }
 
 func (p *PostgresStorage) CreateTableGauge(ctx context.Context) {
-	_, err := p.Exec(ctx, `CREATE TABLE IF NOT EXISTS metrics_gauge (
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(1)*time.Second)
+	defer cancel()
+	_, err := p.Exec(ctxWithTimeout, `CREATE TABLE IF NOT EXISTS metrics_gauge (
 		"key" TEXT,
 		"value" DOUBLE PRECISION
 	)`)
@@ -50,7 +52,9 @@ func (p *PostgresStorage) CreateTableGauge(ctx context.Context) {
 	}
 }
 func (p *PostgresStorage) CreateTableCounter(ctx context.Context) {
-	_, err := p.Exec(ctx,`CREATE TABLE IF NOT EXISTS metrics_counter (
+	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(1)*time.Second)
+	defer cancel()
+	_, err := p.Exec(ctxWithTimeout,`CREATE TABLE IF NOT EXISTS metrics_counter (
 		"key" TEXT,
 		"value" BIGINT
 	)`)
@@ -61,46 +65,79 @@ func (p *PostgresStorage) CreateTableCounter(ctx context.Context) {
 
 
 func (p *PostgresStorage) UpdateGauge(ctx context.Context, key string, value gauge) {
+	var countRetry = 1
 	for i := 1; i < 6; i += 2 {
-		_, err := p.Exec(ctx, `MERGE INTO metrics_gauge AS target
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		defer cancel()
+		_, err := p.Exec(ctxWithTimeout, `MERGE INTO metrics_gauge AS target
 		USING (VALUES ($1::text, $2::double precision)) AS source (key, value)
 		ON (target.key = source.key)
 		WHEN MATCHED THEN
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
-			time.Sleep(time.Second * time.Duration(i))
+			if i == 5 {
+				GlobalSugar.Errorln("All retries exhausted, exiting...")
+				break
+			}
+			GlobalSugar.Infof("Retry %v...", countRetry)
+			countRetry++
 			continue
 		} else {
 			break
 		}
+		// if err != nil {
+		// 	GlobalSugar.Infoln("Error update gauge:", err)
+		// 	GlobalSugar.Infof("Retry after %v second", i)
+		// 	time.Sleep(time.Second * time.Duration(i))
+		// 	continue
+		// } else {
+		// 	break
+		// }
 	}
 }
 
 func (p *PostgresStorage) UpdateCounter(ctx context.Context, key string, value counter) {
+	var countRetry = 1
 	for i := 1; i < 6; i += 2 {
-		_, err := p.Exec(ctx, `MERGE INTO metrics_counter AS target
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		defer cancel()
+		_, err := p.Exec(ctxWithTimeout, `MERGE INTO metrics_counter AS target
 		USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 		ON (target.key = source.key)
 		WHEN MATCHED THEN
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, value)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update counter:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
-			time.Sleep(time.Second * time.Duration(i))
+			if i == 5 {
+				GlobalSugar.Errorln("All retries exhausted, exiting...")
+				break
+			}
+			GlobalSugar.Infof("Retry %v...", countRetry)
+			countRetry++
 			continue
 		} else {
 			break
 		}
+		// if err != nil {
+		// 	GlobalSugar.Infoln("Error update counter:", err)
+		// 	GlobalSugar.Infof("Retry after %v second", i)
+		// 	time.Sleep(time.Second * time.Duration(i))
+		// 	continue
+		// } else {
+		// 	break
+		// }
 	}
 }
 
-func (p *PostgresStorage) AddCounter(ctx context.Context, key string, value counter) {	
+func (p *PostgresStorage) AddCounter(ctx context.Context, key string, value counter) {
+	var countRetry = 1	
 	for i := 1; i < 6; i += 2 {
 		newValue, ok := p.GetCounter(ctx, key)
 		if !ok {
@@ -108,21 +145,36 @@ func (p *PostgresStorage) AddCounter(ctx context.Context, key string, value coun
 			break
 		}
 		newValue += value
-		_, err := p.Exec(ctx, `MERGE INTO metrics_counter AS target
+		ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		defer cancel()
+		_, err := p.Exec(ctxWithTimeout, `MERGE INTO metrics_counter AS target
 		USING (VALUES ($1::text, $2::bigint)) AS source (key, value)
 		ON (target.key = source.key)
 		WHEN MATCHED THEN
 		UPDATE SET value = source.value
 		WHEN NOT MATCHED THEN
 		INSERT (key, value) VALUES (source.key, source.value)`, key, newValue)
+		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error add counter:", err)
-			GlobalSugar.Infof("Retry after %v second", i)
-			time.Sleep(time.Second * time.Duration(i))
+			if i == 5 {
+				GlobalSugar.Errorln("All retries exhausted, exiting...")
+				break
+			}
+			GlobalSugar.Infof("Retry %v...", countRetry)
+			countRetry++
 			continue
 		} else {
 			break
 		}
+		// if err != nil {
+		// 	GlobalSugar.Infoln("Error add counter:", err)
+		// 	GlobalSugar.Infof("Retry after %v second", i)
+		// 	time.Sleep(time.Second * time.Duration(i))
+		// 	continue
+		// } else {
+		// 	break
+		// }
 	}
 }
 
@@ -130,20 +182,38 @@ func (p *PostgresStorage) GetCounter(ctx context.Context, key string) (counter, 
 	var value counter
 	var Rows pgx.Rows
 	var err error
+	var countRetry = 1
+	var cancel context.CancelFunc
+	var ctxWithTimeout context.Context
 	for i := 1; i < 6; i += 2 {
-		Rows, err = p.Query(ctx, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
+		ctxWithTimeout, cancel = context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		defer cancel()
+		Rows, err = p.Query(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
 				return 0, false
 			}
-			GlobalSugar.Infof("Retry after %v second", i)
-			time.Sleep(time.Second * time.Duration(i))
+			GlobalSugar.Infof("Retry %v...", countRetry)
+			countRetry++
+			cancel()
 			continue
 		} else {
 			break
 		}
+		// if err != nil {
+		// 	GlobalSugar.Infoln("Error get counter:", err)
+		// 	if i == 5 {
+		// 		GlobalSugar.Errorln("All retries exhausted, exiting...")
+		// 		return 0, false
+		// 	}
+		// 	GlobalSugar.Infof("Retry after %v second", i)
+		// 	time.Sleep(time.Second * time.Duration(i))
+		// 	continue
+		// } else {
+		// 	break
+		// }
 	}
 	defer Rows.Close()
 	for Rows.Next() {
@@ -164,20 +234,38 @@ func (p *PostgresStorage) GetGauge(ctx context.Context, key string) (gauge, bool
 	var value gauge
 	var Rows pgx.Rows
 	var err error
+	var countRetry = 1
+	var cancel context.CancelFunc
+	var ctxWithTimeout context.Context
 	for i := 1; i < 6; i += 2 {
-		Rows, err = p.Query(ctx, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
+		ctxWithTimeout, cancel = context.WithTimeout(ctx, time.Duration(i)*time.Second)
+		defer cancel()
+		Rows, err = p.Query(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
 		if err != nil {
-			GlobalSugar.Infoln("Error get gauge:", err)
+			GlobalSugar.Infoln("Error get counter:", err)
 			if i == 5 {
 				GlobalSugar.Errorln("All retries exhausted, exiting...")
 				return 0, false
 			}
-			GlobalSugar.Infof("Retry after %v second", i)
-			time.Sleep(time.Second * time.Duration(i))
+			GlobalSugar.Infof("Retry %v...", countRetry)
+			countRetry++
+			cancel()
 			continue
 		} else {
 			break
 		}
+		// if err != nil {
+		// 	GlobalSugar.Infoln("Error get gauge:", err)
+		// 	if i == 5 {
+		// 		GlobalSugar.Errorln("All retries exhausted, exiting...")
+		// 		return 0, false
+		// 	}
+		// 	GlobalSugar.Infof("Retry after %v second", i)
+		// 	time.Sleep(time.Second * time.Duration(i))
+		// 	continue
+		// } else {
+		// 	break
+		// }
 	}
 	defer Rows.Close()
 	for Rows.Next() {
