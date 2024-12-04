@@ -41,7 +41,6 @@ func HandlePostMetricsJSON() http.Handler {
 				ValueInt64 = int64(*metrics.Delta)
 			}
 			_, exists := GetCounter(context.Background(), Name)
-			//fmt.Println("!!!!!!!!!!!!!LLLLL!!!!!!!!!!!")
 			if !exists {
 				UpdateCounter(context.Background(), Name, counter(ValueInt64))
 				PostMetricAnswer(Name, DataType, w, r)
