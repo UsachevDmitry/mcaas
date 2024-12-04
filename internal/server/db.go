@@ -27,7 +27,7 @@ func (p *PostgresStorage) Connect() error {
 	poolConfig.MaxConns = 1 // Максимальное количество соединений в пуле
 	poolConfig.MinConns = 1 // Минимальное количество поддерживаемых соединений
 	poolConfig.ConnConfig.TLSConfig = nil
-	poolConfig.ConnConfig.ConnectTimeout = 500 * time.Millisecond
+	//poolConfig.ConnConfig.ConnectTimeout = 500 * time.Millisecond
 	p.db, err = pgxpool.NewWithConfig(context.Background(), poolConfig)
 	if err != nil {
 		GlobalSugar.Fatalf("QueryRow failed: %v\n", err)
