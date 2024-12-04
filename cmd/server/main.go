@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		internal.GlobalSugar.Errorln(err)
 	}
-	
+	defer db.Close()
 	db.CreateTableGauge(context.Background())
 	db.CreateTableCounter(context.Background())
 

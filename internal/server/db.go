@@ -24,8 +24,8 @@ func (p *PostgresStorage) Connect() error {
 	if err != nil {
 		GlobalSugar.Fatalf("Не удалось инициализировать пул: %v", err)
 	}
-	poolConfig.MaxConns = 2 // Максимальное количество соединений в пуле
-	poolConfig.MinConns = 2 // Минимальное количество поддерживаемых соединений
+	poolConfig.MaxConns = 1 // Максимальное количество соединений в пуле
+	poolConfig.MinConns = 1 // Минимальное количество поддерживаемых соединений
 
 	p.db, err = pgxpool.New(context.Background(), *DatabaseDsn)
 	if err != nil {
