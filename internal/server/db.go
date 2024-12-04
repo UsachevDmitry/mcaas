@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"database/sql"
 	"time"
 )
@@ -179,4 +180,9 @@ func (p *PostgresStorage) GetGauge(key string) (gauge, bool) {
 		return 0, false
 	}
 	return value, true
+}
+
+func (p *PostgresStorage) PingContext(ctx context.Context) error {
+	err := p.db.PingContext(ctx)
+	return err
 }

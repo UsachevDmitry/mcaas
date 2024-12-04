@@ -1,9 +1,10 @@
 package internal
 
 import (
+	"context"
 	"database/sql"
-	"sync"
 	"fmt"
+	"sync"
 )
 
 type gauge float64
@@ -13,6 +14,12 @@ type MemStorage struct {
 	MetricsGauge   map[string]gauge
 	MetricsCounter map[string]counter
 	Mutex          sync.Mutex
+}
+
+var Data = &MemStorage{
+	MetricsGauge:   map[string]gauge{},
+	MetricsCounter: map[string]counter{},
+	Mutex:          sync.Mutex{},
 }
 
 type PostgresStorage struct {
@@ -26,6 +33,7 @@ type Storage interface {
 	GetGauge(key string) (gauge, bool)
 	GetCounter(key string) (counter, bool)
 	Close() error
+	PingContext(ctx context.Context) error
 }
 
 type DatabaseConfig struct {
@@ -35,14 +43,17 @@ type DatabaseConfig struct {
 var Config DatabaseConfig
 
 func SelectStorage(config DatabaseConfig) (Storage, error) {
+	//var db *MemStorage
 	switch config.Type {
 	case "mem":
-		db := &MemStorage{
-			MetricsGauge:   map[string]gauge{},
-			MetricsCounter: map[string]counter{},
-			Mutex:          sync.Mutex{},
-		}
-		return db, nil
+		//db = Data
+		return Data, nil
+		// db := &MemStorage{
+		// 	MetricsGauge:   map[string]gauge{},
+		// 	MetricsCounter: map[string]counter{},
+		// 	Mutex:          sync.Mutex{},
+		// }
+		//return db, nil
 	case "postgres":
 		db := &PostgresStorage{}
 		errdb := db.Connect()
@@ -52,16 +63,21 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 		db.CreateTables()
 		return db, nil
 	default:
-		return nil, fmt.Errorf("Неизвестная база данных: %s", config.Type)
+		return nil, fmt.Errorf("неизвестная база данных: %s", config.Type)
 	}
 }
 
 var FlagUsePosgresSQL bool
+var Testdb *sql.DB
 
 func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
+	//fmt.Println("UpdateGauge VALUE!!",value)
 	ms.MetricsGauge[key] = value
+	// fmt.Println("UpdateGauge!!",ms.MetricsGauge[key])
+	// r,_ := GetGauge(key)
+	// fmt.Println("R!!",r)
 }
 
 func UpdateGauge(key string, value gauge) {
@@ -77,6 +93,10 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] = value
+	// fmt.Println("UpdateCounter value!!",value)
+	// fmt.Println("UpdateCounter!!",ms.MetricsGauge[key])
+	// r,_ := GetCounter(key)
+	// fmt.Println("R!!",r)
 }
 
 func UpdateCounter(key string, value counter) {
@@ -106,7 +126,14 @@ func AddCounter(key string, value counter) {
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
-	value, ok := ms.MetricsGauge[key]
+	// db, err := SelectStorage(Config)
+	// if err != nil {
+	// 	fmt.Println("Ошибка выбора базы данных:", err)
+	// 	return 0, false
+	// }
+	//fmt.Println("INFOVALUE!!",ms.MetricsGauge[key])
+
+	value, ok := Data.MetricsGauge[key]
 	if !ok {
 		return 0, false
 	}
@@ -114,25 +141,31 @@ func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 }
 
 func GetGauge(key string) (gauge, bool) {
-	var Value gauge
-	var Ok bool
+	var value gauge
+	var ok bool
 	db, err := SelectStorage(Config)
 	if err != nil {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return 0, false
 	}
-	Value, Ok = db.GetGauge(key)
-	if !Ok {
+	// fmt.Println("INFOVALUEBeforeGetGAuge!!",Data.MetricsGauge[key])
+	// fmt.Println("INFOVALUEBeforeGetGAuge!!",Data)
+	// fmt.Println("INFOVALUEBeforeGetGAuge!!",Data.MetricsGauge[key])
+	// fmt.Println("INFOVALUEBeforeGetGAuge!!",db)
+	value, ok = db.GetGauge(key)
+	if !ok {
 		return 0, false
 	}
-	return Value, true
+	return value, true
 }
 
 func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
-	value, ok := ms.MetricsCounter[key]
+	//fmt.Println("VALUEADDED!!",ms.MetricsCounter[key])
+	value, ok := Data.MetricsCounter[key]
 	if !ok {
+		//fmt.Println("YYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!",ok)
 		return 0, false
 	}
 	return value, true
@@ -146,8 +179,10 @@ func GetCounter(key string) (counter, bool) {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return 0, false
 	}
+	
 	Value, Ok = db.GetCounter(key)
 	if !Ok {
+		fmt.Println("YYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!")
 		return 0, false
 	}
 	return Value, true
@@ -156,8 +191,12 @@ func GetCounter(key string) (counter, bool) {
 func (ms *MemStorage) Close() error {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
-	ms.MetricsGauge = nil
+	//Data.MetricsGauge = nil
 	return nil
+}
+
+func (ms *MemStorage) PingContext(ctx context.Context) error {
+	return fmt.Errorf("ping not work for with DB")
 }
 
 // func (ms *MemStorage) DeleteGauge(key string) {
