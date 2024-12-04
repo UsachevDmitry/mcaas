@@ -2,27 +2,29 @@ package main
 
 import (
 	"context"
-	//"database/sql"
-	"github.com/UsachevDmitry/mcaas/internal/server"
-	"github.com/gorilla/mux"
-	_ "github.com/jackc/pgx/v5/stdlib"
 	"net/http"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+	"github.com/UsachevDmitry/mcaas/internal/server"
+	"github.com/gorilla/mux"
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 func main() {
 	var wg sync.WaitGroup
 	internal.Logger()
 	internal.GetConfig()
+
 	db, err := internal.SelectStorage(internal.Config)
 	if err != nil {
 		internal.GlobalSugar.Errorln(err)
 	}
-    db.Close()
+	
+	db.CreateTableGauge(context.Background())
+	db.CreateTableCounter(context.Background())
 
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 

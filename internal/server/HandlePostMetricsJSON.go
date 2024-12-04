@@ -1,9 +1,9 @@
 package internal
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
-	"context"
 )
 
 func HandlePostMetricsJSON() http.Handler {
@@ -41,6 +41,7 @@ func HandlePostMetricsJSON() http.Handler {
 				ValueInt64 = int64(*metrics.Delta)
 			}
 			_, exists := GetCounter(context.Background(), Name)
+			//fmt.Println("!!!!!!!!!!!!!LLLLL!!!!!!!!!!!")
 			if !exists {
 				UpdateCounter(context.Background(), Name, counter(ValueInt64))
 				PostMetricAnswer(Name, DataType, w, r)

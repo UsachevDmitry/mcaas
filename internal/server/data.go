@@ -24,7 +24,6 @@ var Data = &MemStorage{
 }
 
 type PostgresStorage struct {
-	//db *sql.DB
 	db *pgxpool.Pool
 }
 
@@ -36,6 +35,8 @@ type Storage interface {
 	GetCounter(ctx context.Context, key string) (counter, bool)
 	Close()
 	Ping(ctx context.Context) error
+	CreateTableGauge(ctx context.Context)
+	CreateTableCounter(ctx context.Context)
 }
 
 type DatabaseConfig struct {
@@ -58,9 +59,9 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 		db := &PostgresStorage{}
 		errdb := db.Connect()
 		if errdb != nil {
+			
 			panic(errdb)
 		}
-		db.CreateTables(context.Background())
 		return db, nil
 	default:
 		return nil, fmt.Errorf("неизвестная база данных: %s", config.Type)
@@ -158,10 +159,8 @@ func GetCounter(ctx context.Context, key string) (counter, bool) {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return 0, false
 	}
-	
 	Value, Ok = db.GetCounter(ctx, key)
 	if !Ok {
-		//fmt.Println("YYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!")
 		return 0, false
 	}
 	return Value, true
@@ -177,6 +176,9 @@ func (ms *MemStorage) Close() {
 func (ms *MemStorage) Ping(ctx context.Context) error {
 	return fmt.Errorf("ping not work for with DB")
 }
+
+func (ms *MemStorage) CreateTableGauge(ctx context.Context) {}
+func (ms *MemStorage) CreateTableCounter(ctx context.Context) {}
 
 type Metrics struct {
 	ID    string   `json:"id"`              // имя метрики key
