@@ -87,10 +87,6 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] = value
-	// fmt.Println("UpdateCounter value!!",value)
-	// fmt.Println("UpdateCounter!!",ms.MetricsGauge[key])
-	// r,_ := GetCounter(key)
-	// fmt.Println("R!!",r)
 }
 
 func UpdateCounter(key string, value counter) {
@@ -120,13 +116,6 @@ func AddCounter(key string, value counter) {
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
-	// db, err := SelectStorage(Config)
-	// if err != nil {
-	// 	fmt.Println("Ошибка выбора базы данных:", err)
-	// 	return 0, false
-	// }
-	//fmt.Println("INFOVALUE!!",ms.MetricsGauge[key])
-
 	value, ok := Data.MetricsGauge[key]
 	if !ok {
 		return 0, false
@@ -142,10 +131,6 @@ func GetGauge(key string) (gauge, bool) {
 		fmt.Println("Ошибка выбора базы данных:", err)
 		return 0, false
 	}
-	// fmt.Println("INFOVALUEBeforeGetGAuge!!",Data.MetricsGauge[key])
-	// fmt.Println("INFOVALUEBeforeGetGAuge!!",Data)
-	// fmt.Println("INFOVALUEBeforeGetGAuge!!",Data.MetricsGauge[key])
-	// fmt.Println("INFOVALUEBeforeGetGAuge!!",db)
 	value, ok = db.GetGauge(key)
 	if !ok {
 		return 0, false
@@ -156,10 +141,8 @@ func GetGauge(key string) (gauge, bool) {
 func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
-	//fmt.Println("VALUEADDED!!",ms.MetricsCounter[key])
 	value, ok := Data.MetricsCounter[key]
 	if !ok {
-		//fmt.Println("YYYYYYYYYYYYYYYYYYY!!!!!!!!!!!!!!!!!!",ok)
 		return 0, false
 	}
 	return value, true
@@ -192,26 +175,6 @@ func (ms *MemStorage) Close() error {
 func (ms *MemStorage) PingContext(ctx context.Context) error {
 	return fmt.Errorf("ping not work for with DB")
 }
-
-// func (ms *MemStorage) DeleteGauge(key string) {
-// 	ms.Mutex.Lock()
-// 	defer ms.Mutex.Unlock()
-// 	delete(ms.MetricsGauge, key)
-// }
-
-// func DeleteGauge(key string) {
-// 	Data.DeleteGauge(key)
-// }
-
-// func (ms *MemStorage) DeleteCounter(key string) {
-// 	ms.Mutex.Lock()
-// 	defer ms.Mutex.Unlock()
-// 	delete(ms.MetricsCounter, key)
-// }
-
-// func DeleteCounter(key string) {
-// 	Data.DeleteCounter(key)
-// }
 
 type Metrics struct {
 	ID    string   `json:"id"`              // имя метрики key
