@@ -35,7 +35,7 @@ type Storage interface {
 	GetGauge(ctx context.Context, key string) (gauge, bool)
 	GetCounter(ctx context.Context, key string) (counter, bool)
 	Close()
-	PingContext(ctx context.Context) error
+	Ping(ctx context.Context) error
 }
 
 type DatabaseConfig struct {
@@ -174,7 +174,7 @@ func (ms *MemStorage) Close() {
 	//return nil
 }
 
-func (ms *MemStorage) PingContext(ctx context.Context) error {
+func (ms *MemStorage) Ping(ctx context.Context) error {
 	return fmt.Errorf("ping not work for with DB")
 }
 

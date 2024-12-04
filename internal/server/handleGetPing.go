@@ -16,11 +16,10 @@ func HandleGetPing() http.Handler {
 			return
 		}
 		defer cancel()
-		if err := db.PingContext(ctx); err != nil {
+		if err := db.Ping(ctx); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			GlobalSugar.Panicln(err)
 		}
-
 		w.WriteHeader(http.StatusOK)
 	}
 	return http.HandlerFunc(fn)

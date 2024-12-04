@@ -198,7 +198,7 @@ func (p *PostgresStorage) GetGauge(ctx context.Context, key string) (gauge, bool
 	return value, true
 }
 
-func (p *PostgresStorage) PingContext(ctx context.Context) error {
+func (p *PostgresStorage) Ping(ctx context.Context) error {
 	err := p.db.Ping(ctx)
 	return err
 }
