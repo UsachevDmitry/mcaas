@@ -89,7 +89,6 @@ func (ms *MemStorage) UpdateCounter(key string, value counter) {
 	ms.MetricsCounter[key] = value
 }
 
-
 func UpdateCounter(key string, value counter) {
 	db, err := SelectStorage(Config)
 	if err != nil {
