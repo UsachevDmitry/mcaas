@@ -12,6 +12,7 @@ func HandleGetPing() http.Handler {
 		db, err := SelectStorage(Config)
 		if err != nil {
 			GlobalSugar.Errorln("Ошибка выбора базы данных:", err)
+			cancel()
 			return
 		}
 		defer cancel()

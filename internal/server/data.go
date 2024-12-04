@@ -43,10 +43,8 @@ type DatabaseConfig struct {
 var Config DatabaseConfig
 
 func SelectStorage(config DatabaseConfig) (Storage, error) {
-	//var db *MemStorage
 	switch config.Type {
 	case "mem":
-		//db = Data
 		return Data, nil
 		// db := &MemStorage{
 		// 	MetricsGauge:   map[string]gauge{},
@@ -73,11 +71,7 @@ var Testdb *sql.DB
 func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
-	//fmt.Println("UpdateGauge VALUE!!",value)
 	ms.MetricsGauge[key] = value
-	// fmt.Println("UpdateGauge!!",ms.MetricsGauge[key])
-	// r,_ := GetGauge(key)
-	// fmt.Println("R!!",r)
 }
 
 func UpdateGauge(key string, value gauge) {
