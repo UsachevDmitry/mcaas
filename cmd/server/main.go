@@ -29,14 +29,11 @@ func main() {
 	internal.ImportDataFromFile(*internal.FileStoragePath, *internal.Restore)
 
 	wg.Add(1)
-	if !internal.FlagUsePosgresSQL {
-		go func() {
-			internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
-			defer wg.Done()
-		}()
-	} else {
-		wg.Done()
-	}
+	go func() {
+		internal.SaveDataInFile(time.Duration(*internal.StoreInterval), *internal.FileStoragePath)
+		defer wg.Done()
+	}()
+
 
 	router := mux.NewRouter()
 	router.HandleFunc("/", internal.WithLoggingGet(internal.GzipHandle(internal.HandleIndex()))).Methods(http.MethodGet)

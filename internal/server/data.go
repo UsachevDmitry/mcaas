@@ -2,7 +2,7 @@ package internal
 
 import (
 	"context"
-	"database/sql"
+	//"database/sql"
 	"fmt"
 	"sync"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -59,7 +59,6 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 		db := &PostgresStorage{}
 		errdb := db.Connect()
 		if errdb != nil {
-			
 			panic(errdb)
 		}
 		return db, nil
@@ -68,8 +67,8 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 	}
 }
 
-var FlagUsePosgresSQL bool
-var Testdb *sql.DB
+// var FlagUsePosgresSQL bool
+// var Testdb *sql.DB
 
 func (ms *MemStorage) UpdateGauge(ctx context.Context, key string, value gauge) {
 	ms.Mutex.Lock()
@@ -170,7 +169,6 @@ func (ms *MemStorage) Close() {
 	ms.Mutex.Lock()
 	defer ms.Mutex.Unlock()
 	//Data.MetricsGauge = nil
-	//return nil
 }
 
 func (ms *MemStorage) Ping(ctx context.Context) error {
