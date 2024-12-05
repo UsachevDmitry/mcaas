@@ -80,24 +80,12 @@ func (p *PostgresStorage) UpdateGauge(ctx context.Context, key string, value gau
 		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update gauge:", err)
-			if i == 5 {
-				GlobalSugar.Errorln("All retries exhausted, exiting...")
-				break
-			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
 		} else {
 			break
 		}
-		// if err != nil {
-		// 	GlobalSugar.Infoln("Error update gauge:", err)
-		// 	GlobalSugar.Infof("Retry after %v second", i)
-		// 	time.Sleep(time.Second * time.Duration(i))
-		// 	continue
-		// } else {
-		// 	break
-		// }
 	}
 }
 
@@ -116,24 +104,12 @@ func (p *PostgresStorage) UpdateCounter(ctx context.Context, key string, value c
 		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error update counter:", err)
-			if i == 5 {
-				GlobalSugar.Errorln("All retries exhausted, exiting...")
-				break
-			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
 		} else {
 			break
 		}
-		// if err != nil {
-		// 	GlobalSugar.Infoln("Error update counter:", err)
-		// 	GlobalSugar.Infof("Retry after %v second", i)
-		// 	time.Sleep(time.Second * time.Duration(i))
-		// 	continue
-		// } else {
-		// 	break
-		// }
 	}
 }
 
@@ -158,24 +134,12 @@ func (p *PostgresStorage) AddCounter(ctx context.Context, key string, value coun
 		cancel()
 		if err != nil {
 			GlobalSugar.Infoln("Error add counter:", err)
-			if i == 5 {
-				GlobalSugar.Errorln("All retries exhausted, exiting...")
-				break
-			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			continue
 		} else {
 			break
 		}
-		// if err != nil {
-		// 	GlobalSugar.Infoln("Error add counter:", err)
-		// 	GlobalSugar.Infof("Retry after %v second", i)
-		// 	time.Sleep(time.Second * time.Duration(i))
-		// 	continue
-		// } else {
-		// 	break
-		// }
 	}
 }
 
@@ -192,10 +156,6 @@ func (p *PostgresStorage) GetCounter(ctx context.Context, key string) (counter, 
 		Rows, err = p.Query(ctxWithTimeout, `SELECT * FROM metrics_counter WHERE key = $1::text`, key)
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
-			if i == 5 {
-				GlobalSugar.Errorln("All retries exhausted, exiting...")
-				return 0, false
-			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			cancel()
@@ -203,18 +163,6 @@ func (p *PostgresStorage) GetCounter(ctx context.Context, key string) (counter, 
 		} else {
 			break
 		}
-		// if err != nil {
-		// 	GlobalSugar.Infoln("Error get counter:", err)
-		// 	if i == 5 {
-		// 		GlobalSugar.Errorln("All retries exhausted, exiting...")
-		// 		return 0, false
-		// 	}
-		// 	GlobalSugar.Infof("Retry after %v second", i)
-		// 	time.Sleep(time.Second * time.Duration(i))
-		// 	continue
-		// } else {
-		// 	break
-		// }
 	}
 	defer Rows.Close()
 	for Rows.Next() {
@@ -244,10 +192,6 @@ func (p *PostgresStorage) GetGauge(ctx context.Context, key string) (gauge, bool
 		Rows, err = p.Query(ctxWithTimeout, `SELECT * FROM metrics_gauge WHERE key = $1::text`, key)
 		if err != nil {
 			GlobalSugar.Infoln("Error get counter:", err)
-			if i == 5 {
-				GlobalSugar.Errorln("All retries exhausted, exiting...")
-				return 0, false
-			}
 			GlobalSugar.Infof("Retry %v...", countRetry)
 			countRetry++
 			cancel()
@@ -255,18 +199,6 @@ func (p *PostgresStorage) GetGauge(ctx context.Context, key string) (gauge, bool
 		} else {
 			break
 		}
-		// if err != nil {
-		// 	GlobalSugar.Infoln("Error get gauge:", err)
-		// 	if i == 5 {
-		// 		GlobalSugar.Errorln("All retries exhausted, exiting...")
-		// 		return 0, false
-		// 	}
-		// 	GlobalSugar.Infof("Retry after %v second", i)
-		// 	time.Sleep(time.Second * time.Duration(i))
-		// 	continue
-		// } else {
-		// 	break
-		// }
 	}
 	defer Rows.Close()
 	for Rows.Next() {
