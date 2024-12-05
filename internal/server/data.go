@@ -27,6 +27,8 @@ type PostgresStorage struct {
 	db *pgxpool.Pool
 }
 
+var DataDB = &PostgresStorage{}
+
 type Storage interface {
 	UpdateGauge(ctx context.Context, key string, value gauge)
 	UpdateCounter(ctx context.Context, key string, value counter)
@@ -56,12 +58,11 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 		// }
 		//return db, nil
 	case "postgres":
-		db := &PostgresStorage{}
-		errdb := db.Connect()
-		if errdb != nil {
-			panic(errdb)
-		}
-		return db, nil
+		// errdb := DataDB.Connect()
+		// if errdb != nil {
+		// 	panic(errdb)
+		// }
+		return DataDB, nil
 	default:
 		return nil, fmt.Errorf("неизвестная база данных: %s", config.Type)
 	}
