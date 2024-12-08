@@ -13,6 +13,7 @@ const (
 	defaultRestore         = true
 	defaultDatabaseDsn     = ""
 	//defaultDatabaseDsn = "host=localhost user=postgres password=P@ssw0rd dbname=test" // need for local experements
+	defaultKey = "secretkey"
 )
 
 var Addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
@@ -20,6 +21,7 @@ var StoreInterval = flag.Int("i", defaultStoreInterval, "Интервал вре
 var FileStoragePath = flag.String("f", defaultFileStoragePath, "путь до файла")
 var Restore = flag.Bool("r", defaultRestore, "загружать или нет ранее сохранённые значения из указанного файла при старте сервера")
 var DatabaseDsn = flag.String("d", defaultDatabaseDsn, "строка подключения к БД")
+var Key = flag.String("k", defaultKey, "Ключ шифрования")
 
 func GetConfig() {
 	flag.Parse()
@@ -50,6 +52,11 @@ func GetConfig() {
 			GlobalSugar.Fatal(err)
 		}
 		*Restore = b
+	}
+
+	keyEnv := os.Getenv("KEY")
+	if keyEnv != "" {
+		*Key = keyEnv
 	}
 
 	databaseDsnEnv := os.Getenv("DATABASE_DSN")

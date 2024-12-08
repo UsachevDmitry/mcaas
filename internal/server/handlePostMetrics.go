@@ -1,10 +1,10 @@
 package internal
 
 import (
+	"context"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
-	"context"
 )
 
 var Size string

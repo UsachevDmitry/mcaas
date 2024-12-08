@@ -106,12 +106,12 @@ type Metrics struct {
 
 type MetricsList struct {
 	MetricsList []Metrics
-    Mutex sync.Mutex
+	Mutex       sync.Mutex
 }
 
 var DataMetricsList = &MetricsList{
 	MetricsList: []Metrics{},
-	Mutex:      sync.Mutex{},
+	Mutex:       sync.Mutex{},
 }
 
 func (ml *MetricsList) AppendMetrics(metric Metrics) {

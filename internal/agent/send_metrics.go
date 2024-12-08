@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,7 +17,7 @@ func SendMetrics(reportInterval time.Duration) {
 
 		if len(DataMetricsList.MetricsList) == 0 {
 			continue
-		} 
+		}
 
 		jsonBody, err := json.Marshal(DataMetricsList.MetricsList)
 		if err != nil {
@@ -35,10 +36,19 @@ func SendMetrics(reportInterval time.Duration) {
 			fmt.Println("Error creating request:", err)
 			continue
 		}
+
+		if *Key != "" {
+			keyAndData := make([]byte, len(jsonBody)+len([]byte(*Key)))
+			copy(keyAndData, jsonBody)
+			copy(keyAndData, []byte(*Key))
+			hash := sha256.Sum256(keyAndData)
+			req.Header.Set("HashSHA256", fmt.Sprintf("%x", hash))
+		}
+
 		req.Header.Set("Content-Encoding", "gzip")
 		req.Header.Set("Content-Type", "application/json")
 		client := &http.Client{}
-		for i := 1; i < 6; i+=2 {
+		for i := 1; i < 6; i += 2 {
 			resp, err := client.Do(req)
 			if err != nil {
 				fmt.Println("Error sending request:", err)

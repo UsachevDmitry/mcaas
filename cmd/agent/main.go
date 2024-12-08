@@ -11,7 +11,6 @@ func main() {
 
 	internal.GetConfig()
 	wg.Add(4)
-
 	go func() {
 		internal.UpdateData(time.Duration(*internal.PollInterval))
 		defer wg.Done()

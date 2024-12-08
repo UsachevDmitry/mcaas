@@ -12,12 +12,14 @@ const (
 	defaultAddr           = "localhost:8080"
 	defaultPollInterval   = 2
 	defaultReportInterval = 10
+	defaultKey            = "secretkey"
 )
 
 var (
 	Addr           = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
 	PollInterval   = flag.Int("p", defaultPollInterval, "pollInterval")
 	ReportInterval = flag.Int("r", defaultReportInterval, "reportInterval")
+	Key            = flag.String("k", defaultKey, "Ключ шифрования")
 )
 
 func GetConfig() {
@@ -42,7 +44,12 @@ func GetConfig() {
 		}
 		*ReportInterval = i
 	}
+	keyEnv := os.Getenv("KEY")
+	if keyEnv != "" {
+		*Key = keyEnv
+	}
 	fmt.Println("Адрес эндпоинта:", *Addr)
 	fmt.Println("pollInterval:", *PollInterval)
 	fmt.Println("reportInterval:", *ReportInterval)
+	fmt.Println("key:", *Key)
 }

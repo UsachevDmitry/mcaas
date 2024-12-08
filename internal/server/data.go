@@ -3,8 +3,8 @@ package internal
 import (
 	"context"
 	"fmt"
-	"sync"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"sync"
 )
 
 type gauge float64
@@ -163,7 +163,7 @@ func (ms *MemStorage) Ping(ctx context.Context) error {
 	return fmt.Errorf("ping not work for with DB")
 }
 
-func (ms *MemStorage) CreateTableGauge(ctx context.Context) {}
+func (ms *MemStorage) CreateTableGauge(ctx context.Context)   {}
 func (ms *MemStorage) CreateTableCounter(ctx context.Context) {}
 
 type Metrics struct {

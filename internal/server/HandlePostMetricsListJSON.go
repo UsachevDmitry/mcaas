@@ -1,23 +1,25 @@
 package internal
 
 import (
-	"encoding/json"
-	"net/http"
 	"context"
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 func HandlePostMetricsListJSON() http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var ContentType string
+		var HashSHA256Value string
 		var DataType string
 		var Name string
 		var ValueInt64 int64
 		var ValueFloat64 float64
-
 		var metricsList []Metrics
 
 		ContentType = r.Header.Get("Content-Type")
+		HashSHA256Value = r.Header.Get("HashSHA256")
 
 		decoder := json.NewDecoder(r.Body)
 		decoder.DisallowUnknownFields()
@@ -26,6 +28,26 @@ func HandlePostMetricsListJSON() http.Handler {
 			WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 			return
 		}
+
+		if *Key != "" {
+			metricsListByte, err := json.Marshal(&metricsList)
+			if err != nil {
+				GlobalSugar.Errorf("Error marshaling JSON:", err)
+				return
+			}
+			keyAndData := make([]byte, len(metricsListByte)+len([]byte(*Key)))
+			copy(keyAndData, metricsListByte)
+			copy(keyAndData, []byte(*Key))
+			hash := sha256.Sum256(keyAndData)
+			hashString := fmt.Sprintf("%x", hash)
+			// fmt.Println(HashSHA256Value)
+			// fmt.Printf("%v\n", hashString)
+			if hashString != HashSHA256Value {
+				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
+				return
+			}
+		}
+
 		WriteHeaderAndSaveStatus(http.StatusOK, ContentType, w)
 
 		for _, metrics := range metricsList {

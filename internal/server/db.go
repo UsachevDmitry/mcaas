@@ -2,12 +2,13 @@ package internal
 
 import (
 	"context"
-	"time"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"time"
 )
+
 func (p *PostgresStorage) Exec(ctx context.Context, query string, args ...interface{}) (pgconn.CommandTag, error) {
 	return p.db.Exec(ctx, query, args...)
 }
@@ -33,9 +34,9 @@ func (p *PostgresStorage) Connect() error {
 		GlobalSugar.Fatalf("QueryRow failed: %v\n", err)
 		return err
 	}
-	
+
 	return err
-} 
+}
 
 func (p *PostgresStorage) Close() {
 	p.db.Close()
@@ -55,7 +56,7 @@ func (p *PostgresStorage) CreateTableGauge(ctx context.Context) {
 func (p *PostgresStorage) CreateTableCounter(ctx context.Context) {
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, time.Duration(1)*time.Second)
 	defer cancel()
-	_, err := p.Exec(ctxWithTimeout,`CREATE TABLE IF NOT EXISTS metrics_counter (
+	_, err := p.Exec(ctxWithTimeout, `CREATE TABLE IF NOT EXISTS metrics_counter (
 		"key" TEXT,
 		"value" BIGINT
 	)`)
@@ -63,7 +64,6 @@ func (p *PostgresStorage) CreateTableCounter(ctx context.Context) {
 		GlobalSugar.Fatal(err)
 	}
 }
-
 
 func (p *PostgresStorage) UpdateGauge(ctx context.Context, key string, value gauge) {
 	var countRetry = 1
@@ -114,7 +114,7 @@ func (p *PostgresStorage) UpdateCounter(ctx context.Context, key string, value c
 }
 
 func (p *PostgresStorage) AddCounter(ctx context.Context, key string, value counter) {
-	var countRetry = 1	
+	var countRetry = 1
 	for i := 1; i < 6; i += 2 {
 		newValue, ok := p.GetCounter(ctx, key)
 		if !ok {
