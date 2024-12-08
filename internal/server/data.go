@@ -13,13 +13,13 @@ type counter int64
 type MemStorage struct {
 	MetricsGauge   map[string]gauge
 	MetricsCounter map[string]counter
-	Mutex          sync.Mutex
+	Mutex          sync.RWMutex
 }
 
 var Data = &MemStorage{
 	MetricsGauge:   map[string]gauge{},
 	MetricsCounter: map[string]counter{},
-	Mutex:          sync.Mutex{},
+	Mutex:          sync.RWMutex{},
 }
 
 type PostgresStorage struct {
@@ -104,8 +104,8 @@ func AddCounter(ctx context.Context, key string, value counter) {
 }
 
 func (ms *MemStorage) GetGauge(ctx context.Context, key string) (gauge, bool) {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
+	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := Data.MetricsGauge[key]
 	if !ok {
 		return 0, false
@@ -129,8 +129,8 @@ func GetGauge(ctx context.Context, key string) (gauge, bool) {
 }
 
 func (ms *MemStorage) GetCounter(ctx context.Context, key string) (counter, bool) {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
+	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := Data.MetricsCounter[key]
 	if !ok {
 		return 0, false

@@ -9,13 +9,13 @@ type counter int64
 type MemStorage struct {
 	MetricsGauge   map[string]gauge
 	MetricsCounter map[string]counter
-	Mutex          sync.Mutex
+	Mutex          sync.RWMutex
 }
 
 var Data = &MemStorage{
 	MetricsGauge:   map[string]gauge{},
 	MetricsCounter: map[string]counter{},
-	Mutex:          sync.Mutex{},
+	Mutex:          sync.RWMutex{},
 }
 
 type MemStorageInterface interface {
@@ -47,8 +47,8 @@ func (ms *MemStorage) AddCounter(key string, value counter) {
 }
 
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
+	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := ms.MetricsGauge[key]
 	if !ok {
 		return 0, false
@@ -65,8 +65,8 @@ func GetGauge(key string) (gauge, bool) {
 }
 
 func (ms *MemStorage) GetCounter(key string) (counter, bool) {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
+	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := ms.MetricsCounter[key]
 	if !ok {
 		return 0, false
@@ -106,12 +106,12 @@ type Metrics struct {
 
 type MetricsList struct {
 	MetricsList []Metrics
-	Mutex       sync.Mutex
+	Mutex       sync.RWMutex
 }
 
 var DataMetricsList = &MetricsList{
 	MetricsList: []Metrics{},
-	Mutex:       sync.Mutex{},
+	Mutex:       sync.RWMutex{},
 }
 
 func (ml *MetricsList) AppendMetrics(metric Metrics) {
@@ -139,22 +139,22 @@ func (ml *MetricsList) ClearMetrics() {
 // }
 
 func (ms *MemStorage) GetMetricsCounter() map[string]counter {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
+	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	copiedMetrics := Data.MetricsCounter
 	return copiedMetrics
 }
 
 func (ms *MemStorage) GetMetricsGauge() map[string]gauge {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
+	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	copiedMetrics := Data.MetricsGauge
 	return copiedMetrics
 }
 
 func (ms *MemStorage) GetMetrics() *MemStorage {
-	ms.Mutex.Lock()
-	defer ms.Mutex.Unlock()
+	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	copiedData := Data
 	return copiedData
 }
