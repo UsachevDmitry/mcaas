@@ -40,6 +40,7 @@ func HandlePostMetricsListJSON() http.Handler {
 			copy(keyAndData, []byte(*Key))
 			hash := sha256.Sum256(keyAndData)
 			hashString := fmt.Sprintf("%x", hash)
+			w.Header().Set("HashSHA256", hashString)
 			// fmt.Println(HashSHA256Value)
 			// fmt.Printf("%v\n", hashString)
 			if hashString != HashSHA256Value {
