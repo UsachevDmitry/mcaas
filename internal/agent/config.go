@@ -12,7 +12,8 @@ const (
 	defaultAddr           = "localhost:8080"
 	defaultPollInterval   = 2
 	defaultReportInterval = 10
-	defaultKey            = "secretkey"
+	defaultKey            = ""
+	//defaultKey            = "secretkey"
 )
 
 var (
@@ -51,5 +52,4 @@ func GetConfig() {
 	fmt.Println("Адрес эндпоинта:", *Addr)
 	fmt.Println("pollInterval:", *PollInterval)
 	fmt.Println("reportInterval:", *ReportInterval)
-	fmt.Println("key:", *Key)
 }

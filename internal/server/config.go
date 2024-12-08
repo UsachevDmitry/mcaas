@@ -13,7 +13,8 @@ const (
 	defaultRestore         = true
 	defaultDatabaseDsn     = ""
 	//defaultDatabaseDsn = "host=localhost user=postgres password=P@ssw0rd dbname=test" // need for local experements
-	defaultKey = "secretkey"
+	defaultKey = ""
+	//defaultKey = "secretkey"
 )
 
 var Addr = flag.String("a", defaultAddr, "Адрес HTTP-сервера")
