@@ -14,6 +14,7 @@ const (
 	defaultReportInterval = 10
 	defaultKey            = ""
 	//defaultKey            = "secretkey"
+	defaultRateLimit      = 5
 )
 
 var (
@@ -21,6 +22,7 @@ var (
 	PollInterval   = flag.Int("p", defaultPollInterval, "pollInterval")
 	ReportInterval = flag.Int("r", defaultReportInterval, "reportInterval")
 	Key            = flag.String("k", defaultKey, "Ключ шифрования")
+	RateLimit      = flag.Int("l", defaultRateLimit, "reportInterval")
 )
 
 func GetConfig() {
@@ -48,6 +50,14 @@ func GetConfig() {
 	keyEnv := os.Getenv("KEY")
 	if keyEnv != "" {
 		*Key = keyEnv
+	}
+	rateLimitEnv := os.Getenv("RATE_LIMIT")
+	if rateLimitEnv != "" {
+		i, err := strconv.Atoi(rateLimitEnv)
+		if err != nil {
+			log.Fatal(err)
+		}
+		*RateLimit = i
 	}
 	fmt.Println("Адрес эндпоинта:", *Addr)
 	fmt.Println("pollInterval:", *PollInterval)

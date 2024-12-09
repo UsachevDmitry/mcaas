@@ -3,15 +3,14 @@ package internal
 import (
 	"math/rand"
 	"runtime"
-	// "sync"
 	"time"
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
+	"fmt"
 )
 
 func UpdateData(pollInterval time.Duration) {
 	var m runtime.MemStats
-	// var mutex sync.Mutex
-	// mutex.Lock()
-	// defer mutex.Unlock()
 	UpdatedData := Data.GetMetrics()
 	var i = 0
 	for {
@@ -50,3 +49,25 @@ func UpdateData(pollInterval time.Duration) {
 		time.Sleep(pollInterval * time.Second)
 	}
 }
+
+func UpdateDataMemCpu(pollInterval time.Duration) {
+	UpdatedData := Data.GetMetrics()
+	for {
+		vm, err := mem.VirtualMemory()
+		if err != nil {
+			fmt.Println(err)
+		}
+		cpuPercent, errcpu := cpu.Percent(0, false)
+		if errcpu != nil {
+			fmt.Println(errcpu)
+		}
+		UpdatedData.UpdateGauge("TotalMemory", gauge(vm.Total))
+		UpdatedData.UpdateGauge("FreeMemory", gauge(vm.Free))
+		for i, v := range cpuPercent {
+			UpdatedData.UpdateGauge(fmt.Sprintf("CPUutilization%d\n", i), gauge(v))
+		}
+		Data.SetMetrics(UpdatedData)
+		time.Sleep(pollInterval * time.Second)
+	}
+}
+

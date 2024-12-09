@@ -16,6 +16,10 @@ func main() {
 		defer wg.Done()
 	}()
 	go func() {
+		internal.UpdateDataMemCpu(time.Duration(*internal.PollInterval))
+		defer wg.Done()
+	}()
+	go func() {
 		internal.CollectDataCounterListNewAPI(time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()
@@ -23,9 +27,12 @@ func main() {
 		internal.CollectDataGaugeListNewAPI(time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()
-	go func() {
-		internal.SendMetrics(time.Duration(*internal.ReportInterval))
-		defer wg.Done()
-	}()
+	for w := 1; w <= *internal.RateLimit; w++ {
+		go func() {
+			internal.SendMetrics(time.Duration(*internal.ReportInterval))
+			defer wg.Done()
+		}()
+	}
+
 	wg.Wait()
 }
