@@ -50,7 +50,7 @@ func UpdateData(pollInterval time.Duration) {
 	}
 }
 
-func UpdateDataMemCpu(pollInterval time.Duration) {
+func UpdateDataMemCPU(pollInterval time.Duration) {
 	UpdatedData := Data.GetMetrics()
 	for {
 		vm, err := mem.VirtualMemory()

@@ -19,7 +19,7 @@ func main() {
 		defer wg.Done()
 	}()
 	go func() {
-		internal.UpdateDataMemCpu(time.Duration(*internal.PollInterval))
+		internal.UpdateDataMemCPU(time.Duration(*internal.PollInterval))
 		defer wg.Done()
 	}()
 	go func() {
