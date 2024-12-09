@@ -9,32 +9,46 @@ import (
 	"time"
 )
 
-func SendMetrics(reportInterval time.Duration) {
+
+func SendMetrics(jobs chan Metrics, reportInterval time.Duration) {
 	for {
 		time.Sleep(reportInterval * time.Second)
+		var Metrics MetricsList
+		for value := range jobs {
+			Metrics.MetricsList = append(Metrics.MetricsList, value)
+			if len(Metrics.MetricsList) > 10 {
+				Send(Metrics.MetricsList)
+				Metrics.ClearMetrics()
+				break
+			}
+		}
+	}
+}
 
+
+func Send(DataMetrics []Metrics) {
 		url := "http://" + *Addr + "/updates/"
 
-		if len(DataMetricsList.MetricsList) == 0 {
-			continue
+		if len(DataMetrics) == 0 {
+			return
 		}
 
-		jsonBody, err := json.Marshal(DataMetricsList.MetricsList)
+		jsonBody, err := json.Marshal(DataMetrics)
 		if err != nil {
 			fmt.Println("Error:", err)
-			continue
+			return
 		}
-		DataMetricsList.ClearMetrics() // Очишаем список
+
 		compressedJSONBody, err := Compress(jsonBody)
 		if err != nil {
 			fmt.Println("Error compress jsonBody", err)
-			continue
+			return
 		}
 
 		req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(compressedJSONBody))
 		if err != nil {
 			fmt.Println("Error creating request:", err)
-			continue
+			return
 		}
 
 		if *Key != "" {
@@ -68,5 +82,5 @@ func SendMetrics(reportInterval time.Duration) {
 			}
 			break
 		}
-	}
+	
 }

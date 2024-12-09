@@ -87,7 +87,7 @@ func SendDataCounterNewAPI(reportInterval time.Duration) {
 	}
 }
 
-func CollectDataCounterListNewAPI(reportInterval time.Duration) {
+func CollectDataCounterListNewAPI(jobs chan Metrics, reportInterval time.Duration) {
 	for {
 		time.Sleep(reportInterval * time.Second)
 		for name, value := range Data.GetMetricsCounter() {
@@ -98,7 +98,8 @@ func CollectDataCounterListNewAPI(reportInterval time.Duration) {
 				Delta: &CounterValueInt64,
 				Value: nil,
 			}
-			DataMetricsList.AppendMetrics(metrics)
+			//DataMetricsList.AppendMetrics(metrics)
+			jobs <- metrics
 		}
 	}
 }

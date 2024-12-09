@@ -10,6 +10,9 @@ func main() {
 	var wg sync.WaitGroup
 
 	internal.GetConfig()
+	jobs := make(chan internal.Metrics, 10)
+	defer close(jobs)
+
 	wg.Add(4)
 	go func() {
 		internal.UpdateData(time.Duration(*internal.PollInterval))
@@ -20,16 +23,17 @@ func main() {
 		defer wg.Done()
 	}()
 	go func() {
-		internal.CollectDataCounterListNewAPI(time.Duration(*internal.ReportInterval))
+		internal.CollectDataCounterListNewAPI(jobs, time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()
 	go func() {
-		internal.CollectDataGaugeListNewAPI(time.Duration(*internal.ReportInterval))
+		internal.CollectDataGaugeListNewAPI(jobs, time.Duration(*internal.ReportInterval))
 		defer wg.Done()
 	}()
+
 	for w := 1; w <= *internal.RateLimit; w++ {
 		go func() {
-			internal.SendMetrics(time.Duration(*internal.ReportInterval))
+			internal.SendMetrics(jobs, time.Duration(*internal.ReportInterval))
 			defer wg.Done()
 		}()
 	}

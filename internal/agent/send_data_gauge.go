@@ -83,7 +83,7 @@ func SendDataGaugeNewAPI(reportInterval time.Duration) {
 	}
 }
 
-func CollectDataGaugeListNewAPI(reportInterval time.Duration) {
+func CollectDataGaugeListNewAPI(jobs chan Metrics, reportInterval time.Duration) {
 	for {
 		time.Sleep(reportInterval * time.Second)
 		for name, value := range Data.GetMetricsGauge() {
@@ -94,7 +94,8 @@ func CollectDataGaugeListNewAPI(reportInterval time.Duration) {
 				Delta: nil,
 				Value: &GaugeValueFloat64,
 			}
-			DataMetricsList.AppendMetrics(metrics)
+			//DataMetricsList.AppendMetrics(metrics)
+			jobs <- metrics
 		}
 	}
 }

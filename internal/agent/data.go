@@ -118,6 +118,7 @@ func (ml *MetricsList) AppendMetrics(metric Metrics) {
 	ml.Mutex.Lock()
 	defer ml.Mutex.Unlock()
 	DataMetricsList.MetricsList = append(DataMetricsList.MetricsList, metric)
+	
 }
 
 func (ml *MetricsList) ClearMetrics() {
