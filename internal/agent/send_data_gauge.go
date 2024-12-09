@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func SendDataGauge(reportInterval time.Duration) {
-	for {
-		time.Sleep(reportInterval * time.Second)
-		for key, value := range Data.GetMetricsGauge() {
-			url := "http://" + *Addr + "/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
-			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
-			if err != nil {
-				fmt.Println("Error creating request:", err)
-				continue
-			}
-			req.Header.Set("Content-Type", "text/plain")
+// func SendDataGauge(reportInterval time.Duration) {
+// 	for {
+// 		time.Sleep(reportInterval * time.Second)
+// 		for key, value := range Data.GetMetricsGauge() {
+// 			url := "http://" + *Addr + "/update/gauge/" + key + "/" + fmt.Sprintf("%.2f", float64(value))
+// 			req, err := http.NewRequest(http.MethodPost, url, http.NoBody)
+// 			if err != nil {
+// 				fmt.Println("Error creating request:", err)
+// 				continue
+// 			}
+// 			req.Header.Set("Content-Type", "text/plain")
 
-			client := &http.Client{}
-			resp, err := client.Do(req)
-			if err != nil {
-				fmt.Println("Error sending request:", err)
-				continue
-			}
-			resp.Body.Close()
+// 			client := &http.Client{}
+// 			resp, err := client.Do(req)
+// 			if err != nil {
+// 				fmt.Println("Error sending request:", err)
+// 				continue
+// 			}
+// 			resp.Body.Close()
 
-			if resp.StatusCode != http.StatusOK {
-				fmt.Println("Error status:", resp.StatusCode)
-				continue
-			}
-		}
-	}
-}
+// 			if resp.StatusCode != http.StatusOK {
+// 				fmt.Println("Error status:", resp.StatusCode)
+// 				continue
+// 			}
+// 		}
+// 	}
+// }
 
 func SendDataGaugeNewAPI(reportInterval time.Duration) {
 	for {
