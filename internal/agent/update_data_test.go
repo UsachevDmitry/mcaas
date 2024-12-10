@@ -3,7 +3,10 @@ package internal
 import (
 	"testing"
 	"time"
+	"sync"
 )
+
+var Mutex sync.Mutex
 
 func TestUpdateData(t *testing.T) {
 	Data.UpdateGauge("Alloc", gauge(1))
@@ -37,15 +40,23 @@ func TestUpdateData(t *testing.T) {
 
 	go UpdateData(time.Duration(2))
 	time.Sleep(2 * time.Second)
-	for key, value := range Data.MetricsGauge {
-		if Data.MetricsGauge[key] == 1 {
-			t.Errorf("Expected %v for key %s, got %v", Data.MetricsGauge[key], key, value)
+
+	Mutex.Lock()
+    metricsGauge := Data.MetricsGauge
+	Mutex.Unlock()
+
+	for key, value := range metricsGauge {
+		if metricsGauge[key] == 1 {
+			t.Errorf("Expected %v for key %s, got %v", metricsGauge[key], key, value)
 		}
 	}
-
-	for key, value := range Data.MetricsCounter {
-		if Data.MetricsCounter[key] == 1 {
-			t.Errorf("Expected %v for key %s, got %v", Data.MetricsCounter[key], key, value)
+	Mutex.Lock()
+	metricsCounter := Data.MetricsCounter
+	Mutex.Unlock()
+	
+	for key, value := range metricsCounter {
+		if metricsCounter[key] == 1 {
+			t.Errorf("Expected %v for key %s, got %v", metricsCounter[key], key, value)
 		}
 	}
 }
