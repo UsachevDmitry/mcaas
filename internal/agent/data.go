@@ -30,26 +30,26 @@ type MemStorageInterface interface {
 
 func (ms *MemStorage) UpdateGauge(key string, value gauge) {
 	ms.Mutex.Lock()
+    defer ms.Mutex.Unlock()
 	ms.MetricsGauge[key] = value
-	ms.Mutex.Unlock()
 }
 
 func (ms *MemStorage) UpdateCounter(key string, value counter) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] = value
-	ms.Mutex.Unlock()
 }
 
 func (ms *MemStorage) AddCounter(key string, value counter) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] += value
-	ms.Mutex.Unlock()
 }
 
 func (ms *MemStorage) GetGauge(key string) (gauge, bool) {
 	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := ms.MetricsGauge[key]
-	ms.Mutex.RUnlock()
 	if !ok {
 		return 0, false
 	}
@@ -66,8 +66,8 @@ func GetGauge(key string) (gauge, bool) {
 
 func (ms *MemStorage) GetCounter(key string) (counter, bool) {
 	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := ms.MetricsCounter[key]
-	ms.Mutex.RUnlock()
 	if !ok {
 		return 0, false
 	}
@@ -84,14 +84,14 @@ func GetCounter(key string) (counter, bool) {
 
 func (ms *MemStorage) DeleteGauge(key string) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	delete(ms.MetricsGauge, key)
-	ms.Mutex.Unlock()
 }
 
 func (ms *MemStorage) DeleteCounter(key string) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	delete(ms.MetricsCounter, key)
-	ms.Mutex.Unlock()
 }
 
 type Metrics struct {
@@ -116,39 +116,39 @@ var DataMetricsList = &MetricsList{
 
 func (ml *MetricsList) AppendMetrics(metric Metrics) {
 	ml.Mutex.Lock()
+	defer ml.Mutex.Unlock()
 	DataMetricsList.MetricsList = append(DataMetricsList.MetricsList, metric)
-	ml.Mutex.Unlock()
 }
 
 func (ml *MetricsList) ClearMetrics() {
 	ml.Mutex.Lock()
+	defer ml.Mutex.Unlock()
 	DataMetricsList.MetricsList = nil
-	ml.Mutex.Unlock()
 }
 
 func (ms *MemStorage) GetMetricsCounter() map[string]counter {
 	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	copiedMetrics := Data.MetricsCounter
-	ms.Mutex.RUnlock()
 	return copiedMetrics
 }
 
 func (ms *MemStorage) GetMetricsGauge() map[string]gauge {
 	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	copiedMetrics := Data.MetricsGauge
-	ms.Mutex.RUnlock()
 	return copiedMetrics
 }
 
 func (ms *MemStorage) GetMetrics() *MemStorage {
 	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	copiedData := Data
-	ms.Mutex.RUnlock()
 	return copiedData
 }
 
 func (ms *MemStorage) SetMetrics(updatedData *MemStorage) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	Data = updatedData
-	ms.Mutex.Unlock()
 }

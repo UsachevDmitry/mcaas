@@ -60,8 +60,8 @@ func SelectStorage(config DatabaseConfig) (Storage, error) {
 
 func (ms *MemStorage) UpdateGauge(ctx context.Context, key string, value gauge) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	ms.MetricsGauge[key] = value
-	ms.Mutex.Unlock()
 }
 
 func UpdateGauge(ctx context.Context, key string, value gauge) {
@@ -75,8 +75,8 @@ func UpdateGauge(ctx context.Context, key string, value gauge) {
 
 func (ms *MemStorage) UpdateCounter(ctx context.Context, key string, value counter) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] = value
-	ms.Mutex.Unlock()
 }
 
 func UpdateCounter(ctx context.Context, key string, value counter) {
@@ -90,8 +90,8 @@ func UpdateCounter(ctx context.Context, key string, value counter) {
 
 func (ms *MemStorage) AddCounter(ctx context.Context, key string, value counter) {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	ms.MetricsCounter[key] += value
-	ms.Mutex.Unlock()
 }
 
 func AddCounter(ctx context.Context, key string, value counter) {
@@ -105,8 +105,8 @@ func AddCounter(ctx context.Context, key string, value counter) {
 
 func (ms *MemStorage) GetGauge(ctx context.Context, key string) (gauge, bool) {
 	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := Data.MetricsGauge[key]
-	ms.Mutex.RUnlock()
 	if !ok {
 		return 0, false
 	}
@@ -130,8 +130,8 @@ func GetGauge(ctx context.Context, key string) (gauge, bool) {
 
 func (ms *MemStorage) GetCounter(ctx context.Context, key string) (counter, bool) {
 	ms.Mutex.RLock()
+	defer ms.Mutex.RUnlock()
 	value, ok := Data.MetricsCounter[key]
-	ms.Mutex.RUnlock()
 	if !ok {
 		return 0, false
 	}
@@ -155,8 +155,8 @@ func GetCounter(ctx context.Context, key string) (counter, bool) {
 
 func (ms *MemStorage) Close() {
 	ms.Mutex.Lock()
+	defer ms.Mutex.Unlock()
 	Data.MetricsGauge = nil
-	ms.Mutex.Unlock()
 }
 
 func (ms *MemStorage) Ping(ctx context.Context) error {
