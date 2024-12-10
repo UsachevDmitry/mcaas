@@ -41,9 +41,10 @@ func TestUpdateData(t *testing.T) {
 
 	wgtest.Add(1)
 	go func() {
-		UpdateData(time.Duration(*PollInterval))
+		UpdateData(time.Duration(2))
 		defer wgtest.Done()
 	}()
+	time.Sleep(2 * time.Second)
 	wgtest.Wait()
 
 	// go UpdateData(time.Duration(2))
