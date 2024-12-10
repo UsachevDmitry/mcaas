@@ -7,7 +7,7 @@ import (
 )
 
 var Mutex sync.Mutex
-
+var wgtest sync.WaitGroup
 func TestUpdateData(t *testing.T) {
 	Data.UpdateGauge("Alloc", gauge(1))
 	Data.UpdateGauge("BuckHashSys", gauge(1))
@@ -38,8 +38,16 @@ func TestUpdateData(t *testing.T) {
 	Data.AddCounter("PollCount", counter(1))
 	Data.UpdateGauge("RandomValue", gauge(1))
 
-	go UpdateData(time.Duration(2))
-	time.Sleep(2 * time.Second)
+
+	wgtest.Add(1)
+	go func() {
+		UpdateData(time.Duration(*PollInterval))
+		defer wgtest.Done()
+	}()
+	wgtest.Wait()
+
+	// go UpdateData(time.Duration(2))
+	// time.Sleep(2 * time.Second)
 
 	Mutex.Lock()
     metricsGauge := Data.MetricsGauge
@@ -53,7 +61,7 @@ func TestUpdateData(t *testing.T) {
 	Mutex.Lock()
 	metricsCounter := Data.MetricsCounter
 	Mutex.Unlock()
-	
+
 	for key, value := range metricsCounter {
 		if metricsCounter[key] == 1 {
 			t.Errorf("Expected %v for key %s, got %v", metricsCounter[key], key, value)
