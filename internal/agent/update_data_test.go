@@ -39,14 +39,16 @@ func TestUpdateData(t *testing.T) {
 	Data.UpdateGauge("RandomValue", gauge(1))
 
 
-	wgtest.Add(1)
-	go func() {
-		UpdateData(time.Duration(2))
-		defer wgtest.Done()
-	}()
+	stop := true
+	UpdateData(time.Duration(2), stop)
+	// wgtest.Add(1)
+	// go func() {
+	// 	UpdateData(time.Duration(2), stop)
+	// 	defer wgtest.Done()
+	// }()
 
 	time.Sleep(2 * time.Second)
-	wgtest.Wait()
+	// wgtest.Wait()
 
 	// go UpdateData(time.Duration(2))
 	// time.Sleep(2 * time.Second)

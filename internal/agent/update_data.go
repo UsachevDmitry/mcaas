@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-func UpdateData(pollInterval time.Duration) {
+func UpdateData(pollInterval time.Duration, stop bool) {
 	var m runtime.MemStats
 	UpdatedData := Data.GetMetrics()
 	var i = 0
@@ -47,6 +47,9 @@ func UpdateData(pollInterval time.Duration) {
 		UpdatedData.UpdateGauge("RandomValue", gauge(rand.Float64()))
 		Data.SetMetrics(UpdatedData)
 		time.Sleep(pollInterval * time.Second)
+		if stop {
+			break
+		}
 	}
 }
 

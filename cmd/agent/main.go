@@ -15,7 +15,7 @@ func main() {
 
 	wg.Add(4 + *internal.RateLimit)
 	go func() {
-		internal.UpdateData(time.Duration(*internal.PollInterval))
+		internal.UpdateData(time.Duration(*internal.PollInterval), false)
 		defer wg.Done()
 	}()
 	go func() {
