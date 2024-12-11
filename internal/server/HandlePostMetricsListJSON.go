@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -41,8 +40,6 @@ func HandlePostMetricsListJSON() http.Handler {
 			hash := sha256.Sum256(keyAndData)
 			hashString := fmt.Sprintf("%x", hash)
 			w.Header().Set("HashSHA256", hashString)
-			// fmt.Println(HashSHA256Value)
-			// fmt.Printf("%v\n", hashString)
 			if hashString != HashSHA256Value {
 				WriteHeaderAndSaveStatus(http.StatusBadRequest, ContentType, w)
 				return
@@ -65,13 +62,13 @@ func HandlePostMetricsListJSON() http.Handler {
 				} else {
 					ValueInt64 = int64(*metrics.Delta)
 				}
-				_, exists := GetCounter(context.TODO(), Name)
+				_, exists := GetCounter(r.Context(), Name)
 				if !exists {
 					fmt.Println("!update")
-					UpdateCounter(context.TODO(), Name, counter(ValueInt64))
+					UpdateCounter(r.Context(), Name, counter(ValueInt64))
 					continue
 				} else {
-					AddCounter(context.TODO(), Name, counter(ValueInt64))
+					AddCounter(r.Context(), Name, counter(ValueInt64))
 					continue
 				}
 			} else if DataType == "gauge" {
@@ -79,7 +76,7 @@ func HandlePostMetricsListJSON() http.Handler {
 					continue
 				} else {
 					ValueFloat64 = float64(*metrics.Value)
-					UpdateGauge(context.TODO(), Name, gauge(ValueFloat64))
+					UpdateGauge(r.Context(), Name, gauge(ValueFloat64))
 					continue
 				}
 			} else {

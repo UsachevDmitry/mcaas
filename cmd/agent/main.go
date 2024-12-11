@@ -13,7 +13,7 @@ func main() {
 	jobs := make(chan internal.Metrics, 10)
 	defer close(jobs)
 
-	wg.Add(4)
+	wg.Add(4 + *internal.RateLimit)
 	go func() {
 		internal.UpdateData(time.Duration(*internal.PollInterval))
 		defer wg.Done()

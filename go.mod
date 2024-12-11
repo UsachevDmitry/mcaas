@@ -5,6 +5,7 @@ go 1.22
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/jackc/pgx/v5 v5.7.1
+	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/zap v1.27.0
 )
@@ -17,7 +18,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
-	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
