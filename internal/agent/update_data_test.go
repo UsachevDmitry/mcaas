@@ -39,18 +39,18 @@ func TestUpdateData(t *testing.T) {
 	Data.UpdateGauge("RandomValue", gauge(1))
 
 
-	// wgtest.Add(1)
-	// go func() {
-	// 	UpdateData(time.Duration(2))
-	// 	defer wgtest.Done()
-	// }()
-	// time.Sleep(2 * time.Second)
-	// wgtest.Wait()
+	wgtest.Add(1)
+	go func() {
+		UpdateData(time.Duration(2))
+		defer wgtest.Done()
+	}()
+
+	time.Sleep(2 * time.Second)
+	wgtest.Wait()
 
 	// go UpdateData(time.Duration(2))
 	// time.Sleep(2 * time.Second)
-	UpdateData(time.Duration(2))
-	time.Sleep(2 * time.Second)
+
 
 	Mutex.Lock()
     metricsGauge := Data.MetricsGauge

@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-var Url string
+var URL string
 var Client *http.Client
 
 func SendMetrics(jobs chan Metrics, reportInterval time.Duration) {
-	Url = "http://" + *Addr + "/updates/"
+	URL = "http://" + *Addr + "/updates/"
 	Client = &http.Client{}
 	for {
 		time.Sleep(reportInterval * time.Second)
@@ -28,7 +28,6 @@ func SendMetrics(jobs chan Metrics, reportInterval time.Duration) {
 		}
 	}
 }
-
 
 func Send(DataMetrics []Metrics) {
 
@@ -48,7 +47,7 @@ func Send(DataMetrics []Metrics) {
 			return
 		}
 
-		req, err := http.NewRequest(http.MethodPost, Url, bytes.NewBuffer(compressedJSONBody))
+		req, err := http.NewRequest(http.MethodPost, URL, bytes.NewBuffer(compressedJSONBody))
 		if err != nil {
 			fmt.Println("Error creating request:", err)
 			return
