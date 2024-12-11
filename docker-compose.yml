@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:17.2
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: "P@ssw0rd"
+      PGDATA: "/var/lib/postgresql/data"
+    volumes:
+      - "data_postgres:/var/lib/postgresql/data"
+    ports:
+      - "5432:5432"
+    restart: always
+volumes:
+  data_postgres:
+
+# psql -h localhost -p 5432 -U postgres
+# create database test;
+#\c test
